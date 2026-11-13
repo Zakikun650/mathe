@@ -1,0 +1,3426 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mathe-Tagesblatt</title>
+<meta name="theme-color" content="#FFB45A">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mathe">
+<style>
+  :root {
+    --tinte: #1F2A44;
+    --karo: #B7CDE6;
+    --richtig: #12805C;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "Trebuchet MS", system-ui, sans-serif;
+    color: var(--tinte);
+    background: #FFF7E8;
+    font-size: 18px;
+    line-height: 1.45;
+  }
+  body[data-view="eltern"] { background: #F1F4F9; }
+  .seite { max-width: 1120px; margin: 0 auto; padding: 22px 20px 110px; }   /* unten Platz, damit nichts unter dem Netlify-Hinweis verschwindet */
+
+  /* ---------- Kinderansicht: Kopf ---------- */
+  .kind-kopf {
+    background: linear-gradient(120deg, #FFD25A, #FFB45A);
+    border-radius: 28px;
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    box-shadow: 0 6px 0 #E99A2B;
+  }
+  .kind-kopf .maskottchen { line-height: 1; flex: none; }
+  .kind-kopf .maskottchen svg { display: block; width: 104px; height: auto; }
+  .kind-kopf h1 { margin: 0; font-size: 40px; font-weight: 800; line-height: 1.15; }
+  .kind-kopf p { margin: 6px 0 0; font-size: 21px; }
+  .datum-pille {
+    display: inline-block;
+    background: #fff;
+    border-radius: 999px;
+    padding: 3px 16px;
+    font-weight: 700;
+    margin-top: 10px;
+    font-size: 18px;
+  }
+  .mutmacher { font-weight: 600; }
+
+  /* ---------- Blatt ---------- */
+  .thema-titel {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 26px;
+    font-weight: 800;
+    margin: 34px 0 14px;
+    color: var(--c);
+  }
+  .aufgaben-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(470px, 1fr));
+    gap: 18px;
+  }
+  .loesung .aufgaben-grid { grid-template-columns: repeat(auto-fill, minmax(410px, 1fr)); }
+  .gruppe { white-space: nowrap; }
+  .aufgabe {
+    background: #fff;
+    border-radius: 22px;
+    border-top: 8px solid var(--c);
+    padding: 16px 22px 22px;
+    box-shadow: 0 4px 14px rgba(31, 42, 68, .08);
+    break-inside: avoid;
+    overflow-x: auto;
+  }
+  .aufgabe[data-thema="sach"], .aufgabe.breit { grid-column: 1 / -1; }
+  .auftrag { font-weight: 700; font-size: 18px; margin: 0 0 10px; max-width: 72ch; }
+  .zeile.zeile-klein { font-size: 22px; font-weight: 600; line-height: 2; }
+  .loesung .zeile.zeile-klein { font-size: 18px; }
+  table.karo tr.fremd td { font-family: "Segoe Print", "Comic Sans MS", cursive; font-weight: 400; color: #6B4FA3; }
+  table.karo td.falsch-ziffer { color: #C4314B; text-decoration: line-through; font-weight: 700; }
+  table.tafel th { border: 1px solid #9AA7BD; background: #F7E6EE; font-size: 15px; padding: 3px 0; min-width: 46px; }
+  table.tafel td { width: 46px; height: 44px; }
+  .loesung table.tafel td { width: 40px; height: 36px; }
+  .strahl { display: block; width: 100%; max-width: 680px; height: auto; margin: 2px 0 8px; }
+  .wahl-text { font-size: 21px; margin: 0 0 10px; }
+  .optionen { display: flex; flex-wrap: wrap; gap: 8px 30px; font-size: 22px; font-weight: 700; }
+  .loesung .optionen, .loesung .wahl-text { font-size: 17px; }
+  .option.richtig { color: var(--richtig); }
+  .schreib { display: flex; align-items: flex-end; gap: 10px; margin: 6px 0 12px; font-size: 17px; font-weight: 700; color: #55627D; }
+  .schreib .linie { flex: 1; max-width: 340px; border-bottom: 2px solid #9AA7BD; height: 1.4em; }
+  .aufgabe-nr {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 38px;
+    height: 38px;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: var(--c);
+    color: #fff;
+    font-weight: 800;
+    font-size: 19px;
+    margin-bottom: 10px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .zeile { font-size: 30px; font-weight: 700; line-height: 1.9; font-variant-numeric: tabular-nums; }
+  .luecke {
+    display: inline-block;
+    min-width: 3ch;
+    height: 1.5em;
+    line-height: 1.4em;
+    padding: 0 8px;
+    border: 2.5px dashed #9AA7BD;
+    border-radius: 10px;
+    vertical-align: middle;
+    text-align: center;
+  }
+  .loesung .luecke { border: 2.5px solid var(--richtig); color: var(--richtig); }
+  .sachtext { font-size: 21px; margin: 0; max-width: 60ch; }
+
+  table.karo { border-collapse: collapse; margin: 2px 0; }
+  table.karo td {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid var(--karo);
+    text-align: center;
+    font-size: 23px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  table.karo tr.uebertrag td { height: 20px; font-size: 13px; color: #D6336C; vertical-align: bottom; }
+  table.karo tr.ergebnis td { border-top: 3px solid var(--tinte); }
+  table.karo td.strich { border-bottom: 3px solid var(--tinte); }
+  table.karo tr.weg td { color: #55627D; }
+  .loesung table.karo tr.ergebnis td,
+  .loesung table.karo tr.erg td,
+  .loesung table.karo td.loes { color: var(--richtig); }
+
+  .rechenweg {
+    margin-top: 12px;
+    padding: 8px 14px 10px;
+    border-left: 4px solid #F2C94C;
+    background: #FFFBEA;
+    border-radius: 0 10px 10px 0;
+    font-size: 15px;
+  }
+  .rechenweg-titel {
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: #8A6D1A;
+    margin-bottom: 4px;
+  }
+  .rechenweg ul { margin: 0; padding-left: 18px; }
+  .antwort { font-weight: 700; color: var(--richtig); margin-top: 10px; }
+  .tipp {
+    margin-top: 12px;
+    padding: 8px 14px;
+    border: 2px dashed #E3B93C;
+    border-radius: 14px;
+    background: #FFFBEA;
+    font-size: 17px;
+    max-width: 62ch;
+  }
+  .tipp { display: flex; align-items: flex-start; gap: 10px; }
+  .tipp-axolotl { flex: none; width: 46px; height: auto; margin-top: 1px; }
+  .tipp-text { flex: 1; min-width: 0; }
+  .tipp-titel { font-weight: 800; color: #8A6D1A; }
+  .aufgabe-kopf { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .aufgabe .aufgabe-kopf .aufgabe-nr { margin-bottom: 0; }
+  .einstieg-marke {
+    font-size: 14px;
+    font-weight: 700;
+    color: #8A6D1A;
+    border: 1.5px solid #E3B93C;
+    background: #FFF6D6;
+    border-radius: 999px;
+    padding: 1px 12px;
+  }
+  .begleit {
+    background: #fff;
+    border-left: 5px solid #2F6FDE;
+    border-radius: 0 12px 12px 0;
+    padding: 12px 18px 14px;
+    margin-top: 16px;
+    font-size: 15px;
+    max-width: 95ch;
+  }
+  .begleit h3 { margin: 0 0 6px; font-size: 16px; }
+  .begleit ul { margin: 0; padding-left: 20px; }
+  .achte { font-size: 14px; color: #5B6780; margin: -4px 0 12px; max-width: 110ch; }
+  .felder label.quer { flex-direction: row; align-items: center; gap: 8px; align-self: flex-end; padding-bottom: 7px; }
+  .felder label.quer input { width: 18px; height: 18px; }
+  .themen-tab td.unterpunkt { padding: 0 0 8px 28px; }
+  .themen-tab td.unterpunkt label { font-weight: 400; }
+  .klein { color: #5B6780; font-size: 13px; }
+  .eintrag {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed #D5DCE8;
+  }
+  .e-knopf {
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 5px 13px;
+    border-radius: 999px;
+    border: 1.5px solid #C3CCDB;
+    background: #fff;
+    color: var(--tinte);
+    cursor: pointer;
+  }
+  .e-knopf:hover { background: #EEF3FA; }
+  .e-knopf.richtig.aktiv { background: #12805C; border-color: #12805C; color: #fff; }
+  .e-knopf.falsch.aktiv { background: #C4314B; border-color: #C4314B; color: #fff; }
+  select.e-fehler { font-size: 14px; padding: 5px 8px; max-width: 100%; }
+  #fortschritt { margin-top: 32px; }
+  .panel-kopf { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .panel-kopf h2 { margin: 0; }
+  .ueb-summe { margin: 0 0 4px; font-weight: 600; }
+  .ueb-titel { font-size: 15px; margin: 18px 0 6px; }
+  .ueb-tab { border-collapse: collapse; width: 100%; font-size: 14px; }
+  .ueb-tab th, .ueb-tab td { text-align: left; vertical-align: top; padding: 6px 12px 6px 0; border-bottom: 1px solid #E1E6EF; }
+  .ueb-tab th { font-size: 13px; color: #5B6780; font-weight: 600; }
+  .ueb-zeichen span { display: inline-block; width: 1.2em; font-weight: 700; }
+  .ueb-zeichen .gut { color: var(--richtig); }
+  .ueb-zeichen .schlecht { color: #C4314B; }
+  .leer-hinweis { background: #fff; border-radius: 18px; padding: 24px; margin-top: 24px; font-size: 20px; }
+
+  .loesung .thema-titel { font-size: 21px; margin: 26px 0 10px; }
+  .loesung .zeile { font-size: 22px; }
+  .loesung .sachtext { font-size: 17px; }
+  .loesung table.karo td { width: 28px; height: 28px; font-size: 19px; }
+  .loesung table.karo tr.uebertrag td { height: 18px; font-size: 12px; }
+  .loesung .aufgabe { border-radius: 14px; padding: 12px 16px 16px; border-top-width: 5px; }
+  .loesung .aufgabe-nr { min-width: 30px; height: 30px; font-size: 15px; }
+
+  /* ---------- Elternbereich ---------- */
+  .eltern-leiste {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: #fff;
+    border-bottom: 1px solid #D5DCE8;
+    padding: 10px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 22px;
+    font-size: 15px;
+  }
+  .eltern-leiste strong { font-size: 18px; }
+  .leisten-gruppe { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .leisten-gruppe.rechts { margin-left: auto; }
+  .knopf {
+    font: inherit;
+    font-size: 15px;
+    padding: 7px 14px;
+    border-radius: 10px;
+    border: 1px solid #C3CCDB;
+    background: #fff;
+    color: var(--tinte);
+    cursor: pointer;
+  }
+  .knopf:hover { background: #EEF3FA; }
+  .knopf.haupt { background: #2F6FDE; border-color: #2F6FDE; color: #fff; }
+  .knopf.haupt:hover { background: #245BBB; }
+  input[type="date"], input[type="text"], input[type="number"], select {
+    font: inherit;
+    font-size: 15px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    border: 1px solid #C3CCDB;
+    background: #fff;
+    color: var(--tinte);
+  }
+  .panel {
+    background: #fff;
+    border-radius: 16px;
+    padding: 18px 22px 20px;
+    box-shadow: 0 2px 8px rgba(31, 42, 68, .06);
+    font-size: 15px;
+  }
+  .panel h2 { margin: 0 0 12px; font-size: 19px; }
+  .felder { display: flex; flex-wrap: wrap; gap: 14px 28px; margin-bottom: 14px; }
+  .felder label { display: flex; flex-direction: column; gap: 4px; font-weight: 600; }
+  .felder input[type="number"] { width: 90px; }
+  .themen-tab { border-collapse: collapse; }
+  .themen-tab td { padding: 5px 18px 5px 0; }
+  .themen-tab th { padding: 0 18px 4px 0; text-align: left; font-size: 13px; font-weight: 600; color: #5B6780; }
+  .themen-tab label { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+  .themen-tab input[type="checkbox"] { width: 18px; height: 18px; }
+  .hinweis { margin: 14px 0 0; color: #5B6780; font-size: 14px; max-width: 75ch; }
+  .loesung-titel { font-size: 24px; margin: 28px 0 0; }
+
+  .kind-fuss { margin-top: 48px; text-align: center; }
+  .eltern-schalter {
+    font: inherit;
+    font-size: 13px;
+    color: #B5A88E;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px 12px;
+  }
+  .eltern-schalter:hover { color: #7A6E58; text-decoration: underline; }
+
+  /* ---------- Bedienung mit dem Finger (Tablet) ---------- */
+  button, select, input, label { touch-action: manipulation; -webkit-tap-highlight-color: rgba(47, 111, 222, .15); }
+  @media (pointer: coarse) {
+    .knopf { min-height: 44px; padding: 9px 16px; font-size: 16px; }
+    .e-knopf { min-height: 44px; padding: 8px 18px; font-size: 16px; }
+    /* ab 16px vergrößert das iPad beim Antippen eines Eingabefelds die Seite nicht */
+    input[type="date"], input[type="text"], input[type="number"], select, select.e-fehler { min-height: 44px; font-size: 16px; }
+    .themen-tab input[type="checkbox"], .felder label.quer input { width: 26px; height: 26px; }
+    .themen-tab td { padding: 8px 18px 8px 0; }
+    .felder label.quer { min-height: 44px; }
+    .eltern-schalter { padding: 14px 24px; font-size: 15px; }
+  }
+
+  /* ---------- PIN-Abfrage für den Elternbereich ---------- */
+  .pin-dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(31, 42, 68, .55);
+  }
+  .pin-dialog[hidden] { display: none; }
+  .pin-box {
+    width: 100%;
+    max-width: 340px;
+    background: #fff;
+    border-radius: 22px;
+    padding: 22px 22px 16px;
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(31, 42, 68, .3);
+  }
+  .pin-box h2 { margin: 0 0 4px; font-size: 22px; }
+  .pin-box p { margin: 0; font-size: 15px; color: #5B6780; }
+  .pin-punkte { display: flex; justify-content: center; gap: 14px; margin: 18px 0 8px; }
+  .pin-punkte span { width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid #2F6FDE; }
+  .pin-punkte span.voll { background: #2F6FDE; }
+  .pin-box.wackeln .pin-punkte { animation: wackeln .35s; }
+  @keyframes wackeln { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+  @media (prefers-reduced-motion: reduce) { .pin-box.wackeln .pin-punkte { animation: none; } }
+  .pin-box .pin-meldung { min-height: 1.4em; color: #C4314B; font-weight: 600; font-size: 14px; }
+  .pin-tasten { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 10px 0 12px; }
+  .pin-tasten button {
+    font: inherit;
+    font-size: 26px;
+    font-weight: 700;
+    height: 60px;
+    border-radius: 16px;
+    border: 1px solid #D5DCE8;
+    background: #F4F6FA;
+    color: var(--tinte);
+    cursor: pointer;
+  }
+  .pin-tasten button:active { background: #DCE6F7; }
+  .pin-tasten button.klein { font-size: 17px; }
+  .pin-fuss { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .pin-link { font: inherit; font-size: 14px; color: #5B6780; background: none; border: none; text-decoration: underline; cursor: pointer; padding: 10px 4px; }
+  .pin-zeile { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 16px; padding: 10px 14px; border-radius: 12px; background: #F4F6FA; }
+  .pin-zeile.fehlt { background: #FFF1D6; border: 1px solid #F2C94C; }
+
+  /* ---------- Rechnen am Tablet ---------- */
+  @media screen {
+    .feld { cursor: pointer; }
+    td.feld:hover, .luecke.feld:hover { background: #F0F5FE; }
+    .feld.aktiv { outline: 3px solid #2F6FDE; outline-offset: -2px; background: #EAF1FD; }
+    .luecke.feld.aktiv { outline-offset: 2px; }
+    .feld .ein { color: #2F4FB0; }
+    .markiert-falsch, td.markiert-falsch { outline: 3px solid #E8702A; outline-offset: -2px; background: #FFF1E6; }
+    .aufgabe.status-richtig { box-shadow: 0 0 0 3px #12805C, 0 4px 14px rgba(31, 42, 68, .08); }
+    .aufgabe.status-falsch { box-shadow: 0 0 0 3px #E8A15A, 0 4px 14px rgba(31, 42, 68, .08); }
+    .aufgabe.status-richtig .feld, .aufgabe.status-falsch .feld { cursor: default; }
+    .aufgabe.interaktiv table.karo tr.uebertrag td { height: 24px; font-size: 15px; }
+    .option.waehlbar { cursor: pointer; padding: 6px 12px; border-radius: 12px; border: 2px solid transparent; }
+    .option.gewaehlt { border-color: #2F6FDE; background: #EAF1FD; }
+    svg.strahl.tippbar { cursor: pointer; }
+  }
+  .ia-leiste { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 14px; }
+  .pruefen-knopf {
+    font: inherit;
+    font-size: 18px;
+    font-weight: 800;
+    min-height: 48px;
+    padding: 10px 24px;
+    border-radius: 999px;
+    border: none;
+    background: #12805C;
+    color: #fff;
+    cursor: pointer;
+  }
+  .pruefen-knopf:active { background: #0E6A4C; }
+  .rueckmeldung { margin: 0; font-size: 17px; font-weight: 700; flex: 1; min-width: 200px; }
+  .rueckmeldung.gut { color: #12805C; }
+  .rueckmeldung.nochmal, .rueckmeldung.falsch { color: #B4570B; }
+  .rueckmeldung.hinweis { color: #5B6780; }
+  .tablet-hinweis { margin: -4px 0 6px; font-size: 15px; color: #5B6780; }
+  .antwort-feld { margin-top: 12px; padding: 10px 14px 12px; border-radius: 14px; background: #F7F4FD; }
+  .af-titel { font-weight: 700; font-size: 15px; color: #5B6780; }
+  .wahl-knopf {
+    font: inherit;
+    font-size: 17px;
+    font-weight: 700;
+    min-height: 48px;
+    padding: 8px 16px;
+    margin: 6px 8px 0 0;
+    border-radius: 14px;
+    border: 2px solid #C3CCDB;
+    background: #fff;
+    color: var(--tinte);
+    cursor: pointer;
+  }
+  .wahl-knopf.gewaehlt { border-color: #2F6FDE; background: #EAF1FD; }
+  .loesung-zeigen { margin-top: 14px; padding: 12px 16px 14px; border-radius: 14px; background: #F3F8F5; border: 2px dashed #9CC9B5; }
+  .lz-titel { font-weight: 800; color: #12805C; margin-bottom: 6px; }
+  .kind-fortschritt { margin: 8px 0 0; font-weight: 700; font-size: 18px; }
+  .kind-fortschritt.alles { display: inline-block; background: #fff; border-radius: 12px; padding: 4px 14px; color: #12805C; }
+  .vom-kind { font-size: 13px; color: #5B6780; }
+  .tastenfeld {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    background: #fff;
+    border-top: 1px solid #D5DCE8;
+    box-shadow: 0 -8px 24px rgba(31, 42, 68, .14);
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  }
+  .tastenfeld[hidden] { display: none; }
+  .tf-innen { max-width: 400px; margin: 0 auto; }
+  .tf-tasten { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .tf-tasten.einheit { grid-template-columns: repeat(4, 1fr); }
+  .tf-tasten.vergleich { grid-template-columns: repeat(3, 1fr); }
+  .tf-tasten button, .tf-leiste button {
+    font: inherit;
+    font-size: 26px;
+    font-weight: 700;
+    height: 54px;
+    border-radius: 14px;
+    border: 1px solid #D5DCE8;
+    background: #F4F6FA;
+    color: var(--tinte);
+    cursor: pointer;
+  }
+  .tf-tasten.einheit button { font-size: 20px; }
+  .tf-tasten button:active, .tf-leiste button:active { background: #DCE6F7; }
+  .tf-tasten button.weg { font-size: 22px; }
+  .tf-leiste { display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 8px; margin-top: 8px; }
+  .tf-leiste .tf-fertig { background: #2F6FDE; border-color: #2F6FDE; color: #fff; font-size: 19px; }
+  body.tf-offen { padding-bottom: 360px; }
+  /* Die rechte untere Ecke bleibt frei: Dort blendet Netlify im kostenlosen Angebot den Hinweis „Powered by Netlify“ ein
+     (etwa 200 × 64 Pixel). Auf breiten Bildschirmen steht der Ziffernblock deshalb links, auf schmalen etwas höher. */
+  @media (min-width: 700px) { .tf-innen { margin: 0 auto 0 24px; } }
+  @media (max-width: 699px) {
+    .tastenfeld { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+    body.tf-offen { padding-bottom: 440px; }
+  }
+  @media print { .ein { visibility: hidden; } }
+
+  /* ---------- Sichtbarkeit am Bildschirm ---------- */
+  @media screen {
+    .nur-druck { display: none !important; }
+    body[data-view="kind"] .nur-eltern { display: none !important; }
+    body[data-view="eltern"] .nur-kind { display: none !important; }
+    body[data-view="kind"] #blatt-loesungen { display: none; }
+    body[data-view="eltern"] #blatt-aufgaben { display: none; }
+  }
+  @media screen and (max-width: 640px) {
+    /* auf kleinen Bildschirmen würde die mitlaufende Leiste zu viel verdecken */
+    .eltern-leiste { position: static; }
+    .kind-kopf { padding: 18px 20px; }
+    .kind-kopf h1 { font-size: 30px; }
+    .kind-kopf .maskottchen svg { width: 72px; }
+    .aufgaben-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- Druck ---------- */
+  @page { size: A4; margin: 13mm; }
+  @media print {
+    body, body[data-view="eltern"] { background: #fff; font-size: 11pt; }
+    .seite { max-width: none; padding: 0; }
+    .kein-druck { display: none !important; }
+    body[data-print="aufgaben"] #blatt-loesungen { display: none; }
+    body[data-print="loesungen"] #blatt-aufgaben { display: none; }
+    body[data-print="uebersicht"] #blatt-aufgaben,
+    body[data-print="uebersicht"] #blatt-loesungen,
+    body:not([data-print="uebersicht"]) #fortschritt { display: none; }
+    #fortschritt { margin: 0; padding: 0; box-shadow: none; border-radius: 0; font-size: 10.5pt; }
+    .ueb-tab { font-size: 10pt; }
+    .ueb-tab tr { break-inside: avoid; }
+    .ueb-titel { font-size: 11.5pt; break-after: avoid; }
+
+    .druck-kopf {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8mm;
+      border-bottom: 2px solid var(--tinte);
+      padding-bottom: 2mm;
+      margin-bottom: 2mm;
+    }
+    .dk-titel { font-size: 17pt; font-weight: 800; }
+    .dk-datum { font-size: 11pt; }
+    .dk-name { font-size: 11pt; white-space: nowrap; }
+
+    .thema-titel, .loesung .thema-titel { font-size: 13pt; margin: 5mm 0 2.5mm; break-after: avoid; }
+    .aufgaben-grid, .loesung .aufgaben-grid { grid-template-columns: 1fr 1fr; gap: 3.5mm; }
+    .aufgabe, .loesung .aufgabe {
+      box-shadow: none;
+      border: 1px solid #8D97A8;
+      border-top: 3px solid var(--c);
+      border-radius: 3mm;
+      padding: 2.5mm 3.5mm 3.5mm;
+    }
+    .aufgabe-nr, .loesung .aufgabe-nr {
+      min-width: 6.5mm;
+      height: 6.5mm;
+      font-size: 10pt;
+      margin-bottom: 1.5mm;
+      background: none;
+      color: var(--c);
+      border: 1.5px solid var(--c);
+    }
+    .zeile, .loesung .zeile { font-size: 15pt; line-height: 1.7; }
+    .sachtext, .loesung .sachtext { font-size: 12pt; max-width: none; }
+    table.karo td, .loesung table.karo td { width: 6mm; height: 6mm; font-size: 13pt; }
+    table.karo tr.uebertrag td, .loesung table.karo tr.uebertrag td { height: 4mm; font-size: 8pt; }
+    .aufgabe { overflow: visible; }
+    .karo-feld { display: block; margin-top: 2mm; }
+    .antwort-linie { display: flex; align-items: flex-end; gap: 3mm; margin-top: 4mm; font-size: 12pt; }
+    .antwort-linie .linie { flex: 1; border-bottom: 1.5px solid var(--tinte); height: 6mm; }
+    .rechenweg { font-size: 10pt; background: none; margin-top: 2mm; padding: 1mm 3mm 1.5mm; }
+    .antwort { margin-top: 2mm; }
+    .auftrag { font-size: 11pt; margin-bottom: 2mm; max-width: none; }
+    .zeile.zeile-klein, .loesung .zeile.zeile-klein { font-size: 12.5pt; line-height: 1.8; }
+    table.tafel th { font-size: 9pt; min-width: 9mm; padding: 0.5mm 0; }
+    table.tafel td, .loesung table.tafel td { width: 9mm; height: 8mm; }
+    .strahl { max-width: none; }
+    .wahl-text, .loesung .wahl-text { font-size: 12pt; margin-bottom: 2mm; }
+    .optionen, .loesung .optionen { font-size: 13pt; gap: 2mm 9mm; }
+    .schreib { font-size: 10.5pt; margin: 1mm 0 2.5mm; color: var(--tinte); }
+    .schreib .linie { border-bottom: 1.5px solid var(--tinte); max-width: 65mm; height: 6mm; }
+    .karo-label { font-size: 9pt; color: #5B6780; margin-top: 2mm; }
+    .aufgabe-kopf { gap: 2mm; margin-bottom: 1.5mm; }
+    .einstieg-marke { font-size: 8.5pt; background: none; border: 1px solid #8D97A8; padding: 0 2.5mm; }
+    .begleit { font-size: 9.5pt; border: 1px solid #8D97A8; border-left: 3px solid #2F6FDE; border-radius: 0 2mm 2mm 0; padding: 2mm 3mm; margin: 0 0 1mm; max-width: none; }
+    .begleit h3 { font-size: 10.5pt; margin-bottom: 1mm; }
+    .achte { font-size: 9pt; margin: -1.5mm 0 2.5mm; max-width: none; break-after: avoid; }
+    .tipp { font-size: 10pt; margin-top: 2mm; padding: 1.5mm 3mm; border: 1px dashed #8D97A8; border-radius: 2mm; background: none; max-width: none; gap: 2.5mm; }
+    .tipp-axolotl { width: 9mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .leer-hinweis { padding: 0; }
+  }
+</style>
+</head>
+<body data-view="kind" data-print="aufgaben">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <pattern id="karo-muster" width="19" height="19" patternUnits="userSpaceOnUse">
+      <path d="M19 0H0V19" fill="none" stroke="#B7CDE6" stroke-width="1"/>
+    </pattern>
+    <!-- Maskottchen: Axolotl -->
+    <symbol id="axolotl" viewBox="0 0 140 112">
+    <!-- Kiemenbüschel links und rechts -->
+    <g id="kiemen" fill="#EE6A9A">
+      <ellipse cx="26" cy="30" rx="7" ry="17" transform="rotate(-38 26 30)"/>
+      <ellipse cx="16" cy="50" rx="7" ry="17" transform="rotate(-78 16 50)"/>
+      <ellipse cx="20" cy="71" rx="6.5" ry="15" transform="rotate(-118 20 71)"/>
+      <g fill="#F798BB">
+        <circle cx="21" cy="24" r="3"/><circle cx="15" cy="32" r="2.6"/>
+        <circle cx="9" cy="47" r="3"/><circle cx="8" cy="56" r="2.6"/>
+        <circle cx="12" cy="74" r="2.8"/><circle cx="18" cy="80" r="2.4"/>
+      </g>
+    </g>
+    <use href="#kiemen" transform="translate(140 0) scale(-1 1)"/>
+    <!-- Körper mit Pfötchen -->
+    <ellipse cx="70" cy="92" rx="30" ry="15" fill="#FFB8CE"/>
+    <ellipse cx="50" cy="102" rx="9" ry="6" fill="#FFA6C2"/>
+    <ellipse cx="90" cy="102" rx="9" ry="6" fill="#FFA6C2"/>
+    <!-- Kopf -->
+    <ellipse cx="70" cy="56" rx="44" ry="35" fill="#FFC4D6" stroke="#E98BAC" stroke-width="2"/>
+    <!-- Augen mit Glanzpunkt -->
+    <circle cx="51" cy="52" r="7" fill="#2A2238"/>
+    <circle cx="89" cy="52" r="7" fill="#2A2238"/>
+    <circle cx="53.5" cy="49.5" r="2.4" fill="#fff"/>
+    <circle cx="91.5" cy="49.5" r="2.4" fill="#fff"/>
+    <!-- Bäckchen und Lächeln -->
+    <ellipse cx="40" cy="67" rx="7.5" ry="4.5" fill="#FF8DB2" opacity=".55"/>
+    <ellipse cx="100" cy="67" rx="7.5" ry="4.5" fill="#FF8DB2" opacity=".55"/>
+    <path d="M60 66 Q65 72 70 66 Q75 72 80 66" fill="none" stroke="#2A2238" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="eltern-leiste nur-eltern kein-druck">
+  <strong>Elternbereich</strong>
+  <div class="leisten-gruppe">
+    <button class="knopf" id="tag-zurueck" title="Vorheriger Tag" aria-label="Vorheriger Tag">◀</button>
+    <input type="date" id="datum" aria-label="Datum des Tagesblatts">
+    <button class="knopf" id="tag-vor" title="Nächster Tag" aria-label="Nächster Tag">▶</button>
+    <button class="knopf" id="tag-heute">Heute</button>
+  </div>
+  <div class="leisten-gruppe rechts">
+    <button class="knopf" id="druck-aufgaben">Aufgabenblatt drucken</button>
+    <button class="knopf haupt" id="druck-loesungen">Lösungsblatt drucken</button>
+    <button class="knopf" id="zu-kind">Zur Kinderansicht</button>
+  </div>
+</div>
+
+<div class="seite">
+  <header class="kind-kopf nur-kind kein-druck">
+    <div class="maskottchen" aria-hidden="true">
+      <svg viewBox="0 0 140 112"><use href="#axolotl"/></svg>
+    </div>
+    <div>
+      <h1 id="gruss">Hallo!</h1>
+      <p id="untertitel">Deine Mathe-Aufgaben für heute</p>
+      <div class="datum-pille" id="kind-datum"></div>
+      <p class="mutmacher" id="mutmacher"></p>
+      <p class="kind-fortschritt" id="kind-fortschritt" aria-live="polite"></p>
+    </div>
+  </header>
+
+  <section class="panel nur-eltern kein-druck">
+    <h2>Einstellungen</h2>
+    <div class="pin-zeile" id="pin-zeile">
+      <strong>PIN für den Elternbereich:</strong>
+      <span id="pin-status"></span>
+      <button class="knopf" id="pin-setzen"></button>
+      <button class="knopf" id="pin-entfernen">PIN entfernen</button>
+    </div>
+    <div class="felder">
+      <label>Name des Kindes
+        <input type="text" id="e-name" maxlength="20" placeholder="z. B. Mia">
+      </label>
+      <label>Aufgaben pro Tag
+        <input type="number" id="e-anzahl" min="4" max="20">
+      </label>
+      <label class="quer"><input type="checkbox" id="e-einstieg"> Mit einer leichten Aufgabe beginnen</label>
+      <label class="quer"><input type="checkbox" id="e-ueberschlag"> Überschlag vor dem schriftlichen Rechnen</label>
+      <label class="quer"><input type="checkbox" id="e-probe"> Probe nach dem Rechnen (dauert länger)</label>
+    </div>
+    <table class="themen-tab" id="e-themen"></table>
+    <p class="hinweis">Fachstellen empfehlen kurze Übungszeiten von etwa 10 bis 20 Minuten am Tag, also lieber wenige Aufgaben als viele.
+      Wenn du Themen, Schwierigkeit oder Anzahl änderst, ändern sich auch die Aufgaben des Tages.
+      Stelle deshalb zuerst alles ein und drucke danach Aufgaben- und Lösungsblatt.
+      Die Lösungshinweise erscheinen als Tipp bei jeder Aufgabe in der Kinderansicht und auf dem Aufgabenblatt.
+      Du kannst sie jederzeit an- und ausschalten, die Aufgaben bleiben dabei gleich.</p>
+  </section>
+
+  <h2 class="loesung-titel nur-eltern kein-druck" id="loesung-titel"></h2>
+  <p class="hinweis nur-eltern kein-druck" id="eintrag-stand"></p>
+
+  <main>
+    <div id="blatt-aufgaben" class="blatt kind"></div>
+    <div id="blatt-loesungen" class="blatt loesung"></div>
+  </main>
+
+  <section class="panel nur-eltern" id="fortschritt">
+    <div class="panel-kopf kein-druck">
+      <h2>Fortschritt</h2>
+      <div class="leisten-gruppe">
+        <button class="knopf" id="druck-uebersicht">Übersicht drucken</button>
+        <button class="knopf" id="sicherung-speichern">Sicherung speichern</button>
+        <button class="knopf" id="sicherung-laden">Sicherung laden</button>
+        <button class="knopf" id="loesche-ergebnisse">Alle Ergebnisse löschen</button>
+        <input type="file" id="sicherung-datei" accept=".json,application/json" hidden>
+      </div>
+    </div>
+    <p class="hinweis kein-druck">Einstellungen und Ergebnisse werden nur auf diesem Gerät gespeichert. Mit „Sicherung speichern“ bekommst du eine Datei,
+      die du aufheben oder auf ein anderes Gerät übertragen und dort mit „Sicherung laden“ einspielen kannst.</p>
+    <div id="uebersicht"></div>
+  </section>
+
+  <footer class="kind-fuss nur-kind kein-druck">
+    <button class="eltern-schalter" id="zu-eltern">Für Eltern</button>
+  </footer>
+</div>
+
+<div class="tastenfeld nur-kind kein-druck" id="tastenfeld" hidden>
+  <div class="tf-innen">
+    <div class="tf-tasten" id="tf-tasten"></div>
+    <div class="tf-leiste">
+      <button type="button" id="tf-links" aria-label="Vorheriges Feld">◀</button>
+      <button type="button" id="tf-rechts" aria-label="Nächstes Feld">▶</button>
+      <button type="button" id="tf-fertig" class="tf-fertig">Fertig</button>
+    </div>
+  </div>
+</div>
+
+<div class="pin-dialog kein-druck" id="pin-dialog" hidden>
+  <div class="pin-box" role="dialog" aria-modal="true" aria-labelledby="pin-titel">
+    <h2 id="pin-titel"></h2>
+    <p id="pin-text"></p>
+    <div class="pin-punkte" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+    <p class="pin-meldung" id="pin-meldung" role="alert"></p>
+    <div class="pin-tasten" id="pin-tasten"></div>
+    <div class="pin-fuss">
+      <button class="knopf" id="pin-abbrechen">Abbrechen</button>
+      <button class="pin-link" id="pin-vergessen">PIN vergessen?</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+/* =====================================================================
+   Grundlagen
+   ===================================================================== */
+const SPEICHER = 'mathe-tagesblatt-v1';
+const STUFEN = ['leicht', 'mittel', 'schwer'];
+const THEMEN = [
+  { id: 'zahlen',     name: 'Zahlen verstehen', icon: '🔢', farbe: '#C0306B' },
+  { id: 'plusminus',  name: 'Plus und Minus',   icon: '➕', farbe: '#2F6FDE' },
+  { id: 'malgeteilt', name: 'Mal und Geteilt',  icon: '✖️', farbe: '#E8702A' },
+  { id: 'groessen',   name: 'Größen',           icon: '📏', farbe: '#1C9A63' },
+  { id: 'sach',       name: 'Sachaufgaben',     icon: '📝', farbe: '#8250DF' },
+];
+/* Hinweise für das Elternteil auf dem Lösungsblatt */
+const BEGLEIT_TIPPS = [
+  'Erst allein zu Ende rechnen lassen, auch wenn dabei ein Fehler passiert.',
+  'Nach dem Rechenweg fragen statt vorsagen: „Wie hast du das herausgefunden?“ oder „Erklär mir, was du hier gemacht hast.“',
+  'Bei einem Fehler nur die Stelle zeigen. Das Kind sucht und verbessert den Fehler möglichst selbst.',
+  'Möglichst gleich nach dem Rechnen gemeinsam kontrollieren. Nach etwa 15 Minuten ist Schluss, auch wenn nicht alles fertig ist.',
+];
+const ACHTE_AUF = {
+  zahlen: 'Darauf achten: Weiß das Kind, was jede Ziffer bedeutet? Bei Nullen besonders genau hinschauen. Frage: „Was bedeutet die 4 in dieser Zahl?“',
+  plusminus: 'Darauf achten: Stehen die Ziffern genau untereinander? Wird der Übertrag notiert und mitgerechnet? Frage: „Was bedeutet die kleine Eins?“',
+  malgeteilt: 'Darauf achten: Kommen die Einmaleins-Ergebnisse sicher oder wird gezählt? Stehen die Teilergebnisse an der richtigen Stelle? Frage: „Wie bist du auf diese Zahl gekommen?“',
+  groessen: 'Darauf achten: Gibt es eine Vorstellung von der Einheit (wie lang ist 1 m, wie schwer ist 1 kg)? Frage vor dem Rechnen: „Wird die Zahl größer oder kleiner?“',
+  sach: 'Darauf achten: Vor dem Rechnen die Aufgabe mit eigenen Worten erzählen lassen. Danach fragen: „Kann das Ergebnis stimmen?“',
+};
+const MUTMACHER = [
+  'Du schaffst das!',
+  'Schritt für Schritt – los geht\'s!',
+  'Heute wird ein guter Mathe-Tag!',
+  'Nimm dir Zeit und rechne in Ruhe.',
+  'Fehler sind erlaubt – daraus lernt man!',
+  'Jede Aufgabe macht dich stärker!',
+  'Erst lesen, dann rechnen – du kannst das!',
+];
+
+/* Zufall mit festem Startwert: gleicher Text ergibt immer dieselbe Zahlenfolge */
+function makeRng(text) {
+  let h = 1779033703 ^ text.length;
+  for (let i = 0; i < text.length; i++) {
+    h = Math.imul(h ^ text.charCodeAt(i), 3432918353);
+    h = (h << 13) | (h >>> 19);
+  }
+  h = Math.imul(h ^ (h >>> 16), 2246822507);
+  h = Math.imul(h ^ (h >>> 13), 3266489909);
+  let a = (h ^ (h >>> 16)) >>> 0;
+  const next = () => {
+    a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  return {
+    int: (min, max) => min + Math.floor(next() * (max - min + 1)),
+    pick: liste => liste[Math.floor(next() * liste.length)],
+    chance: p => next() < p,
+  };
+}
+function mische(liste, rng) {
+  const a = liste.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = rng.int(0, i);
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+const imRaster = (rng, von, bis, schritt) => schritt * rng.int(Math.ceil(von / schritt), Math.floor(bis / schritt));
+
+/* Zahlen ab 5 Stellen bekommen eine kleine Lücke zwischen den Tausendern */
+function fmt(n) {
+  const s = String(n);
+  return s.length > 4 ? s.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : s;
+}
+function euro(cent) {
+  const ganz = fmt(Math.floor(cent / 100));
+  return cent % 100 === 0 ? `${ganz} €` : `${ganz},${String(cent % 100).padStart(2, '0')} €`;
+}
+const uhr = min => `${Math.floor(min / 60)}:${String(min % 60).padStart(2, '0')}`;
+const L = wert => ({ l: String(wert) });           // Lücke mit Lösung
+const sigVon = teile => teile.map(t => (typeof t === 'string' ? t : '_')).join('');
+const rundeAuf = (n, s) => Math.round(n / s) * s;
+const fuehrend = n => 10 ** (String(n).length - 1);
+
+/* =====================================================================
+   Thema 0: Zahlen verstehen (Stellenwert, Runden, Vergleichen, Zahlenstrahl)
+   ===================================================================== */
+const STELLE_KURZ = ['E', 'Z', 'H', 'T', 'ZT', 'HT'];
+const STELLE_NAME = ['Einer', 'Zehner', 'Hunderter', 'Tausender', 'Zehntausender', 'Hunderttausender'];
+const ZAHLEN_ARTEN = ['zahlInTafel', 'tafelZuZahl', 'zerlegung', 'runden', 'nachbarn', 'vergleichen', 'zahlenstrahl'];
+const stellenVon = n => String(n).split('').reverse().map(Number);   // [Einer, Zehner, …]
+const ausStellen = z => z.reduce((s, ziffer, i) => s + ziffer * 10 ** i, 0);
+// Zahl mit fester Stellenzahl; ab Stufe mittel gibt es öfter Nullen, weil sie häufig Fehler auslösen
+function zahlMitStellen(rng, stellen, stufe) {
+  let s = String(rng.int(1, 9));
+  for (let i = 1; i < stellen; i++) s += rng.chance(stufe === 0 ? 0.12 : 0.3) ? '0' : String(rng.int(1, 9));
+  return Number(s);
+}
+const zerlegeText = (z, mitNull) => z.map((ziffer, i) => ({ ziffer, i })).reverse()
+  .filter(x => mitNull || x.ziffer !== 0).map(x => `${x.ziffer} ${STELLE_KURZ[x.i]}`);
+function vergleichsPaar(rng, stufe, maxStellen) {
+  for (;;) {
+    const len = maxStellen - rng.int(0, 1);
+    let a = zahlMitStellen(rng, len, stufe), b;
+    const z = String(a).split(''), art = rng.int(0, 2);
+    if (art === 0) {                                   // zwei benachbarte Ziffern vertauschen
+      const j = rng.int(0, len - 2);
+      if (z[j] === z[j + 1] || (j === 0 && z[1] === '0')) continue;
+      [z[j], z[j + 1]] = [z[j + 1], z[j]];
+      b = Number(z.join(''));
+    } else if (art === 1) {                            // eine Ziffer ändern
+      const j = rng.int(1, len - 1);
+      z[j] = String((Number(z[j]) + rng.int(1, 9)) % 10);
+      b = Number(z.join(''));
+    } else {                                           // verschieden viele Stellen, z. B. 10 234 und 9 987
+      a = 10 ** (len - 1) + rng.int(0, 10 ** (len - 2));
+      b = 10 ** (len - 1) - 1 - rng.int(0, 10 ** (len - 3));
+    }
+    if (a === b) continue;
+    return rng.chance(0.5) ? [a, b] : [b, a];
+  }
+}
+function vergleichsErklaerung(a, b) {
+  const sym = a < b ? '<' : '>', sa = String(a), sb = String(b);
+  if (sa.length !== sb.length) return `${fmt(a)} hat ${sa.length} Stellen, ${fmt(b)} hat ${sb.length} Stellen, also ${fmt(a)} ${sym} ${fmt(b)}.`;
+  let j = 0;
+  while (sa[j] === sb[j]) j++;
+  return `Erster Unterschied bei den ${STELLE_NAME[sa.length - 1 - j]}n: ${sa[j]} ${sa[j] < sb[j] ? '<' : '>'} ${sb[j]}, also ${fmt(a)} ${sym} ${fmt(b)}.`;
+}
+const STRAHL_ARTEN = [
+  [{ von: 0, schritt: 10, n: 10 }, { von: 0, schritt: 100, n: 10 }, { von: [1, 8, 100], schritt: 10, n: 10 }],
+  [{ von: 0, schritt: 1000, n: 10 }, { von: [1, 8, 1000], schritt: 100, n: 10 }, { von: 0, schritt: 10000, n: 10 }],
+  [{ von: [1, 80, 10000], schritt: 500, n: 20 }, { von: [1, 8, 100000], schritt: 5000, n: 20 }, { von: 0, schritt: 50000, n: 20 }],
+];
+function erzeugeZahlen(rng, stufe, i, kontext) {
+  const art = kontext.typen[i % kontext.typen.length];
+  const maxStellen = [4, 5, 6][stufe];
+  const spalten = STELLE_KURZ.slice(0, maxStellen).reverse();
+
+  if (art === 'zahlInTafel' || art === 'tafelZuZahl') {
+    const n = zahlMitStellen(rng, rng.int(maxStellen - 1, maxStellen), stufe);
+    const z = stellenVon(n), w = z.slice();
+    // Schwer: eine Spalte ist nicht gebündelt, z. B. 14 Zehner statt 1 Hunderter und 4 Zehner
+    let buendel = -1;
+    if (art === 'tafelZuZahl' && stufe === 2 && rng.chance(0.5)) {
+      const moeglich = z.map((_, c) => c).filter(c => c < z.length - 1 && z[c + 1] > 0);
+      if (moeglich.length) {
+        buendel = rng.pick(moeglich);
+        w[buendel] += 10;
+        w[buendel + 1] -= 1;
+      }
+    }
+    const zeigeNull = art === 'zahlInTafel' || stufe === 0;
+    const werte = spalten.map((_, j) => {
+      const v = w[maxStellen - 1 - j];
+      if (v == null || (v === 0 && maxStellen - 1 - j === z.length - 1)) return '';
+      return v === 0 && !zeigeNull ? '' : String(v);
+    });
+    if (art === 'zahlInTafel') {
+      return {
+        layout: 'tafel', typ: art, auftrag: `Trage die Zahl ${fmt(n)} in die Stellenwerttafel ein.`,
+        tafel: { spalten, werte, leer: true },
+        schritte: [`${fmt(n)} = ${zerlegeText(z, true).join(' + ')}`],
+        hinweis: 'Beginne rechts: Die letzte Ziffer gehört in die Spalte E (Einer), die Ziffer davor in die Spalte Z (Zehner) und so weiter. Auch eine 0 bekommt ihr eigenes Feld.',
+        sig: `tafel${n}`,
+      };
+    }
+    let hinweis = 'Lies die Spalten von links nach rechts und schreibe die Ziffern nacheinander auf.';
+    if (!zeigeNull) hinweis += ' Ein leeres Feld bedeutet: An dieser Stelle steht eine 0.';
+    const schritte = [];
+    if (buendel >= 0) {
+      hinweis += ` Achtung: Bei den ${STELLE_NAME[buendel]}n steht eine Zahl größer als 9. 10 ${STELLE_NAME[buendel]} sind 1 ${STELLE_NAME[buendel + 1]}. Bündle zuerst um.`;
+      schritte.push(`${w[buendel]} ${STELLE_KURZ[buendel]} = 1 ${STELLE_KURZ[buendel + 1]} + ${w[buendel] - 10} ${STELLE_KURZ[buendel]}`);
+    }
+    schritte.push(`${zerlegeText(z, true).join(' + ')} = ${fmt(n)}`);
+    return {
+      layout: 'tafel', typ: art, auftrag: 'Welche Zahl steht in der Stellenwerttafel?',
+      tafel: { spalten, werte, leer: false },
+      unten: ['Die Zahl heißt: ', L(fmt(n))],
+      schritte, hinweis, sig: `abl${werte.join(',')}`,
+    };
+  }
+
+  if (art === 'zerlegung') {
+    const n = zahlMitStellen(rng, maxStellen - rng.int(0, 1), stufe), z = stellenVon(n);
+    let teile = zerlegeText(z, false);
+    if (stufe === 2) teile = mische(teile, rng);
+    return {
+      layout: 'zeile', typ: art, klein: true,
+      teile: [`${teile.join(' + ')} = `, L(fmt(n))],
+      schritte: [`${zerlegeText(z, true).join(' + ')} = ${fmt(n)}`],
+      hinweis: 'Schreibe jede Angabe in ihre Spalte einer Stellenwerttafel. Stellen, die nicht vorkommen, bekommen eine 0.'
+        + (stufe === 2 ? ' Achtung: Die Reihenfolge ist durcheinander.' : ''),
+      sig: `zer${teile.join('+')}`,
+    };
+  }
+
+  if (art === 'runden') {
+    const stellen = mische([[1, 2], [2, 3], [3, 4, 5]][stufe], rng).slice(0, 2).sort((x, y) => x - y);
+    const z = stellenVon(zahlMitStellen(rng, maxStellen, stufe));
+    const k0 = stellen[0];
+    if (rng.chance(0.3)) { z[k0] = 9; z[k0 - 1] = rng.int(5, 9); }    // Aufrunden mit Übertrag, z. B. 4 960 → 5 000
+    if (z.slice(0, k0).every(x => x === 0)) z[k0 - 1] = rng.int(1, 9);
+    const n = ausStellen(z);
+    const teile = [], schritte = [];
+    stellen.forEach((k, j) => {
+      const r = rundeAuf(n, 10 ** k), d = z[k - 1];
+      teile.push(j === 0 ? `Runde ${fmt(n)} auf ${STELLE_NAME[k]}: ` : `  auf ${STELLE_NAME[k]}: `, L(fmt(r)));
+      schritte.push(`Auf ${STELLE_NAME[k]}: Rechts neben der ${STELLE_NAME[k]}stelle steht eine ${d}, also ${d >= 5 ? 'aufrunden' : 'abrunden'}. ${fmt(n)} ≈ ${fmt(r)}`);
+    });
+    return {
+      layout: 'zeile', typ: art, klein: true, teile, schritte,
+      hinweis: 'Schau immer auf die Ziffer rechts neben der Stelle, auf die du rundest. Bei 0, 1, 2, 3 oder 4 rundest du ab, bei 5, 6, 7, 8 oder 9 rundest du auf.',
+      sig: `rund${n}`,
+    };
+  }
+
+  if (art === 'nachbarn') {
+    const basis = zahlMitStellen(rng, maxStellen, stufe);
+    if (rng.chance(0.5)) {
+      const s = 10 ** rng.int(2, maxStellen - 1);
+      const n = rng.chance(0.5) ? Math.floor(basis / s) * s : Math.floor(basis / s) * s + s - 1;
+      return {
+        layout: 'zeile', typ: art, klein: true,
+        teile: [`Vorgänger und Nachfolger von ${fmt(n)}: `, L(fmt(n - 1)), ' und ', L(fmt(n + 1))],
+        schritte: [`${fmt(n)} − 1 = ${fmt(n - 1)}`, `${fmt(n)} + 1 = ${fmt(n + 1)}`],
+        hinweis: 'Der Vorgänger ist um 1 kleiner, der Nachfolger um 1 größer. Achte genau auf die Nullen und Neunen.',
+        sig: `vn${n}`,
+      };
+    }
+    const k = rng.pick([[1, 2], [2, 3], [3, 4]][stufe]), s = 10 ** k;
+    const n = basis % s === 0 ? basis + rng.int(1, s - 1) : basis;
+    const u = Math.floor(n / s) * s;
+    return {
+      layout: 'zeile', typ: art, klein: true,
+      teile: [`Nachbar${STELLE_NAME[k].toLowerCase()}: `, L(fmt(u)), ` < ${fmt(n)} < `, L(fmt(u + s))],
+      schritte: [`${fmt(u)} < ${fmt(n)} < ${fmt(u + s)}`],
+      hinweis: `Gesucht sind die ${STELLE_NAME[k]}zahlen direkt vor und direkt nach ${fmt(n)}. ${STELLE_NAME[k]}zahlen enden auf ${'0'.repeat(k)}.`,
+      sig: `nb${n}@${k}`,
+    };
+  }
+
+  if (art === 'vergleichen') {
+    const p1 = vergleichsPaar(rng, stufe, maxStellen);
+    let p2 = vergleichsPaar(rng, stufe, maxStellen);
+    while (p2[0] === p1[0] && p2[1] === p1[1]) p2 = vergleichsPaar(rng, stufe, maxStellen);
+    const sym = ([a, b]) => (a < b ? '<' : '>');
+    return {
+      layout: 'zeile', typ: art, klein: true, auftrag: 'Setze < oder > ein.',
+      teile: [`${fmt(p1[0])} `, L(sym(p1)), ` ${fmt(p1[1])}`, '   ', `${fmt(p2[0])} `, L(sym(p2)), ` ${fmt(p2[1])}`],
+      schritte: [vergleichsErklaerung(...p1), vergleichsErklaerung(...p2)],
+      hinweis: 'Hat eine Zahl mehr Stellen, ist sie größer. Haben beide gleich viele Stellen, vergleiche von links Stelle für Stelle. Die Spitze von < und > zeigt immer zur kleineren Zahl.',
+      sig: `vgl${p1.join('|')}|${p2.join('|')}`,
+    };
+  }
+
+  // Zahlenstrahl: zwei Zahlen ablesen, ab Stufe mittel zusätzlich eine eintragen
+  const vorlage = rng.pick(STRAHL_ARTEN[stufe]);
+  const start = Array.isArray(vorlage.von) ? rng.int(vorlage.von[0], vorlage.von[1]) * vorlage.von[2] : vorlage.von;
+  const { schritt, n } = vorlage;
+  const pos = mische(Array.from({ length: n - 1 }, (_, j) => j + 1), rng);
+  const wert = p => start + p * schritt;
+  const marken = [{ name: 'A', pos: Math.min(pos[0], pos[1]) }, { name: 'B', pos: Math.max(pos[0], pos[1]) }];
+  const eintragen = stufe > 0 ? { name: 'C', pos: pos[2] } : null;
+  const schritte = [`Ein Abschnitt ist ${fmt(schritt)} wert.`];
+  marken.forEach(m => schritte.push(`${m.name}: ${fmt(start)} + ${m.pos} · ${fmt(schritt)} = ${fmt(wert(m.pos))}`));
+  if (eintragen) schritte.push(`C = ${fmt(wert(eintragen.pos))} liegt ${eintragen.pos} Abschnitte nach ${fmt(start)}.`);
+  return {
+    layout: 'strahl', typ: art, breit: true,
+    auftrag: 'Welche Zahlen gehören zu A und B?' + (eintragen ? ` Zeichne einen Pfeil bei C = ${fmt(wert(eintragen.pos))} ein.` : ''),
+    strahl: { start, schritt, n, marken, eintragen },
+    unten: ['A = ', L(fmt(wert(marken[0].pos))), '  B = ', L(fmt(wert(marken[1].pos)))],
+    schritte,
+    hinweis: `Zähle die Abschnitte vom Anfang bis zum Ende: Es sind ${n}. Ein Abschnitt ist also (${fmt(start + n * schritt)} − ${fmt(start)}) : ${n} wert.`,
+    sig: `strahl${start}-${schritt}-${marken[0].pos}-${marken[1].pos}`,
+  };
+}
+
+/* =====================================================================
+   Thema 1: Plus und Minus (schriftlich, untereinander)
+   ===================================================================== */
+function uebertragPlus(ops, breite) {
+  const aus = Array(breite).fill('');
+  let c = 0;
+  for (let s = 0; s < breite; s++) {
+    let summe = c;
+    ops.forEach(o => { summe += Math.floor(o / 10 ** s) % 10; });
+    c = Math.floor(summe / 10);
+    if (c && s + 1 < breite) aus[breite - 2 - s] = String(c);
+  }
+  return aus;
+}
+function uebertragMinus(a, b, breite) {
+  const aus = Array(breite).fill('');
+  let leihe = 0;
+  for (let s = 0; s < breite; s++) {
+    const d = (Math.floor(a / 10 ** s) % 10) - (Math.floor(b / 10 ** s) % 10) - leihe;
+    leihe = d < 0 ? 1 : 0;
+    if (leihe && s + 1 < breite) aus[breite - 2 - s] = '1';
+  }
+  return aus;
+}
+const malWort = n => (n === 1 ? 'einmal' : `${n}‑mal`);   // geschützter Bindestrich: kein Umbruch in „3-mal“
+/* Überschlag: alle Zahlen auf die höchste Stelle der kleinsten Zahl runden */
+function ueberschlagPlusMinus(ops, op) {
+  for (let s = fuehrend(Math.min(...ops)); ; s /= 10) {
+    const r = ops.map(o => rundeAuf(o, s));
+    const wert = op === '+' ? r.reduce((x, y) => x + y, 0) : r[0] - r[1];
+    if (wert > 0 || s === 1) return `${r.map(fmt).join(` ${op} `)} = ${fmt(wert)}`;
+  }
+}
+function ueberschlagMal(a, b) {
+  const ra = rundeAuf(a, fuehrend(a)), rb = b < 10 ? b : rundeAuf(b, 10);
+  return `${fmt(ra)} · ${rb} = ${fmt(ra * rb)}`;
+}
+/* „Finde den Fehler“: eine Rechnung mit einem typischen Fehler */
+const ziffer = (n, k) => Math.floor(n / 10 ** k) % 10;
+const FEHLER_ERKLAERUNG = {
+  uebertragPlus: 'Fehler: Die Überträge wurden vergessen. Ergibt eine Spalte 10 oder mehr, kommt eine kleine 1 in die nächste Spalte und wird dort mitgerechnet.',
+  kleinVonGross: 'Fehler: In jeder Spalte wurde einfach die kleinere von der größeren Ziffer abgezogen, auch wenn die größere unten stand. Reicht die obere Ziffer nicht, rechnet man mit Übertrag.',
+  uebertragMinus: 'Fehler: Der Übertrag wurde nicht mitgerechnet. Die kleine 1 muss in der nächsten Spalte zur unteren Ziffer dazugezählt werden.',
+};
+function fehlerAufgabe(rng, stufe) {
+  const [min, max, grenze] = [[100, 899, 1000], [1000, 89999, 100000], [10000, 899999, 1000000]][stufe];
+  for (let v = 0; ; v++) {
+    const plus = rng.chance(0.5);
+    let a, b, art;
+    if (plus) { a = rng.int(min, max); b = rng.int(min, max); art = 'uebertragPlus'; }
+    else { a = rng.int(min * 2, grenze - 1); b = rng.int(min, a - 1); art = rng.chance(0.5) ? 'kleinVonGross' : 'uebertragMinus'; }
+    const richtig = plus ? a + b : a - b;
+    if (richtig >= grenze || (!plus && richtig < 10)) continue;
+    let falsch = 0;
+    for (let k = 0; k < String(Math.max(a, b)).length; k++) {
+      const x = ziffer(a, k), y = ziffer(b, k);
+      const d = art === 'uebertragPlus' ? (x + y) % 10 : art === 'kleinVonGross' ? Math.abs(x - y) : (x >= y ? x - y : x + 10 - y);
+      falsch += d * 10 ** k;
+    }
+    if (falsch === richtig && v < 300) continue;
+    const op = plus ? '+' : '−';
+    return {
+      layout: 'stapel', typ: 'fehlersuche',
+      auftrag: 'Hier hat sich jemand verrechnet. Finde den Fehler, kreise ihn ein und rechne richtig.',
+      stapel: { op, operanden: [a, b], ergebnis: richtig, uebertrag: [], falsch },
+      unten: ['Richtiges Ergebnis: ', L(fmt(richtig))],
+      schritte: [FEHLER_ERKLAERUNG[art], `Richtig: ${fmt(a)} ${op} ${fmt(b)} = ${fmt(richtig)}`],
+      hinweis: 'Rechne Spalte für Spalte nach, von rechts nach links, und vergleiche jede Ziffer mit dem Ergebnis auf dem Blatt. Achte besonders auf die Überträge.',
+      sig: `f${a}${op}${b}`,
+    };
+  }
+}
+function plusAufgabe(ops) {
+  const summe = ops.reduce((x, y) => x + y, 0);
+  const uebertrag = uebertragPlus(ops, String(summe).length);
+  const n = uebertrag.filter(Boolean).length;
+  let hinweis = 'Beginne rechts bei den Einern. ';
+  hinweis += n ? `Du brauchst ${malWort(n)} einen Übertrag.` : 'Hier gibt es keinen Übertrag.';
+  if (ops.length > 2) hinweis += ' Zähle in jeder Spalte alle drei Ziffern zusammen.';
+  return {
+    layout: 'stapel',
+    stapel: { op: '+', operanden: ops, ergebnis: summe, uebertrag },
+    schritte: [],
+    hinweis,
+    ueberschlag: ueberschlagPlusMinus(ops, '+'),
+    typ: 'plus',
+    sig: ops.join('+'),
+  };
+}
+function minusAufgabe(a, b) {
+  const uebertrag = uebertragMinus(a, b, String(a).length);
+  const n = uebertrag.filter(Boolean).length;
+  return {
+    layout: 'stapel',
+    stapel: { op: '−', operanden: [a, b], ergebnis: a - b, uebertrag },
+    schritte: [`Probe: ${fmt(a - b)} + ${fmt(b)} = ${fmt(a)}`],
+    hinweis: n
+      ? `Beginne rechts bei den Einern. Reicht die obere Ziffer nicht aus, schreibe eine kleine Eins als Übertrag. Das passiert hier ${malWort(n)}.`
+      : 'Beginne rechts bei den Einern. Hier brauchst du keinen Übertrag.',
+    ueberschlag: ueberschlagPlusMinus([a, b], '−'),
+    probeFeld: true,
+    typ: 'minus',
+    sig: `${a}-${b}`,
+  };
+}
+function erzeugePlusMinus(rng, stufe, i, kontext) {
+  const typ = kontext.typen[i % kontext.typen.length];
+  if (typ === 'fehlersuche') return fehlerAufgabe(rng, stufe);
+  const plus = typ === 'plus';
+  const [min, max, grenze] = [[100, 899, 1000], [1000, 89999, 100000], [10000, 899999, 1000000]][stufe];
+  for (let versuch = 0; versuch < 200; versuch++) {
+    if (plus) {
+      const anzahl = stufe === 2 && rng.chance(0.3) ? 3 : 2;
+      const ops = Array.from({ length: anzahl }, () => rng.int(min, max));
+      const aufgabe = plusAufgabe(ops);
+      if (aufgabe.stapel.ergebnis > grenze) continue;
+      if (stufe > 0 && !aufgabe.stapel.uebertrag.some(Boolean)) continue;
+      return aufgabe;
+    }
+    let a = rng.int(min * 2, grenze - 1);
+    if (stufe === 2 && rng.chance(0.25)) a = rng.int(2, 9) * 100000;   // runde Zahl mit vielen Nullen
+    const b = rng.int(min, a - 1);
+    if (a - b < 10) continue;
+    const aufgabe = minusAufgabe(a, b);
+    if (stufe > 0 && !aufgabe.stapel.uebertrag.some(Boolean)) continue;
+    return aufgabe;
+  }
+  const x = rng.int(min, grenze / 2 - 1), y = rng.int(min, grenze / 2 - 1);
+  return plus ? plusAufgabe([x, y]) : minusAufgabe(Math.max(x, y) + min, Math.min(x, y));
+}
+
+/* =====================================================================
+   Thema 2: Mal und Geteilt
+   ===================================================================== */
+/* Rechnung im Kästchenraster: oben die Aufgabe, darunter die schriftlichen Zwischenschritte.
+   Eine Zelle ist { t: Zeichen, loes: gehört zur Lösung, u: dicker Strich darunter }. */
+const Z = (text, extra) => String(text).split('').map(t => ({ t, ...extra }));
+function setze(zellen, endSpalte, text, extra) {
+  const s = String(text);
+  for (let i = 0; i < s.length; i++) zellen[endSpalte - s.length + 1 + i] = { t: s[i], ...extra };
+}
+function malRaster(a, b, schriftlich) {
+  const la = String(a).length, lb = String(b).length, ende = la + lb;
+  const kopf = [...Z(a), { t: '·' }, ...Z(b)];
+  if (!schriftlich) {
+    kopf.push({ t: '=' }, ...Z(a * b, { loes: true }));
+    return { breite: kopf.length, kopf, zeilen: [], frei: 0 };
+  }
+  kopf.forEach(z => { z.u = true; });
+  const zeilen = [];
+  if (lb > 1) {
+    String(b).split('').forEach((ziffer, j) => {
+      const zellen = [];
+      setze(zellen, la + 1 + j, a * Number(ziffer));
+      zeilen.push({ zellen });
+    });
+    const letzte = zeilen[zeilen.length - 1].zellen;
+    for (let i = 0; i <= ende; i++) letzte[i] = { t: '', ...letzte[i], u: true };
+  }
+  const ergebnis = [];
+  setze(ergebnis, ende, a * b);
+  zeilen.push({ zellen: ergebnis, erg: true });
+  return { breite: ende + 1, kopf, zeilen, frei: lb > 1 ? lb + 3 : 2 };
+}
+function geteiltRaster(dividend, d, schriftlich) {
+  const z = String(dividend), ld = z.length;
+  const q = Math.floor(dividend / d), r = dividend % d;
+  if (!schriftlich) {
+    const kopf = [...Z(dividend), { t: ':' }, ...Z(d), { t: '=' }, ...Z(q, { loes: true })];
+    if (r) kopf.push({ t: 'R', loes: true }, ...Z(r, { loes: true }));
+    return { breite: kopf.length, kopf, zeilen: [], frei: 0 };
+  }
+  // Spalte 0 bleibt frei für das Minuszeichen der Zwischenschritte
+  const kopf = [{ t: '' }, ...Z(dividend), { t: ':' }, ...Z(d), { t: '=' }, ...Z(q, { loes: true })];
+  if (r) kopf.push({ t: 'R', loes: true }, ...Z(r, { loes: true }));
+  const zeilen = [];
+  let rest = 0, begonnen = false;
+  for (let i = 0; i < ld; i++) {
+    const akt = rest * 10 + Number(z[i]);
+    const ziffer = Math.floor(akt / d);
+    if (!begonnen && ziffer === 0 && i < ld - 1) { rest = akt; continue; }
+    begonnen = true;
+    const abziehen = [];
+    setze(abziehen, i + 1, '−' + ziffer * d, { u: true });
+    zeilen.push({ zellen: abziehen });
+    rest = akt - ziffer * d;
+    const neu = [];
+    if (i < ld - 1) setze(neu, i + 2, (rest ? String(rest) : '') + z[i + 1]);
+    else setze(neu, i + 1, rest);
+    zeilen.push({ zellen: neu });
+  }
+  // Die Breite hängt nur von der Aufgabe ab und verrät nicht, ob ein Rest bleibt
+  const breite = Math.max(kopf.length, 1 + ld + 3 + Math.min(ld + 2, 5));
+  return { breite, kopf, zeilen, frei: zeilen.length + 1 };
+}
+const MAL_ARTEN = [
+  ['einmaleins', 'umkehr', 'zehnerMal', 'zehnerGeteilt'],
+  ['mal1', 'geteiltOhneRest', 'geteiltMitRest'],
+  ['mal2', 'schriftlichGeteilt', 'mal1gross', 'schriftlichGeteiltRest'],
+];
+// Ohne schriftliches Teilen: Geteilt-Aufgaben bleiben, werden aber im Kopf gerechnet
+const MAL_ARTEN_OHNE_TEILEN = [
+  MAL_ARTEN[0],
+  ['mal1', 'restKopf', 'mal1', 'zehnerGeteilt'],
+  ['mal2', 'restKopf', 'mal1gross', 'zehnerGeteilt'],
+];
+function einmaleinsHinweis(x, y) {
+  if (y === 10) return 'Mal 10 ist leicht: Hänge an die Zahl eine Null an.';
+  if (y === 2) return `Mal 2 heißt verdoppeln: Rechne ${x} + ${x}.`;
+  return {
+    3: `Rechne zuerst 2 · ${y} = ${2 * y}. Nimm dann noch einmal ${y} dazu.`,
+    4: `Rechne zuerst 2 · ${y} = ${2 * y}. Verdopple dann das Ergebnis.`,
+    5: `Rechne zuerst 10 · ${y} = ${10 * y}. Nimm davon die Hälfte.`,
+    6: `Rechne zuerst 5 · ${y} = ${5 * y}. Nimm dann noch einmal ${y} dazu.`,
+    7: `Rechne zuerst 5 · ${y} = ${5 * y} und 2 · ${y} = ${2 * y}. Zähle beides zusammen.`,
+    8: `Rechne zuerst 10 · ${y} = ${10 * y}. Ziehe dann 2 · ${y} = ${2 * y} ab.`,
+    9: `Rechne zuerst 10 · ${y} = ${10 * y}. Ziehe dann einmal ${y} ab.`,
+  }[x];
+}
+function erzeugeMalGeteilt(rng, stufe, i, kontext) {
+  const art = kontext.typen[i % kontext.typen.length];
+  let x, y, op = '·', schriftlich = true, schritte = [], hinweis;
+
+  if (art === 'einmaleins') {
+    x = rng.int(3, 9); y = rng.int(2, 10); schriftlich = false;
+    hinweis = einmaleinsHinweis(x, y);
+  } else if (art === 'umkehr') {
+    y = rng.int(3, 9); x = y * rng.int(2, 10); op = ':'; schriftlich = false;
+    hinweis = `Denke an die Malaufgabe: Welche Zahl mal ${y} ergibt ${x}?`;
+  } else if (art === 'zehnerMal') {
+    const zehner = rng.int(2, 9), b = rng.int(2, 9);
+    [x, y] = rng.chance(0.5) ? [zehner * 10, b] : [b, zehner * 10];
+    schriftlich = false;
+    schritte = [`${zehner} · ${b} = ${zehner * b}, also ist ${x} · ${y} = ${x * y}`];
+    hinweis = `Rechne zuerst ${zehner} · ${b}. Hänge dann eine Null an das Ergebnis.`;
+  } else if (art === 'zehnerGeteilt') {
+    const q = rng.int(2, 9);
+    y = rng.int(2, 9); x = q * 10 * y; op = ':'; schriftlich = false;
+    schritte = [`${q * y} : ${y} = ${q}, also ist ${x} : ${y} = ${q * 10}`];
+    hinweis = `Rechne zuerst ${q * y} : ${y}. Hänge dann eine Null an das Ergebnis.`;
+  } else if (art === 'mal1' || art === 'mal1gross' || art === 'mal2') {
+    x = art === 'mal1gross' ? rng.int(1012, 9989) : rng.int(112, 989);
+    y = art === 'mal2' ? rng.int(1, 9) * 10 + rng.int(2, 9) : rng.int(3, 9);
+    hinweis = art === 'mal2'
+      ? `Rechne zuerst ${x} · ${Math.floor(y / 10)} und schreibe das Ergebnis so, dass es unter der Zehnerziffer von ${y} endet. Rechne dann ${x} · ${y % 10} und schreibe es darunter, eine Stelle weiter rechts. Zähle zum Schluss beide Zeilen zusammen.`
+      : `Beginne rechts: zuerst ${y} · ${x % 10} (Einer), dann ${y} · ${Math.floor(x / 10) % 10} (Zehner) und so weiter. Vergiss die Überträge nicht.`;
+  } else if (art === 'geteiltOhneRest') {
+    let q;
+    do { y = rng.int(2, 9); q = rng.int(12, 160); } while (q * y > 999 || q % 10 === 0);
+    x = q * y; op = ':';
+  } else if (art === 'geteiltMitRest' || art === 'restKopf') {
+    y = rng.int(3, 9);
+    x = rng.int(3, 9) * y + rng.int(1, y - 1); op = ':';
+    schriftlich = art === 'geteiltMitRest';
+    hinweis = `Wie oft passt die ${y} in die ${x}? Nimm mal und ziehe ab. Was übrig bleibt, ist der Rest.`;
+  } else {
+    const mitRest = art === 'schriftlichGeteiltRest';
+    let q;
+    do { y = rng.int(2, 9); q = rng.int(112, mitRest ? 999 : 1999); } while (q * y > 9990);
+    x = q * y + (mitRest ? rng.int(1, y - 1) : 0); op = ':';
+  }
+
+  const z = op === '·' ? x * y : Math.floor(x / y);
+  const r = op === '·' ? 0 : x % y;
+  if (schriftlich && op === ':') schritte = [`Probe: ${fmt(z)} · ${y}${r ? ` + ${r}` : ''} = ${fmt(x)}`];
+  if (art === 'restKopf') schritte = [`${z} · ${y} = ${z * y}`, `${x} − ${z * y} = ${r}`];
+  if (!hinweis) {
+    const ziffern = String(x), erste = Number(ziffern[0]);
+    const beginn = erste >= y
+      ? `Beginne links: Wie oft passt die ${y} in die ${erste}?`
+      : `Die ${erste} ist kleiner als ${y}. Nimm deshalb gleich die ${ziffern.slice(0, 2)}: Wie oft passt die ${y} in die ${ziffern.slice(0, 2)}?`;
+    hinweis = `${beginn} Dann malnehmen, abziehen und die nächste Ziffer herunterholen. Was am Ende übrig bleibt, ist der Rest.`;
+  }
+  return {
+    layout: 'raster',
+    raster: op === '·' ? malRaster(x, y, schriftlich) : geteiltRaster(x, y, schriftlich),
+    rechnung: { x, op, y, z, r },
+    schritte,
+    hinweis,
+    ueberschlag: schriftlich && op === '·' ? ueberschlagMal(x, y) : null,
+    probeFeld: schriftlich && op === ':',
+    typ: art,
+    sig: `${x}${op}${y}`,
+  };
+}
+
+/* =====================================================================
+   Thema 3: Größen umrechnen
+   ===================================================================== */
+const EINHEITEN = [
+  { g: 'km',  k: 'm',   f: 1000, raster: 50 },
+  { g: 'm',   k: 'cm',  f: 100,  raster: 5 },
+  { g: 'cm',  k: 'mm',  f: 10,   raster: 1 },
+  { g: 'kg',  k: 'g',   f: 1000, raster: 50 },
+  { g: 't',   k: 'kg',  f: 1000, raster: 50 },
+  { g: 'l',   k: 'ml',  f: 1000, raster: 50 },
+  { g: '€',   k: 'ct',  f: 100,  raster: 5, geld: true },
+  { g: 'h',   k: 'min', f: 60,   raster: 5, zeit: true },
+  { g: 'min', k: 's',   f: 60,   raster: 5, zeit: true },
+];
+const EINHEIT_WORT = {
+  km: 'Kilometer', m: 'Meter', cm: 'Zentimeter', mm: 'Millimeter', kg: 'Kilogramm', g: 'Gramm', t: 'Tonnen',
+  l: 'Liter', ml: 'Milliliter', '€': 'Euro', ct: 'Cent', h: 'Stunden', min: 'Minuten', s: 'Sekunden',
+};
+function kommaZahl(wert, e) {
+  const stellen = String(e.f).length - 1;
+  let nach = String(wert % e.f).padStart(stellen, '0');
+  if (!e.geld) nach = nach.replace(/0+$/, '');
+  const ganz = fmt(Math.floor(wert / e.f));
+  return nach ? `${ganz},${nach}` : ganz;
+}
+const GROESSEN_FORMEN = [
+  ['grossKlein', 'kleinGross', 'wasPasst', 'einheitWaehlen'],
+  ['gemischtKlein', 'kleinGemischt', 'kleinGross', 'grossKlein', 'wasPasst', 'einheitWaehlen'],
+  ['kommaKlein', 'kleinKomma', 'kleinGemischt', 'gemischtKlein', 'einheitWaehlen'],
+];
+/* Größenvorstellung: Alltagsgegenstände mit typischer Größe (# steht für Zahl und Einheit) */
+const DIMENSIONEN = { laenge: ['mm', 'cm', 'm', 'km'], gewicht: ['g', 'kg', 't'], volumen: ['ml', 'l'], zeit: ['s', 'min', 'h'] };
+const STUETZPUNKTE = {
+  laenge: '1 mm ist ungefähr so dick wie eine Ein-Cent-Münze. 1 cm ist etwa so breit wie dein kleiner Finger. 1 m ist ungefähr ein großer Schritt. 1 km gehst du in etwa 15 Minuten.',
+  gewicht: '1 g wiegt ungefähr eine Büroklammer. 1 kg wiegt eine Packung Zucker. 1 t wiegt ungefähr ein kleines Auto.',
+  volumen: '1 l passt in eine große Milchtüte. 1 ml sind nur ein paar Tropfen.',
+  zeit: '1 s dauert so lange, wie du „einundzwanzig“ sagst. 60 s sind 1 min, 60 min sind 1 h.',
+};
+const GEGENSTAENDE = [
+  { t: 'Ein Bleistift ist etwa # lang.', d: 'laenge', e: 'cm', w: [15, 19] },
+  { t: 'Eine Ameise ist etwa # lang.', d: 'laenge', e: 'mm', w: [4, 8] },
+  { t: 'Eine Zimmertür ist etwa # hoch.', d: 'laenge', e: 'm', w: [2, 2] },
+  { t: 'Ein Fußballfeld ist etwa # lang.', d: 'laenge', e: 'm', w: [100, 110] },
+  { t: 'Ein Schulheft ist etwa # breit.', d: 'laenge', e: 'cm', w: [21, 21] },
+  { t: 'Ein Marienkäfer ist etwa # lang.', d: 'laenge', e: 'mm', w: [6, 8] },
+  { t: 'Eine Giraffe ist etwa # groß.', d: 'laenge', e: 'm', w: [5, 5] },
+  { t: 'Ein Marathonlauf ist etwa # lang.', d: 'laenge', e: 'km', w: [42, 42] },
+  { t: 'Ein Schultisch ist etwa # hoch.', d: 'laenge', e: 'cm', w: [70, 76] },
+  { t: 'Die Autofahrt von Hamburg nach München ist etwa # lang.', d: 'laenge', e: 'km', w: [780, 790] },
+  { t: 'Ein Apfel wiegt etwa #.', d: 'gewicht', e: 'g', w: [150, 200, 10] },
+  { t: 'Ein Elefant wiegt etwa #.', d: 'gewicht', e: 't', w: [5, 6] },
+  { t: 'Eine Tafel Schokolade wiegt #.', d: 'gewicht', e: 'g', w: [100, 100] },
+  { t: 'Ein Kind in der 4. Klasse wiegt etwa #.', d: 'gewicht', e: 'kg', w: [30, 35] },
+  { t: 'Ein Lastwagen wiegt etwa #.', d: 'gewicht', e: 't', w: [12, 18] },
+  { t: 'Ein Brief wiegt etwa #.', d: 'gewicht', e: 'g', w: [20, 20] },
+  { t: 'Ein voller Schulranzen wiegt etwa #.', d: 'gewicht', e: 'kg', w: [4, 6] },
+  { t: 'Ein Fahrrad wiegt etwa #.', d: 'gewicht', e: 'kg', w: [12, 15] },
+  { t: 'In eine Badewanne passen etwa #.', d: 'volumen', e: 'l', w: [150, 150] },
+  { t: 'In einen Esslöffel passen etwa #.', d: 'volumen', e: 'ml', w: [15, 15] },
+  { t: 'In eine Tasse passen etwa #.', d: 'volumen', e: 'ml', w: [200, 250, 50] },
+  { t: 'Ein Putzeimer fasst etwa #.', d: 'volumen', e: 'l', w: [10, 10] },
+  { t: 'In eine Trinkflasche passen etwa #.', d: 'volumen', e: 'ml', w: [500, 500] },
+  { t: 'In ein Aquarium passen etwa #.', d: 'volumen', e: 'l', w: [60, 100, 20] },
+  { t: 'Eine Schulstunde dauert #.', d: 'zeit', e: 'min', w: [45, 45] },
+  { t: 'Ein Fußballspiel dauert #.', d: 'zeit', e: 'min', w: [90, 90] },
+  { t: 'In der Nacht schläft ein Kind etwa #.', d: 'zeit', e: 'h', w: [9, 10] },
+  { t: 'Einmal tief Luft holen dauert etwa #.', d: 'zeit', e: 's', w: [3, 5] },
+  { t: 'Ein Schultag dauert etwa #.', d: 'zeit', e: 'h', w: [5, 6] },
+  { t: 'Ein 50-m-Lauf dauert etwa #.', d: 'zeit', e: 's', w: [9, 12] },
+  { t: 'Ein Kinofilm dauert etwa #.', d: 'zeit', e: 'min', w: [90, 110, 10] },
+];
+function erzeugeVorstellung(rng, form) {
+  const g = rng.pick(GEGENSTAENDE);
+  const v = imRaster(rng, g.w[0], g.w[1], g.w[2] || 1);
+  const [vor, nach] = g.t.split('#');
+  const hinweis = `${STUETZPUNKTE[g.d]} Stell dir den Gegenstand vor und vergleiche.`;
+  if (form === 'einheitWaehlen') {
+    const teile = [`${vor}${fmt(v)} `, { l: g.e, b: 4.5 }, nach];
+    return { layout: 'zeile', klein: true, auftrag: 'Setze die passende Einheit ein.', teile, schritte: [], hinweis, typ: form, sig: sigVon(teile) + v };
+  }
+  // Ankreuzen: dieselbe Zahl mit der richtigen und den benachbarten Einheiten
+  const reihe = DIMENSIONEN[g.d], idx = reihe.indexOf(g.e);
+  const andere = reihe.filter(u => u !== g.e).sort((x, y) => Math.abs(reihe.indexOf(x) - idx) - Math.abs(reihe.indexOf(y) - idx)).slice(0, 2);
+  const einheiten = mische([g.e, ...andere], rng);
+  return {
+    layout: 'wahl', auftrag: 'Kreuze an, was passt.', text: g.t.replace('#', '___'),
+    optionen: einheiten.map(u => `${fmt(v)} ${u}`), richtig: einheiten.indexOf(g.e),
+    schritte: [], hinweis, typ: form, sig: `${g.t}${v}`,
+  };
+}
+function erzeugeGroessen(rng, stufe, i, kontext) {
+  const form = kontext.typen[i % kontext.typen.length];
+  if (form === 'einheitWaehlen' || form === 'wasPasst') return erzeugeVorstellung(rng, form);
+  const mitKomma = form === 'kommaKlein' || form === 'kleinKomma';
+  const { einheiten } = kontext;
+  let e = einheiten[i % einheiten.length];
+  // Zeiten gibt es nicht als Kommazahl: dann die nächste passende Einheit nehmen
+  for (let s = 1; mitKomma && e.zeit; s++) e = einheiten[(i + s) % einheiten.length];
+  const { g, k, f } = e;
+
+  const n = e.zeit ? rng.int(2, [5, 6, 9][stufe]) : rng.int(stufe === 2 ? 1 : 2, [9, 20, 12][stufe]);
+  const r = e.zeit && stufe === 2 ? rng.int(1, 59) : e.raster * rng.int(1, f / e.raster - 1);
+  const voll = n * f, v = voll + r, dez = kommaZahl(v, e);
+  let teile, schritte, hinweis;
+  const merke = `1 ${g} = ${fmt(f)} ${k}. `;
+  const groesser = 'Die Einheit wird kleiner, also wird die Zahl größer';
+  const kleiner = 'Die Einheit wird größer, also wird die Zahl kleiner';
+  // Zwei Vergleichsbeispiele zeigen, dass jede Stelle zählt (1,5 m ist nicht 1,05 m)
+  const beispiel = zuKlein => {
+    let a = f * 3 / 2, b = f + f / 20;
+    if (v === a || v === b) { a += f; b += f; }
+    const paar = w => (zuKlein
+      ? `${kommaZahl(w, e)} ${g} = ${fmt(w)} ${k}`
+      : `${fmt(w)} ${k} = ${kommaZahl(w, e)} ${g}`);
+    return f > 10 ? `Achte auf jede Stelle: ${paar(a)}, aber ${paar(b)}.` : `Zum Beispiel: ${paar(a)}.`;
+  };
+  const G = EINHEIT_WORT[g], K = EINHEIT_WORT[k];
+
+  if (form === 'grossKlein') {
+    teile = [`${n} ${g} = `, L(fmt(voll)), ` ${k}`];
+    schritte = [`1 ${g} = ${fmt(f)} ${k}`, `${n} · ${fmt(f)} ${k} = ${fmt(voll)} ${k}`];
+    hinweis = `${merke}${groesser}: Rechne mal ${fmt(f)}.`;
+  } else if (form === 'kleinGross') {
+    teile = [`${fmt(voll)} ${k} = `, L(n), ` ${g}`];
+    schritte = [`${fmt(f)} ${k} = 1 ${g}`, `${fmt(voll)} : ${fmt(f)} = ${n}`];
+    hinweis = `${merke}${kleiner}: Rechne geteilt durch ${fmt(f)}.`;
+  } else if (form === 'gemischtKlein') {
+    teile = [`${n} ${g} ${r} ${k} = `, L(fmt(v)), ` ${k}`];
+    schritte = [`${n} ${g} = ${fmt(voll)} ${k}`, `${fmt(voll)} ${k} + ${r} ${k} = ${fmt(v)} ${k}`];
+    hinweis = `${merke}Rechne zuerst die ${n} ${g} in ${k} um. Zähle dann die ${r} ${k} dazu.`;
+  } else if (form === 'kleinGemischt') {
+    teile = [`${fmt(v)} ${k} = `, L(n), ` ${g} `, L(r), ` ${k}`];
+    schritte = [`${fmt(v)} ${k} = ${fmt(voll)} ${k} + ${r} ${k}`, `${fmt(voll)} ${k} = ${n} ${g}`];
+    hinweis = `${merke}Wie oft passen ${fmt(f)} ${k} in die ${fmt(v)} ${k}? Das sind die ganzen ${G}. Der Rest bleibt in ${K}.`;
+  } else if (form === 'kommaKlein') {
+    teile = [`${dez} ${g} = `, L(fmt(v)), ` ${k}`];
+    schritte = [`${dez} ${g} = ${n} ${g} ${r} ${k}`, `${fmt(voll)} ${k} + ${r} ${k} = ${fmt(v)} ${k}`];
+    hinweis = `${merke}${groesser}. ${beispiel(true)}`;
+  } else {
+    teile = [`${fmt(v)} ${k} = `, L(dez), ` ${g}`];
+    schritte = [`${fmt(v)} ${k} = ${n} ${g} ${r} ${k}`, `${n} ${g} ${r} ${k} = ${dez} ${g}`];
+    hinweis = `${merke}${kleiner}. ${beispiel(false)}`;
+  }
+  return { layout: 'zeile', teile, schritte, hinweis, typ: form, karo: 0, sig: sigVon(teile) };
+}
+
+/* =====================================================================
+   Thema 4: Sachaufgaben (Textvorlagen mit zufälligen Namen und Zahlen)
+   ===================================================================== */
+const KINDER = [
+  ['Lena', 'sie'], ['Mia', 'sie'], ['Emma', 'sie'], ['Hannah', 'sie'], ['Lea', 'sie'], ['Sophie', 'sie'],
+  ['Nele', 'sie'], ['Ida', 'sie'], ['Paul', 'er'], ['Ben', 'er'], ['Jonas', 'er'], ['Finn', 'er'],
+  ['Noah', 'er'], ['Elias', 'er'], ['Luis', 'er'], ['Emil', 'er'],
+];
+function kind(rng, ausser) {
+  let k;
+  do { k = rng.pick(KINDER); } while (k[0] === ausser);
+  const er = k[1] === 'er';
+  return { n: k[0], er: k[1], Er: er ? 'Er' : 'Sie', Sein: er ? 'Sein' : 'Ihr' };
+}
+
+const AUFTRAG_PRUEFEN = 'Lies genau: Kannst du die Frage beantworten? Wenn ja, rechne und streiche Angaben, die du nicht brauchst. Wenn nein, schreibe auf, was fehlt.';
+const HINWEIS_PRUEFEN = 'Frage dich bei jeder Angabe: Brauche ich sie, um die Frage zu beantworten? Und fehlt mir etwas, das ich unbedingt wissen muss?';
+const VORLAGEN = [
+  { // Einkauf: mehrere gleiche Dinge
+    gruppe: 'sachMal',
+    ab: 0, gen(rng, s) {
+      const p = kind(rng);
+      const [ware, von, bis] = rng.pick([['Hefte', 80, 150], ['Bleistifte', 40, 90], ['Brötchen', 30, 60],
+        ['Kugeln Eis', 100, 180], ['Radiergummis', 50, 120], ['Äpfel', 40, 80]]);
+      const k = rng.int([2, 3, 6][s], [5, 8, 12][s]);
+      const preis = imRaster(rng, von, bis, s === 2 ? 5 : 10);
+      return {
+        text: `${p.n} kauft ${k} ${ware} zu je ${euro(preis)}. Wie viel muss ${p.er} bezahlen?`,
+        schritte: [`${k} · ${euro(preis)} = ${euro(k * preis)}`],
+        antwort: `${p.n} muss ${euro(k * preis)} bezahlen.`,
+        hinweis: `Alle ${ware} kosten gleich viel. Rechne mal: Anzahl · Preis.`,
+      };
+    },
+  },
+  { // Rückgeld
+    gruppe: 'sachPlusMinus',
+    ab: 0, gen(rng, s) {
+      const p = kind(rng);
+      const ding = rng.pick(['ein Buch', 'ein Spiel', 'einen Fußball', 'eine Trinkflasche', 'ein Puzzle']);
+      const schein = [10, 20, 50][s] * 100;
+      const preis = [100 * rng.int(3, 9), imRaster(rng, 550, 1890, 10), imRaster(rng, 1235, 4695, 5)][s];
+      return {
+        text: `${p.n} kauft ${ding} für ${euro(preis)} und bezahlt mit einem ${schein / 100}-€-Schein. Wie viel Geld bekommt ${p.er} zurück?`,
+        schritte: [`${euro(schein)} − ${euro(preis)} = ${euro(schein - preis)}`],
+        antwort: `${p.n} bekommt ${euro(schein - preis)} zurück.`,
+        hinweis: 'Rückgeld ist das bezahlte Geld minus der Preis. Rechne minus.',
+      };
+    },
+  },
+  { // Einkauf mit zwei Posten und Rückgeld
+    gruppe: 'sachMehr',
+    ab: 1, gen(rng, s) {
+      const p = kind(rng);
+      const k = s === 1 ? rng.int(2, 4) : rng.int(3, 6);
+      const preis = s === 1 ? imRaster(rng, 50, 150, 10) : imRaster(rng, 85, 195, 5);
+      const fueller = s === 1 ? imRaster(rng, 300, 800, 50) : imRaster(rng, 495, 1295, 5);
+      const schein = s === 1 ? 2000 : 5000;
+      const summe = k * preis + fueller;
+      return {
+        text: `${p.n} kauft ${k} Hefte zu je ${euro(preis)} und einen Füller für ${euro(fueller)}. ${p.Er} bezahlt mit einem ${schein / 100}-€-Schein. Wie viel Geld bekommt ${p.er} zurück?`,
+        schritte: [
+          `${k} · ${euro(preis)} = ${euro(k * preis)}`,
+          `${euro(k * preis)} + ${euro(fueller)} = ${euro(summe)}`,
+          `${euro(schein)} − ${euro(summe)} = ${euro(schein - summe)}`,
+        ],
+        antwort: `${p.n} bekommt ${euro(schein - summe)} zurück.`,
+        hinweis: 'Du brauchst drei Schritte: 1. Was kosten alle Hefte zusammen? 2. Zähle den Füller dazu. 3. Ziehe alles vom Schein ab.',
+      };
+    },
+  },
+  { // Gespartes plus Geschenk
+    gruppe: 'sachPlusMinus',
+    ab: 0, bis: 1, gen(rng, s) {
+      const p = kind(rng);
+      const a = s === 0 ? rng.int(10, 50) : rng.int(35, 180);
+      const b = s === 0 ? rng.int(5, 30) : rng.int(15, 75);
+      return {
+        text: `${p.n} hat ${a} € gespart. Zum Geburtstag bekommt ${p.er} noch ${b} € dazu. Wie viel Geld hat ${p.er} jetzt?`,
+        schritte: [`${a} € + ${b} € = ${a + b} €`],
+        antwort: `${p.n} hat jetzt ${a + b} €.`,
+        hinweis: 'Es kommt Geld dazu. Rechne plus.',
+      };
+    },
+  },
+  { // Sparziel: Wie viel fehlt noch?
+    gruppe: 'sachPlusMinus',
+    ab: 0, gen(rng, s) {
+      const p = kind(rng);
+      const ziel = rng.pick(['ein Fahrrad', 'einen Roller', 'ein Skateboard', 'ein Zelt']);
+      const z = [imRaster(rng, 40, 95, 5), rng.int(120, 380), rng.int(250, 890)][s];
+      const a = [rng.int(10, z - 10), rng.int(35, z - 20), rng.int(87, z - 45)][s];
+      return {
+        text: `${p.n} möchte ${ziel} für ${z} € kaufen. ${p.Er} hat schon ${a} € gespart. Wie viel Geld fehlt noch?`,
+        schritte: [`${z} € − ${a} € = ${z - a} €`],
+        antwort: `Es fehlen noch ${z - a} €.`,
+        hinweis: 'Gesucht ist der Unterschied zwischen dem Preis und dem gesparten Geld. Rechne minus.',
+      };
+    },
+  },
+  { // Wöchentlich sparen
+    gruppe: 'sachMal',
+    ab: 0, gen(rng, s) {
+      const p = kind(rng);
+      const w = rng.int([2, 3, 4][s], [5, 8, 9][s]);
+      const k = rng.int([3, 6, 12][s], [8, 12, 25][s]);
+      return {
+        text: `${p.n} spart jede Woche ${w} €. Wie viel Geld hat ${p.er} nach ${k} Wochen gespart?`,
+        schritte: [`${k} · ${w} € = ${k * w} €`],
+        antwort: `${p.n} hat nach ${k} Wochen ${k * w} € gespart.`,
+        hinweis: 'Jede Woche kommt gleich viel dazu. Rechne mal: Wochen · Betrag.',
+      };
+    },
+  },
+  { // Wie viele Wochen bis zum Ziel?
+    gruppe: 'sachGeteilt',
+    ab: 1, gen(rng, s) {
+      const p = kind(rng);
+      const w = rng.int(3, 8), k = s === 1 ? rng.int(6, 10) : rng.int(11, 24);
+      return {
+        text: `${p.n} spart jede Woche ${w} €. Wie viele Wochen muss ${p.er} sparen, bis ${p.er} ${w * k} € hat?`,
+        schritte: [`${w * k} : ${w} = ${k}`],
+        antwort: `${p.n} muss ${k} Wochen sparen.`,
+        hinweis: `Wie oft passen die ${w} € in die ${w * k} €? Rechne geteilt.`,
+      };
+    },
+  },
+  { // Gerecht verteilen
+    gruppe: 'sachGeteilt',
+    ab: 0, gen(rng, s) {
+      const sache = rng.pick(['Gummibärchen', 'Murmeln', 'Sticker', 'Kekse', 'Sammelkarten']);
+      const k = rng.int([3, 4, 6][s], [6, 9, 9][s]);
+      const q = rng.int([4, 6, 12][s], [9, 15, 40][s]);
+      if (s === 0) {
+        return {
+          text: `${k} Kinder teilen ${k * q} ${sache} gerecht auf. Wie viele ${sache} bekommt jedes Kind?`,
+          schritte: [`${k * q} : ${k} = ${q}`],
+          antwort: `Jedes Kind bekommt ${q} ${sache}.`,
+          hinweis: 'Stell dir vor, die Kinder verteilen reihum, bis nichts mehr da ist. Am Ende hat jedes Kind gleich viel. Dazu passt eine Geteilt-Aufgabe.',
+        };
+      }
+      const r = rng.int(1, k - 1);
+      return {
+        text: `${k} Kinder teilen ${k * q + r} ${sache} gerecht auf. Wie viele ${sache} bekommt jedes Kind und wie viele bleiben übrig?`,
+        schritte: [`${k * q + r} : ${k} = ${q} Rest ${r}`],
+        antwort: `Jedes Kind bekommt ${q} ${sache}, ${r} ${r === 1 ? 'bleibt' : 'bleiben'} übrig.`,
+        hinweis: 'Stell dir vor, die Kinder verteilen reihum, bis es nicht mehr für alle reicht. Jedes Kind hat dann gleich viel. Dazu passt eine Geteilt-Aufgabe, und was liegen bleibt, ist der Rest.',
+      };
+    },
+  },
+  { // Eier in Schachteln
+    gruppe: 'sachGeteilt',
+    ab: 0, gen(rng, s) {
+      const groesse = rng.pick(s === 0 ? [6, 10] : [6, 10, 12]);
+      const voll = rng.int([3, 8, 15][s], [9, 20, 45][s]);
+      const r = rng.int(1, groesse - 1);
+      return {
+        text: `In eine Schachtel passen ${groesse} Eier. Eine Bäuerin hat ${voll * groesse + r} Eier gesammelt. Wie viele Schachteln kann sie ganz füllen und wie viele Eier bleiben übrig?`,
+        schritte: [`${voll * groesse + r} : ${groesse} = ${voll} Rest ${r}`],
+        antwort: `Sie kann ${voll} Schachteln füllen, ${r} ${r === 1 ? 'Ei bleibt' : 'Eier bleiben'} übrig.`,
+        hinweis: `Wie oft passen ${groesse} Eier in alle Eier? Rechne geteilt. Der Rest sind die übrigen Eier.`,
+      };
+    },
+  },
+  { // Boote: aufrunden
+    gruppe: 'sachGeteilt',
+    ab: 1, gen(rng, s) {
+      const platz = s === 1 ? rng.int(4, 8) : rng.int(6, 9);
+      const voll = s === 1 ? rng.int(4, 9) : rng.int(8, 15);
+      const r = rng.int(1, platz - 1);
+      return {
+        text: `${voll * platz + r} Kinder machen eine Bootsfahrt. In ein Boot passen ${platz} Kinder. Wie viele Boote werden gebraucht?`,
+        schritte: [
+          `${voll * platz + r} : ${platz} = ${voll} Rest ${r}`,
+          `${r === 1 ? 'Für das übrige Kind' : `Für die ${r} übrigen Kinder`} braucht man noch ein Boot: ${voll} + 1 = ${voll + 1}`,
+        ],
+        antwort: `Es werden ${voll + 1} Boote gebraucht.`,
+        hinweis: 'Rechne geteilt. Achtung: Auch die Kinder, die übrig bleiben, brauchen noch ein Boot!',
+      };
+    },
+  },
+  { // Klassen einer Schule
+    gruppe: 'sachMal',
+    ab: 0, gen(rng, s) {
+      const k = rng.int([3, 6, 11][s], [6, 12, 18][s]);
+      const je = s === 0 ? rng.pick([20, 21, 22, 25, 30]) : rng.int([0, 21, 23][s], [0, 28, 29][s]);
+      return {
+        text: `In einer Schule gibt es ${k} Klassen. In jeder Klasse sind ${je} Kinder. Wie viele Kinder gehen in diese Schule?`,
+        schritte: [`${k} · ${je} = ${k * je}`],
+        antwort: `In diese Schule gehen ${k * je} Kinder.`,
+        hinweis: 'In jeder Klasse sind gleich viele Kinder. Rechne mal.',
+      };
+    },
+  },
+  { // Stühle in der Aula
+    gruppe: 'sachMehr',
+    ab: 1, gen(rng, s) {
+      const reihen = s === 1 ? rng.int(8, 15) : rng.int(14, 28);
+      const je = s === 1 ? rng.int(12, 20) : rng.int(18, 32);
+      const alle = reihen * je;
+      const besetzt = rng.int(Math.floor(alle * 0.3), Math.floor(alle * 0.8));
+      return {
+        text: `In der Aula stehen ${reihen} Reihen mit je ${je} Stühlen. ${besetzt} Stühle sind schon besetzt. Wie viele Stühle sind noch frei?`,
+        schritte: [`${reihen} · ${je} = ${alle}`, `${alle} − ${besetzt} = ${alle - besetzt}`],
+        antwort: `Es sind noch ${alle - besetzt} Stühle frei.`,
+        hinweis: 'Du brauchst zwei Schritte: 1. Wie viele Stühle gibt es insgesamt? Rechne mal. 2. Ziehe die besetzten Stühle ab.',
+      };
+    },
+  },
+  { // Schulweg hin und zurück
+    gruppe: 'sachMehr',
+    ab: 1, gen(rng, s) {
+      const p = kind(rng);
+      const m = s === 1 ? imRaster(rng, 400, 1500, 50) : imRaster(rng, 750, 2750, 25);
+      return {
+        text: `${p.n} fährt mit dem Fahrrad zur Schule. Ein Weg ist ${fmt(m)} m lang. Wie viele Meter fährt ${p.er} in einer Woche mit 5 Schultagen, wenn ${p.er} jeden Tag hin und zurück fährt?`,
+        schritte: [`Hin und zurück: 2 · ${fmt(m)} m = ${fmt(2 * m)} m`, `5 · ${fmt(2 * m)} m = ${fmt(10 * m)} m`],
+        antwort: `${p.n} fährt in der Woche ${fmt(10 * m)} m.`,
+        hinweis: 'Du brauchst zwei Schritte: 1. Wie weit ist es an einem Tag hin und zurück? 2. Nimm das Ergebnis mal 5.',
+      };
+    },
+  },
+  { // Wanderung
+    gruppe: 'sachPlusMinus',
+    ab: 0, bis: 1, gen(rng, s) {
+      const t = s === 0 ? rng.int(8, 15) : rng.int(16, 28);
+      const a = rng.int(3, t - 3);
+      return {
+        text: `Die Klasse 4a macht eine Wanderung. Der Weg ist ${t} km lang. Nach ${a} km gibt es eine Pause. Wie viele Kilometer muss die Klasse danach noch wandern?`,
+        schritte: [`${t} km − ${a} km = ${t - a} km`],
+        antwort: `Die Klasse muss noch ${t - a} km wandern.`,
+        hinweis: 'Ein Teil des Weges ist schon geschafft. Rechne minus.',
+      };
+    },
+  },
+  { // Uhrzeit: Ende berechnen
+    gruppe: 'sachZeit',
+    ab: 0, gen(rng, s) {
+      const [was, es] = rng.pick([['Der Film', 'er'], ['Das Fußballtraining', 'es'], ['Die Zirkusvorstellung', 'sie'],
+        ['Der Schwimmkurs', 'er'], ['Das Theaterstück', 'es']]);
+      const start = rng.int(14, 18) * 60 + [rng.pick([0, 10, 15, 20, 30]), 5 * rng.int(0, 11), rng.int(1, 58)][s];
+      const dauer = [rng.pick([15, 20, 25, 30]), 5 * rng.int(9, 22), rng.int(65, 140)][s];
+      const ende = start + dauer, h = Math.floor(dauer / 60), m = dauer % 60;
+      const schritte = [];
+      if (h === 0) schritte.push(`${uhr(start)} Uhr + ${dauer} min = ${uhr(ende)} Uhr`);
+      else {
+        schritte.push(`${dauer} min = ${h} h${m ? ` ${m} min` : ''}`);
+        schritte.push(`${uhr(start)} Uhr + ${h} h = ${uhr(start + h * 60)} Uhr`);
+        if (m) schritte.push(`${uhr(start + h * 60)} Uhr + ${m} min = ${uhr(ende)} Uhr`);
+      }
+      return {
+        text: `${was} beginnt um ${uhr(start)} Uhr und dauert ${dauer} Minuten. Um wie viel Uhr ist ${es} zu Ende?`,
+        schritte,
+        antwort: `${was} ist um ${uhr(ende)} Uhr zu Ende.`,
+        hinweis: h === 0 ? 'Zähle die Minuten zur Startzeit dazu.' : 'Zerlege die Dauer in Stunden und Minuten (60 min = 1 h). Zähle zuerst die Stunden zur Startzeit dazu, dann die Minuten.',
+      };
+    },
+  },
+  { // Uhrzeit: Dauer berechnen
+    gruppe: 'sachZeit',
+    ab: 0, gen(rng, s) {
+      const p = kind(rng);
+      const a = rng.int(7, 15) * 60 + [5 * rng.int(0, 6), rng.int(5, 55), rng.int(5, 55)][s];
+      const d = [5 * rng.int(2, 5), rng.int(12, 55), rng.int(65, 170)][s];
+      const b = a + d;
+      const schritte = [];
+      if (Math.floor(a / 60) === Math.floor(b / 60)) {
+        schritte.push(`Von ${uhr(a)} Uhr bis ${uhr(b)} Uhr: ${d} min`);
+      } else {
+        const stuecke = [];
+        let t = a;
+        if (a % 60 !== 0) {
+          const voll = (Math.floor(a / 60) + 1) * 60;
+          schritte.push(`Von ${uhr(a)} Uhr bis ${uhr(voll)} Uhr: ${voll - a} min`);
+          stuecke.push(voll - a);
+          t = voll;
+        }
+        const letzteVolle = Math.floor(b / 60) * 60;
+        if (letzteVolle > t) {
+          schritte.push(`Von ${uhr(t)} Uhr bis ${uhr(letzteVolle)} Uhr: ${(letzteVolle - t) / 60} h = ${letzteVolle - t} min`);
+          stuecke.push(letzteVolle - t);
+          t = letzteVolle;
+        }
+        if (b > t) {
+          schritte.push(`Von ${uhr(t)} Uhr bis ${uhr(b)} Uhr: ${b - t} min`);
+          stuecke.push(b - t);
+        }
+        if (stuecke.length > 1) schritte.push(`${stuecke.map(x => `${x} min`).join(' + ')} = ${d} min`);
+      }
+      const h = Math.floor(d / 60), m = d % 60;
+      if (h) schritte.push(`${d} min = ${h} h${m ? ` ${m} min` : ''}`);
+      const dauerText = h ? `${h} ${h === 1 ? 'Stunde' : 'Stunden'}${m ? ` und ${m} Minuten` : ''}` : `${d} Minuten`;
+      return {
+        text: `${p.n} geht um ${uhr(a)} Uhr los und kommt um ${uhr(b)} Uhr an. Wie lange war ${p.er} unterwegs?`,
+        schritte,
+        antwort: `${p.n} war ${dauerText} unterwegs.`,
+        eingabe: h ? (m ? [L(h), ' h ', L(m), ' min'] : [L(h), ' h']) : [L(d), ' min'],
+        hinweis: Math.floor(a / 60) === Math.floor(b / 60) ? 'Beide Uhrzeiten liegen in derselben Stunde. Ziehe die Minuten voneinander ab.' : 'Rechne in Schritten: zuerst bis zur nächsten vollen Stunde, dann weiter bis zur Ankunft. Zähle die Teile zusammen.',
+      };
+    },
+  },
+  { // Kartoffelsäcke
+    gruppe: 'sachMal',
+    ab: 0, gen(rng, s) {
+      const kg = [rng.pick([5, 10, 25]), rng.pick([12, 15, 25]), rng.int(18, 48)][s];
+      const n = rng.int([3, 6, 12][s], [9, 12, 36][s]);
+      return {
+        text: `Ein Sack Kartoffeln wiegt ${kg} kg. Wie viel wiegen ${n} Säcke zusammen?`,
+        schritte: [`${n} · ${kg} kg = ${fmt(n * kg)} kg`],
+        antwort: `${n} Säcke wiegen zusammen ${fmt(n * kg)} kg.`,
+        hinweis: 'Jeder Sack wiegt gleich viel. Rechne mal.',
+      };
+    },
+  },
+  { // Zuschauer im Stadion
+    gruppe: 'sachPlusMinus',
+    ab: 0, gen(rng, s) {
+      const [von, bis] = [[120, 480], [1200, 8900], [12500, 68000]][s];
+      let a = rng.int(von, bis), b = rng.int(von, bis);
+      if (rng.chance(0.5)) {
+        return {
+          text: `Am Samstag kamen ${fmt(a)} Zuschauer zum Fußballspiel, am Sonntag ${fmt(b)}. Wie viele Zuschauer waren es an beiden Tagen zusammen?`,
+          schritte: [`${fmt(a)} + ${fmt(b)} = ${fmt(a + b)}`],
+          antwort: `An beiden Tagen waren es zusammen ${fmt(a + b)} Zuschauer.`,
+          hinweis: 'Gesucht ist eine Zahl für beide Tage. Die Zuschauer vom Samstag und vom Sonntag kommen also in eine Rechnung. Zähle sie zusammen und schreibe die Zahlen dazu genau untereinander.',
+        };
+      }
+      if (a === b) a += 15;
+      if (a < b) [a, b] = [b, a];
+      return {
+        text: `Am Samstag kamen ${fmt(a)} Zuschauer zum Fußballspiel, am Sonntag ${fmt(b)}. Wie viele Zuschauer kamen am Samstag mehr als am Sonntag?`,
+        schritte: [`${fmt(a)} − ${fmt(b)} = ${fmt(a - b)}`],
+        antwort: `Am Samstag kamen ${fmt(a - b)} Zuschauer mehr.`,
+        hinweis: 'An einem Tag waren es mehr Zuschauer als am anderen. Gesucht ist, wie groß der Unterschied ist. Ziehe dazu die kleinere Zahl von der größeren ab.',
+      };
+    },
+  },
+  { // Bücherei
+    gruppe: 'sachPlusMinus',
+    ab: 0, gen(rng, s) {
+      const a = rng.int([300, 2500, 12000][s], [900, 9500, 48000][s]);
+      const b = rng.int([50, 400, 1500][s], [250, 2200, 9500][s]);
+      return {
+        text: `Die Bücherei hat ${fmt(a)} Bücher. ${fmt(b)} Bücher sind gerade ausgeliehen. Wie viele Bücher stehen noch im Regal?`,
+        schritte: [`${fmt(a)} − ${fmt(b)} = ${fmt(a - b)}`],
+        antwort: `Im Regal stehen noch ${fmt(a - b)} Bücher.`,
+        hinweis: 'Ein Teil der Bücher fehlt im Regal. Rechne minus.',
+      };
+    },
+  },
+  { // Buch lesen
+    gruppe: 'sachGeteilt',
+    ab: 0, gen(rng, s) {
+      const p = kind(rng);
+      const d = rng.int([5, 12, 14][s], [10, 24, 28][s]);
+      const tage = rng.int([4, 6, 7][s], [9, 12, 15][s]);
+      if (s < 2) {
+        return {
+          text: `${p.n} liest ein Buch mit ${d * tage} Seiten. Jeden Tag liest ${p.er} ${d} Seiten. Nach wie vielen Tagen hat ${p.er} das Buch ausgelesen?`,
+          schritte: [`${d * tage} : ${d} = ${tage}`],
+          antwort: `${p.n} hat das Buch nach ${tage} Tagen ausgelesen.`,
+          hinweis: `Wie oft passen die ${d} Seiten in alle Seiten des Buches? Rechne geteilt.`,
+        };
+      }
+      const r = rng.int(1, d - 1);
+      return {
+        text: `${p.n} liest ein Buch mit ${d * tage + r} Seiten. Jeden Tag liest ${p.er} ${d} Seiten. Nach wie vielen Tagen hat ${p.er} das Buch ausgelesen?`,
+        schritte: [
+          `${d * tage + r} : ${d} = ${tage} Rest ${r}`,
+          `${r === 1 ? 'Für die letzte Seite' : `Für die letzten ${r} Seiten`} braucht ${p.er} noch einen Tag: ${tage} + 1 = ${tage + 1}`,
+        ],
+        antwort: `${p.n} hat das Buch nach ${tage + 1} Tagen ausgelesen.`,
+        hinweis: `Wie oft passen die ${d} Seiten in alle Seiten des Buches? Rechne geteilt. Achtung: Für die restlichen Seiten braucht ${p.er} noch einen Tag mehr.`,
+      };
+    },
+  },
+  { // Eintritt in den Zoo
+    gruppe: 'sachMehr',
+    ab: 1, gen(rng, s) {
+      const erw = s === 1 ? rng.int(1, 2) : 2;
+      const kinder = rng.int(2, s === 1 ? 4 : 5);
+      const pe = s === 1 ? 100 * rng.int(9, 16) : imRaster(rng, 950, 1850, 50);
+      const pk = s === 1 ? 100 * rng.int(4, 8) : imRaster(rng, 450, 900, 50);
+      const summe = erw * pe + kinder * pk;
+      return {
+        text: `Der Eintritt in den Zoo kostet für Erwachsene ${euro(pe)} und für Kinder ${euro(pk)}. Familie Sommer geht mit ${erw === 1 ? 'einem' : erw} Erwachsenen und ${kinder} Kindern in den Zoo. Wie viel muss die Familie bezahlen?`,
+        schritte: [
+          `${erw} · ${euro(pe)} = ${euro(erw * pe)}`,
+          `${kinder} · ${euro(pk)} = ${euro(kinder * pk)}`,
+          `${euro(erw * pe)} + ${euro(kinder * pk)} = ${euro(summe)}`,
+        ],
+        antwort: `Die Familie muss ${euro(summe)} bezahlen.`,
+        hinweis: 'Du brauchst drei Schritte: 1. Was kosten alle Erwachsenen? 2. Was kosten alle Kinder? 3. Zähle beides zusammen.',
+      };
+    },
+  },
+  { // Kosten teilen
+    gruppe: 'sachGeteilt',
+    ab: 1, gen(rng, s) {
+      const k = s === 1 ? rng.int(4, 9) : rng.int(6, 9);
+      const je = s === 1 ? rng.int(4, 12) : rng.int(13, 38);
+      return {
+        text: `${k} Freunde mieten zusammen ein Boot für ${k * je} €. Sie teilen die Kosten gerecht. Wie viel muss jeder bezahlen?`,
+        schritte: [`${k * je} € : ${k} = ${je} €`],
+        antwort: `Jeder muss ${je} € bezahlen.`,
+        hinweis: 'Alle bezahlen gleich viel. Der Preis wird also in gleich große Teile zerlegt. Dazu passt eine Geteilt-Aufgabe.',
+      };
+    },
+  },
+  { // Sticker: mehr als
+    gruppe: 'sachMehr',
+    ab: 1, gen(rng, s) {
+      const p1 = kind(rng), p2 = kind(rng, p1.n);
+      const a = s === 1 ? rng.int(35, 120) : rng.int(180, 650);
+      const mehr = s === 1 ? rng.int(12, 45) : rng.int(45, 180);
+      return {
+        text: `${p1.n} hat ${a} Sticker. ${p2.n} hat ${mehr} Sticker mehr als ${p1.n}. Wie viele Sticker haben beide zusammen?`,
+        schritte: [`${p2.n}: ${a} + ${mehr} = ${a + mehr}`, `Zusammen: ${a} + ${a + mehr} = ${fmt(2 * a + mehr)}`],
+        antwort: `Zusammen haben sie ${fmt(2 * a + mehr)} Sticker.`,
+        hinweis: `Du brauchst zwei Schritte: 1. Wie viele Sticker hat ${p2.n}? Rechne plus. 2. Zähle die Sticker von beiden zusammen.`,
+      };
+    },
+  },
+  { // Saftflaschen
+    gruppe: 'sachMal',
+    ab: 0, gen(rng, s) {
+      const ml = rng.pick([[200, 250, 500], [250, 330, 500, 750], [330, 700, 750]][s]);
+      const n = rng.int([2, 4, 6][s], [6, 9, 12][s]);
+      return {
+        text: `In eine Flasche passen ${ml} ml Saft. Wie viele Milliliter Saft sind in ${n} Flaschen?`,
+        schritte: [`${n} · ${ml} ml = ${fmt(n * ml)} ml`],
+        antwort: `In ${n} Flaschen sind ${fmt(n * ml)} ml Saft.`,
+        hinweis: 'In jeder Flasche ist gleich viel Saft. Rechne mal.',
+      };
+    },
+  },
+  { // Altersunterschied
+    gruppe: 'sachPlusMinus',
+    ab: 0, bis: 0, gen(rng) {
+      const p = kind(rng);
+      const alter = rng.int(7, 11), opa = rng.int(58, 79);
+      return {
+        text: `${p.n} ist ${alter} Jahre alt. ${p.Sein} Opa ist ${opa} Jahre alt. Wie viele Jahre ist der Opa älter als ${p.n}?`,
+        schritte: [`${opa} − ${alter} = ${opa - alter}`],
+        antwort: `Der Opa ist ${opa - alter} Jahre älter.`,
+        hinweis: 'Gesucht ist der Unterschied zwischen den beiden Altern. Rechne minus.',
+      };
+    },
+  },
+  { // Zaun um den Garten (Umfang)
+    gruppe: 'sachMehr',
+    ab: 1, gen(rng, s) {
+      const lang = s === 1 ? rng.int(10, 25) : rng.int(22, 64);
+      const breit = rng.int(s === 1 ? 4 : 9, lang - 2);
+      return {
+        text: `Ein rechteckiger Garten ist ${lang} m lang und ${breit} m breit. Um den ganzen Garten soll ein Zaun gebaut werden. Wie lang wird der Zaun?`,
+        schritte: [`${lang} m + ${breit} m = ${lang + breit} m`, `2 · ${lang + breit} m = ${2 * (lang + breit)} m`],
+        antwort: `Der Zaun wird ${2 * (lang + breit)} m lang.`,
+        hinweis: 'Der Zaun geht einmal rundherum: zwei lange und zwei kurze Seiten. Zähle Länge und Breite zusammen und nimm das Ergebnis mal 2.',
+      };
+    },
+  },
+  /* ----- Angaben prüfen: überflüssige oder fehlende Angaben, „Kann das stimmen?“ ----- */
+  { // Überflüssige Angabe: Alter
+    gruppe: 'sachPruefen',
+    ab: 0, gen(rng, s) {
+      const p = kind(rng);
+      const k = rng.int(3, [5, 8, 9][s]), preis = s === 0 ? 100 * rng.int(1, 3) : imRaster(rng, 80, 190, 10);
+      return {
+        auftrag: AUFTRAG_PRUEFEN,
+        text: `${p.n} ist ${rng.int(9, 10)} Jahre alt und geht in die 4. Klasse. ${p.Er} kauft ${k} Hefte zu je ${euro(preis)}. Wie viel muss ${p.er} bezahlen?`,
+        schritte: ['Nicht gebraucht: das Alter und die Klasse.', `${k} · ${euro(preis)} = ${euro(k * preis)}`],
+        antwort: `${p.n} muss ${euro(k * preis)} bezahlen.`,
+        hinweis: HINWEIS_PRUEFEN,
+      };
+    },
+  },
+  { // Überflüssige Angabe: Abfahrtszeit
+    gruppe: 'sachPruefen',
+    ab: 0, gen(rng, s) {
+      const wagen = rng.int(4, 9), plaetze = s === 0 ? 10 * rng.int(4, 8) : rng.int(42, 86);
+      return {
+        auftrag: AUFTRAG_PRUEFEN,
+        text: `Ein Zug fährt um ${uhr(rng.int(7, 17) * 60 + 5 * rng.int(0, 11))} Uhr ab. Er hat ${wagen} Wagen. In jeden Wagen passen ${plaetze} Personen. Wie viele Personen passen in den ganzen Zug?`,
+        schritte: ['Nicht gebraucht: die Abfahrtszeit.', `${wagen} · ${plaetze} = ${wagen * plaetze}`],
+        antwort: `In den Zug passen ${wagen * plaetze} Personen.`,
+        hinweis: HINWEIS_PRUEFEN,
+      };
+    },
+  },
+  { // Überflüssige Angabe: andere Tiere
+    gruppe: 'sachPruefen',
+    ab: 0, gen(rng, s) {
+      const affen = rng.int(8, 20), giraffen = rng.int(3, 7), kg = s === 0 ? 5 * rng.int(4, 8) : rng.int(21, 48);
+      return {
+        auftrag: AUFTRAG_PRUEFEN,
+        text: `Im Zoo leben ${affen} Affen und ${giraffen} Giraffen. Jede Giraffe frisst am Tag ${kg} kg Futter. Wie viel Futter fressen alle Giraffen zusammen an einem Tag?`,
+        schritte: ['Nicht gebraucht: die Zahl der Affen.', `${giraffen} · ${kg} kg = ${giraffen * kg} kg`],
+        antwort: `Alle Giraffen fressen zusammen ${giraffen * kg} kg Futter.`,
+        hinweis: HINWEIS_PRUEFEN,
+      };
+    },
+  },
+  { // Fehlende Angabe: Preis
+    gruppe: 'sachPruefen',
+    ab: 0, gen(rng) {
+      const p = kind(rng), k = rng.int(3, 8), radierer = imRaster(rng, 50, 150, 10);
+      return {
+        auftrag: AUFTRAG_PRUEFEN,
+        text: `${p.n} kauft ${k} Bleistifte und einen Radiergummi für ${euro(radierer)}. Wie viel muss ${p.er} insgesamt bezahlen?`,
+        schritte: [`Bekannt: ${k} Bleistifte, Radiergummi ${euro(radierer)}.`, 'Es fehlt: der Preis für einen Bleistift.'],
+        antwort: 'Das kann man nicht ausrechnen, weil der Preis für einen Bleistift fehlt.',
+        loesbar: false,
+        eingabe: [L(''), ' €'],
+        hinweis: HINWEIS_PRUEFEN,
+      };
+    },
+  },
+  { // Fehlende Angabe: Abfahrtszeit
+    gruppe: 'sachPruefen',
+    ab: 0, gen(rng) {
+      const minuten = 5 * rng.int(5, 15);
+      return {
+        auftrag: AUFTRAG_PRUEFEN,
+        text: `Die Klasse 4b fährt mit dem Bus ins Museum. Die Fahrt dauert ${minuten} Minuten. Im Bus sind ${rng.int(22, 28)} Kinder. Um wie viel Uhr kommt die Klasse im Museum an?`,
+        schritte: [`Bekannt: Fahrzeit ${minuten} Minuten, Zahl der Kinder (wird nicht gebraucht).`, 'Es fehlt: die Uhrzeit, zu der der Bus losfährt.'],
+        antwort: 'Das kann man nicht ausrechnen, weil die Abfahrtszeit fehlt.',
+        loesbar: false,
+        eingabe: [L(''), ' Uhr'],
+        hinweis: HINWEIS_PRUEFEN,
+      };
+    },
+  },
+  { // Fehlende Angabe: Schachtelgröße
+    gruppe: 'sachPruefen',
+    ab: 0, gen(rng, s) {
+      const eier = s === 0 ? 10 * rng.int(6, 15) : rng.int(84, 240);
+      return {
+        auftrag: AUFTRAG_PRUEFEN,
+        text: `Eine Bäuerin hat ${eier} Eier gesammelt. Sie packt alle Eier in Schachteln. Wie viele Schachteln braucht sie?`,
+        schritte: [`Bekannt: ${eier} Eier.`, 'Es fehlt: wie viele Eier in eine Schachtel passen.'],
+        antwort: 'Das kann man nicht ausrechnen, weil fehlt, wie viele Eier in eine Schachtel passen.',
+        loesbar: false,
+        eingabe: [L(''), ' Schachteln'],
+        hinweis: HINWEIS_PRUEFEN,
+      };
+    },
+  },
+  { // Kann das stimmen? Einkauf
+    gruppe: 'sachPruefen',
+    ab: 0, gen(rng, s) {
+      const p = kind(rng), k = rng.int(4, 9);
+      const preis = s === 0 ? 100 * rng.int(1, 4) : imRaster(rng, 110, 290, 10);
+      const genau = k * preis, stimmt = rng.chance(0.5), behauptet = stimmt ? genau : genau * 10;
+      const grob = rundeAuf(preis, 100);
+      return {
+        text: `${p.n} sagt: „${k} Hefte zu je ${euro(preis)} kosten zusammen ${euro(behauptet)}.“ Kann das stimmen? Überschlage und begründe.`,
+        schritte: [`Überschlag: ${k} · ${euro(grob)} = ${euro(k * grob)}`, `Genau: ${k} · ${euro(preis)} = ${euro(genau)}`],
+        antwort: stimmt
+          ? `Ja, das kann stimmen. Überschlagen sind es etwa ${euro(k * grob)}, genau ${euro(genau)}.`
+          : `Nein. Überschlagen sind es etwa ${euro(k * grob)}, genau ${euro(genau)}, also nicht ${euro(behauptet)}.`,
+        stimmt,
+        hinweis: 'Runde den Preis auf ganze Euro und rechne ungefähr im Kopf. Liegt die Behauptung in der Nähe deines Ergebnisses?',
+      };
+    },
+  },
+  { // Kann das stimmen? Schulweg
+    gruppe: 'sachPruefen',
+    ab: 0, gen(rng) {
+      const p = kind(rng), m = imRaster(rng, 300, 900, 50);
+      const genau = 10 * m, stimmt = rng.chance(0.5), behauptet = stimmt ? genau : 100 * m;
+      return {
+        text: `${p.n} wohnt ${m} m von der Schule entfernt und geht jeden Tag hin und zurück. ${p.Er} sagt: „In einer Woche mit 5 Schultagen gehe ich ${fmt(behauptet)} m.“ Kann das stimmen? Begründe.`,
+        schritte: [`Hin und zurück: 2 · ${m} m = ${fmt(2 * m)} m`, `5 Tage: 5 · ${fmt(2 * m)} m = ${fmt(genau)} m`],
+        antwort: stimmt ? `Ja, das stimmt. Es sind ${fmt(genau)} m.` : `Nein. Es sind ${fmt(genau)} m, also nicht ${fmt(behauptet)} m.`,
+        stimmt,
+        hinweis: 'Rechne zuerst aus, wie weit es an einem Tag hin und zurück ist. Wie viel ist das ungefähr in 5 Tagen?',
+      };
+    },
+  },
+];
+function erzeugeSach(rng, stufe, i, kontext) {
+  const gruppe = kontext.typen[i % kontext.typen.length];
+  const passend = kontext.vorlagen.filter(v => v.gruppe === gruppe);
+  const r = passend[Math.floor(i / kontext.typen.length) % passend.length].gen(rng, stufe);
+  return {
+    layout: 'text', auftrag: r.auftrag, text: r.text, schritte: r.schritte, antwort: r.antwort, hinweis: r.hinweis, typ: gruppe, karo: 5, sig: r.text,
+    eingabe: r.stimmt === undefined ? sachEingabe(r) : null, loesbar: r.loesbar !== false, stimmt: r.stimmt,
+  };
+}
+/* Eingabefelder fürs Tablet: aus dem letzten Rechenschritt abgeleitet (Zahl mit Einheit, Uhrzeit oder „… Rest …“) */
+function sachEingabe(r) {
+  if (r.eingabe) return r.eingabe;
+  const ergebnis = r.schritte[r.schritte.length - 1].split(' = ').pop().trim();
+  let m = /^([\d ]+) Rest (\d+)$/.exec(ergebnis);
+  if (m) return [L(m[1]), ' Rest ', L(m[2])];
+  m = /^([\d ]+(?:,\d+)?|\d{1,2}:\d{2})(?: (€|m|km|kg|ml|l|Uhr|min))?$/.exec(ergebnis);
+  return m ? [L(m[1]), m[2] ? ` ${m[2]}` : ''] : null;
+}
+
+/* =====================================================================
+   Tagesblatt zusammenstellen
+   ===================================================================== */
+const TYP_NAME = {
+  plus: 'Schriftlich plus', minus: 'Schriftlich minus',
+  einmaleins: 'Einmaleins', umkehr: 'Einmaleins rückwärts (geteilt)',
+  zehnerMal: 'Mal mit Zehnerzahlen', zehnerGeteilt: 'Geteilt mit Zehnerzahlen',
+  mal1: 'Schriftlich mal, einstellig', mal1gross: 'Schriftlich mal, große Zahl', mal2: 'Schriftlich mal, zweistellig',
+  geteiltOhneRest: 'Schriftlich geteilt ohne Rest', geteiltMitRest: 'Geteilt mit Rest',
+  restKopf: 'Geteilt mit Rest im Kopf',
+  schriftlichGeteilt: 'Schriftlich geteilt, große Zahl', schriftlichGeteiltRest: 'Schriftlich geteilt mit Rest, große Zahl',
+  grossKlein: 'Große in kleine Einheit', kleinGross: 'Kleine in große Einheit',
+  gemischtKlein: 'Gemischte Angabe in kleine Einheit', kleinGemischt: 'Kleine Einheit in gemischte Angabe',
+  kommaKlein: 'Kommazahl in kleine Einheit', kleinKomma: 'Kleine Einheit in Kommazahl',
+  sachMal: 'Sachaufgabe: malnehmen', sachGeteilt: 'Sachaufgabe: teilen', sachPlusMinus: 'Sachaufgabe: plus oder minus',
+  sachMehr: 'Sachaufgabe: mehrere Schritte', sachZeit: 'Sachaufgabe: Uhrzeit',
+  sachPruefen: 'Sachaufgabe: Angaben prüfen',
+  fehlersuche: 'Fehler finden (plus/minus)',
+  einheitWaehlen: 'Passende Einheit einsetzen', wasPasst: 'Passende Größe ankreuzen',
+  zahlInTafel: 'Zahl in die Stellenwerttafel eintragen', tafelZuZahl: 'Zahl aus der Stellenwerttafel ablesen',
+  zerlegung: 'Zahl aus Stellenwerten zusammensetzen', runden: 'Runden', nachbarn: 'Vorgänger, Nachfolger, Nachbarzahlen',
+  vergleichen: 'Zahlen vergleichen', zahlenstrahl: 'Zahlenstrahl',
+};
+const einmalig = liste => [...new Set(liste)];
+const sachVorlagen = stufe => VORLAGEN.filter(v => v.ab <= stufe && (v.bis ?? 2) >= stufe);
+/* typen: welche Aufgabenarten es je Stufe gibt · tag: Zufallsreihenfolgen für den Tag · gen: eine Aufgabe erzeugen */
+const GENERATOR = {
+  zahlen:     { typen: () => ZAHLEN_ARTEN, tag: () => ({}), gen: erzeugeZahlen },
+  plusminus:  { typen: (stufe, variante) => (variante ? ['plus', 'minus', 'fehlersuche'] : ['plus', 'minus']), tag: () => ({}), gen: erzeugePlusMinus },
+  malgeteilt: { typen: (stufe, variante) => einmalig((variante ? MAL_ARTEN_OHNE_TEILEN : MAL_ARTEN)[stufe]), tag: () => ({}), gen: erzeugeMalGeteilt },
+  groessen:   { typen: stufe => GROESSEN_FORMEN[stufe], tag: rng => ({ einheiten: mische(EINHEITEN, rng) }), gen: erzeugeGroessen },
+  sach:       { typen: stufe => einmalig(sachVorlagen(stufe).map(v => v.gruppe)), tag: (rng, stufe) => ({ vorlagen: mische(sachVorlagen(stufe), rng) }), gen: erzeugeSach },
+};
+function tagNummer(iso) {
+  const [j, m, t] = iso.split('-').map(Number);
+  return Math.round(Date.UTC(j, m - 1, t) / 86400000);
+}
+// Ohne schriftliches Teilen gilt eine eigene Aufgabenmischung mit eigenem Startwert
+// Mit „Finde den Fehler“ ebenso: Ohne den Schalter bleibt das Blatt so, wie es vor dieser Aufgabenart war
+const varianteVon = (themaId, einst) => {
+  if (themaId === 'malgeteilt') return einst.schriftlichTeilen === false ? 'k' : '';
+  if (themaId === 'plusminus') return einst.fehlersuche === true ? 'f' : '';
+  return '';
+};
+
+/* ---------- Wiederholung nach Bedarf ----------
+   Für jede Aufgabenart wird aus den eingetragenen Ergebnissen abgeleitet, wann sie wieder dran ist:
+   nach einem Fehler schon nach 1 bis 3 Tagen, nach richtigen Lösungen in wachsenden Abständen. */
+const ABSTAENDE = [2, 5, 10, 20, 30];
+function typStand(verlauf, tagNr) {
+  if (!verlauf || !verlauf.length) return { neu: true };
+  const letzter = verlauf[verlauf.length - 1];
+  let serie = 0;
+  for (let i = verlauf.length - 1; i >= 0 && verlauf[i].ok === letzter.ok; i--) serie++;
+  const abstand = letzter.ok ? ABSTAENDE[Math.min(serie, ABSTAENDE.length) - 1] : Math.min(serie, 3);
+  return { neu: false, unsicher: !letzter.ok, serie, abstand, zuletzt: letzter.tag, faelligIn: letzter.tag + abstand - tagNr };
+}
+function ordneTypen(typen, staende) {
+  // 0 = zuletzt falsch und fällig · 1 = noch nie geübt · 2 = sicher und fällig · 3 = noch nicht fällig
+  const klasse = t => {
+    const s = staende[t];
+    if (s.neu) return 1;
+    if (s.faelligIn > 0) return 3;
+    return s.unsicher ? 0 : 2;
+  };
+  // Fälliges: das am längsten Überfällige zuerst. Noch nicht Fälliges füllt nur Lücken: das am längsten nicht Geübte zuerst.
+  const rang = t => (klasse(t) === 3 ? staende[t].zuletzt : staende[t].faelligIn ?? 0);
+  const sortiert = typen.map((t, i) => ({ t, i })).sort((a, b) =>
+    klasse(a.t) - klasse(b.t) || rang(a.t) - rang(b.t) || a.i - b.i).map(x => x.t);
+  // Unsicheres und anderes wechseln sich ab, damit ein Blatt nie nur aus Stolpersteinen besteht
+  const schwach = sortiert.filter(t => klasse(t) === 0), rest = sortiert.filter(t => klasse(t) !== 0);
+  const aus = [];
+  while (schwach.length || rest.length) {
+    if (schwach.length) aus.push(schwach.shift());
+    if (rest.length) aus.push(rest.shift());
+  }
+  return aus;
+}
+/* verlaeufe: { 'plus@1': [{ tag, ok }, …] } aufsteigend nach Tag, ein Eintrag pro Tag */
+function planeTag(iso, einst, verlaeufe = {}) {
+  const tagNr = tagNummer(iso), plan = {};
+  THEMEN.forEach(thema => {
+    const stufe = einst.themen[thema.id].stufe, variante = varianteVon(thema.id, einst);
+    const typen = mische(GENERATOR[thema.id].typen(stufe, variante), makeRng(`${iso}|${thema.id}|typen|${stufe}${variante}`));
+    const staende = {};
+    typen.forEach(t => {
+      staende[t] = typStand((verlaeufe[`${t}@${stufe}`] || []).filter(e => e.tag < tagNr), tagNr);
+    });
+    plan[thema.id] = ordneTypen(typen, staende);
+  });
+  return plan;
+}
+function erzeugeAufgaben(iso, einst, plan) {
+  const aktiv = THEMEN.filter(t => einst.themen[t.id].an);
+  if (!aktiv.length) return [];
+  if (!plan) plan = planeTag(iso, einst);
+  const tagNr = tagNummer(iso), k = aktiv.length;
+  // Die leichte Einstiegsaufgabe kommt zum ersten Bereich dazu und nimmt ihm keinen regulären Platz weg
+  const mitEinstieg = einst.einstieg !== false && einst.themen[aktiv[0].id].stufe > 0;
+  const regulaer = einst.anzahl - (mitEinstieg ? 1 : 0);
+  const basis = Math.floor(regulaer / k), extra = regulaer % k, versatz = tagNr % k;
+  const liste = [];
+  aktiv.forEach((thema, j) => {
+    const anzahl = basis + (((j - versatz + k) % k) < extra ? 1 : 0) + (mitEinstieg && j === 0 ? 1 : 0);
+    const stufeThema = einst.themen[thema.id].stufe;
+    const g = GENERATOR[thema.id], variante = varianteVon(thema.id, einst);
+    const kontexte = {};
+    const gesehen = new Set();
+    let platz = 0;
+    for (let i = 0; i < anzahl; i++) {
+      // Die allererste Aufgabe des Blatts ist bewusst leicht, damit der Einstieg gelingt
+      const einstieg = mitEinstieg && j === 0 && i === 0;
+      const stufe = einstieg ? 0 : stufeThema;
+      if (!kontexte[stufe]) {
+        const gueltig = g.typen(stufe, variante);
+        let typen;
+        if (einstieg) typen = mische(gueltig, makeRng(`${iso}|${thema.id}|typen|0${variante}`));
+        else {
+          typen = (plan[thema.id] || []).filter(t => gueltig.includes(t));
+          gueltig.forEach(t => { if (!typen.includes(t)) typen.push(t); });
+        }
+        kontexte[stufe] = { ...g.tag(makeRng(`${iso}|${thema.id}|tag|${stufe}${variante}`), stufe), typen };
+      }
+      const nr = einstieg ? 0 : platz++;
+      let aufgabe;
+      for (let v = 0; v < 6; v++) {
+        aufgabe = g.gen(makeRng(`${iso}|${thema.id}|${nr}|${stufe}${variante}|${v}`), stufe, nr, kontexte[stufe]);
+        if (!gesehen.has(aufgabe.sig)) break;
+      }
+      gesehen.add(aufgabe.sig);
+      aufgabe.einstieg = einstieg;
+      aufgabe.thema = thema.id;
+      aufgabe.stufe = stufe;
+      liste.push(aufgabe);
+    }
+  });
+  return liste;
+}
+
+/* =====================================================================
+   Darstellung
+   ===================================================================== */
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function el(tag, klasse, text) {
+  const e = document.createElement(tag);
+  if (klasse) e.className = klasse;
+  if (text != null) e.textContent = text;
+  return e;
+}
+function baueStapel(st, mitLoesung) {
+  const fremd = st.falsch != null;
+  const breite = Math.max(String(st.ergebnis).length, ...st.operanden.map(o => String(o).length),
+    fremd ? String(st.falsch).length : 0);
+  const tab = el('table', 'karo');
+  const zeile = (zeichen, zellen, klasse) => {
+    const tr = el('tr', klasse);
+    tr.append(el('td', '', zeichen));
+    zellen.forEach(z => tr.append(el('td', '', z)));
+    tab.append(tr);
+    return tr;
+  };
+  const ziffern = zahl => String(zahl).padStart(breite).split('').map(z => z.trim());
+  const leer = Array(breite).fill('');
+  st.operanden.forEach((o, i) => zeile(i === 0 ? '' : st.op, ziffern(o)));
+  zeile('', mitLoesung && !fremd ? st.uebertrag.concat(leer).slice(0, breite) : leer, 'uebertrag');
+  if (!fremd) {
+    zeile('', mitLoesung ? ziffern(st.ergebnis) : leer, 'ergebnis');
+    return tab;
+  }
+  // Fehlersuche: das falsche Ergebnis steht wie von Hand geschrieben da, im Lösungsblatt sind die falschen Ziffern markiert
+  const tr = zeile('', ziffern(st.falsch), 'ergebnis fremd');
+  if (mitLoesung) {
+    const richtig = ziffern(st.ergebnis);
+    [...tr.children].slice(1).forEach((td, j) => { if (td.textContent !== richtig[j]) td.classList.add('falsch-ziffer'); });
+  }
+  return tab;
+}
+function baueTafel(t, mitLoesung) {
+  const tab = el('table', 'karo tafel'), kopf = el('tr'), reihe = el('tr');
+  t.spalten.forEach(s => kopf.append(el('th', '', s)));
+  t.werte.forEach(w => reihe.append(el('td', t.leer ? 'loes' : '', t.leer && !mitLoesung ? '' : w)));
+  tab.append(kopf, reihe);
+  return tab;
+}
+const STRAHL = { x0: 26, x1: 598, y: 62 };
+function strahlPfeil(svg, s, pos, name, farbe, klasse) {
+  const x = STRAHL.x0 + pos * (STRAHL.x1 - STRAHL.x0) / s.n, y = STRAHL.y;
+  const g = document.createElementNS(SVG_NS, 'g');
+  if (klasse) g.setAttribute('class', klasse);
+  [['line', { x1: x, y1: 22, x2: x, y2: y - 20, stroke: farbe, 'stroke-width': 2.5 }],
+    ['path', { d: `M${x} ${y - 12} l-6 -10 h12 z`, fill: farbe }],
+    ['text', { x, y: 17, 'text-anchor': 'middle', 'font-size': 17, 'font-weight': 800, fill: farbe }, name]].forEach(([tag, attr, text]) => {
+    const e = document.createElementNS(SVG_NS, tag);
+    Object.entries(attr).forEach(([k, v]) => e.setAttribute(k, String(v)));
+    if (text != null) e.textContent = text;
+    g.append(e);
+  });
+  svg.append(g);
+}
+function baueStrahl(s, mitLoesung) {
+  const { x0, x1, y } = STRAHL, dx = (x1 - x0) / s.n, tinte = '#1F2A44';
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 640 100');
+  svg.setAttribute('class', 'strahl');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', `Zahlenstrahl von ${fmt(s.start)} bis ${fmt(s.start + s.n * s.schritt)}`);
+  const neu = (tag, attr, text) => {
+    const e = document.createElementNS(SVG_NS, tag);
+    Object.entries(attr).forEach(([k, v]) => e.setAttribute(k, String(v)));
+    if (text != null) e.textContent = text;
+    svg.append(e);
+  };
+  neu('line', { x1: x0 - 12, y1: y, x2: x1 + 24, y2: y, stroke: tinte, 'stroke-width': 2.5 });
+  neu('path', { d: `M${x1 + 34} ${y} l-12 -6 v12 z`, fill: tinte });
+  for (let i = 0; i <= s.n; i++) {
+    const lang = i % 10 === 0 ? 13 : i % 5 === 0 ? 10 : 6, x = x0 + i * dx;
+    neu('line', { x1: x, y1: y - lang, x2: x, y2: y + lang, stroke: tinte, 'stroke-width': i % 5 === 0 ? 2 : 1.4 });
+  }
+  [0, s.n].forEach(i => neu('text', { x: x0 + i * dx, y: y + 34, 'text-anchor': 'middle', 'font-size': 17, 'font-weight': 700, fill: tinte }, fmt(s.start + i * s.schritt)));
+  s.marken.forEach(m => strahlPfeil(svg, s, m.pos, m.name, '#C0306B'));
+  if (s.eintragen && mitLoesung) strahlPfeil(svg, s, s.eintragen.pos, s.eintragen.name, '#12805C');
+  return svg;
+}
+function baueWahl(a, mitLoesung) {
+  const box = el('div', 'wahl');
+  box.append(el('p', 'wahl-text', a.text));
+  const liste = el('div', 'optionen');
+  a.optionen.forEach((o, j) => {
+    const treffer = mitLoesung && j === a.richtig;
+    liste.append(el('span', treffer ? 'option richtig' : 'option', `${treffer ? '☒' : '☐'} ${o}`));
+  });
+  box.append(liste);
+  return box;
+}
+function baueSchreibzeile(text, mitKaro) {
+  const zeile = el('div', 'schreib');
+  zeile.append(el('span', 'schreib-titel', text), el('span', mitKaro ? 'linie kein-druck' : 'linie'));
+  if (!mitKaro) return zeile;
+  const box = el('div', 'schreib-block');
+  box.append(zeile, baueKaro(3));
+  return box;
+}
+function baueRaster(r, mitLoesung) {
+  const tab = el('table', 'karo');
+  const zeile = (zellen, klasse) => {
+    const tr = el('tr', klasse);
+    for (let i = 0; i < r.breite; i++) {
+      const z = zellen[i], td = el('td');
+      if (z && (mitLoesung || !z.loes)) {
+        td.textContent = z.t;
+        if (z.loes) td.className = 'loes';
+        if (z.u) td.classList.add('strich');
+      }
+      tr.append(td);
+    }
+    tab.append(tr);
+  };
+  zeile(r.kopf);
+  if (mitLoesung) r.zeilen.forEach(z => zeile(z.zellen, z.erg ? 'erg' : 'weg'));
+  else for (let i = 0; i < r.frei; i++) zeile([]);
+  return tab;
+}
+function baueZeile(teile, mitLoesung, klein) {
+  const div = el('div', klein ? 'zeile zeile-klein' : 'zeile');
+  teile.forEach((t, i) => {
+    if (typeof t === 'string') {
+      if (i === 0 || typeof teile[i - 1] === 'string') div.append(t);
+      return;
+    }
+    const luecke = el('span', 'luecke', mitLoesung ? t.l : ' ');
+    // Feste Breite (b), wo die Breite sonst die Lösung verraten würde, z. B. bei Einheiten
+    luecke.style.minWidth = `${t.b || Math.max(3, t.l.length + 1.5)}ch`;
+    // Lücke und die Einheit dahinter bleiben beim Zeilenumbruch zusammen
+    const gruppe = el('span', 'gruppe');
+    gruppe.append(luecke);
+    const danach = typeof teile[i + 1] === 'string' ? teile[i + 1] : '';
+    gruppe.append(danach.trimEnd());
+    div.append(gruppe, danach.slice(danach.trimEnd().length));
+  });
+  return div;
+}
+function baueKaro(reihen) {
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('class', 'karo-feld nur-druck');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', String(reihen * 19 + 1));
+  const rect = document.createElementNS(SVG_NS, 'rect');
+  rect.setAttribute('x', '0.5');
+  rect.setAttribute('y', '0.5');
+  rect.setAttribute('width', '100%');
+  rect.setAttribute('height', String(reihen * 19));
+  rect.setAttribute('fill', 'url(#karo-muster)');
+  rect.setAttribute('stroke', '#B7CDE6');
+  svg.append(rect);
+  return svg;
+}
+function baueRechenweg(a) {
+  const schritte = (einst.ueberschlag && a.ueberschlag ? [`Überschlag (zum Beispiel): ${a.ueberschlag}`] : []).concat(a.schritte || []);
+  if (!schritte.length) return null;
+  const box = el('div', 'rechenweg');
+  box.append(el('div', 'rechenweg-titel', 'Rechenweg'));
+  const ul = el('ul');
+  schritte.forEach(s => ul.append(el('li', '', s)));
+  box.append(ul);
+  return box;
+}
+function baueTipp(text) {
+  const box = el('div', 'tipp');
+  // Der Axolotl „gibt“ den Tipp
+  const bild = document.createElementNS(SVG_NS, 'svg');
+  bild.setAttribute('class', 'tipp-axolotl');
+  bild.setAttribute('viewBox', '0 0 140 112');
+  bild.setAttribute('aria-hidden', 'true');
+  const verweis = document.createElementNS(SVG_NS, 'use');
+  verweis.setAttribute('href', '#axolotl');
+  bild.append(verweis);
+  // Rechnungen wie "8 · 5" sollen am Zeilenende nicht auseinandergerissen werden
+  const inhalt = el('div', 'tipp-text');
+  inhalt.append(el('span', 'tipp-titel', 'Tipp: '), text.replace(/ ([·:+−=]) /g, ' $1 '));
+  box.append(bild, inhalt);
+  return box;
+}
+function baueInhalt(a, mitLoesung) {
+  const teile = [];
+  if (a.layout === 'stapel') teile.push(baueStapel(a.stapel, mitLoesung));
+  else if (a.layout === 'raster') teile.push(baueRaster(a.raster, mitLoesung));
+  else if (a.layout === 'zeile') teile.push(baueZeile(a.teile, mitLoesung, a.klein));
+  else if (a.layout === 'tafel') teile.push(baueTafel(a.tafel, mitLoesung));
+  else if (a.layout === 'strahl') teile.push(baueStrahl(a.strahl, mitLoesung));
+  else if (a.layout === 'wahl') teile.push(baueWahl(a, mitLoesung));
+  else teile.push(el('p', 'sachtext', a.text));
+  if (a.unten) teile.push(baueZeile(a.unten, mitLoesung, true));
+  return teile;
+}
+function baueAufgabe(a, nr, mitLoesung, farbe, mitHinweis) {
+  const karte = el('article', 'aufgabe');
+  karte.dataset.thema = a.thema;
+  karte.style.setProperty('--c', farbe);
+  const kopfzeile = el('div', 'aufgabe-kopf');
+  kopfzeile.append(el('div', 'aufgabe-nr', String(nr)));
+  if (a.einstieg) kopfzeile.append(el('span', 'einstieg-marke', 'Zum Aufwärmen'));
+  if (a.breit) karte.classList.add('breit');
+  karte.append(kopfzeile);
+  if (a.auftrag) karte.append(el('p', 'auftrag', a.auftrag));
+  if (!mitLoesung && einst.ueberschlag && a.ueberschlag) karte.append(baueSchreibzeile('Überschlag:'));
+  karte.append(...baueInhalt(a, mitLoesung));
+  if (!mitLoesung && einst.probe && a.probeFeld) karte.append(baueSchreibzeile('Probe (Umkehraufgabe):', true));
+
+  if (mitLoesung) {
+    const weg = baueRechenweg(a);
+    if (weg) karte.append(weg);
+    if (a.antwort) karte.append(el('div', 'antwort', `Antwort: ${a.antwort}`));
+    karte.append(baueEintrag(a));
+  } else {
+    if (mitHinweis && a.hinweis) karte.append(baueTipp(a.hinweis));
+    if (a.layout === 'text') karte.append(el('div', 'karo-label nur-druck', 'Platz für Skizze und Rechnung:'));
+    if (a.karo) karte.append(baueKaro(a.karo));
+    if (a.layout === 'text') {
+      const linie = el('div', 'antwort-linie nur-druck', 'Antwort:');
+      linie.append(el('span', 'linie'));
+      karte.append(linie);
+    }
+  }
+  return karte;
+}
+function baueBlatt(ziel, aufgaben, mitLoesung, datumText, name, themenEinst) {
+  ziel.textContent = '';
+  const kopf = el('div', 'druck-kopf nur-druck');
+  kopf.append(
+    el('div', 'dk-titel', mitLoesung ? 'Lösungen zum Mathe-Tagesblatt' : 'Mathe-Tagesblatt'),
+    el('div', 'dk-datum', datumText),
+    el('div', 'dk-name', mitLoesung ? (name ? `für ${name}` : '') : `Name: ${name || '________________'}`),
+  );
+  ziel.append(kopf);
+  if (mitLoesung && aufgaben.length) {
+    const box = el('div', 'begleit'), ul = el('ul');
+    box.append(el('h3', '', 'So begleitest du das Üben'));
+    BEGLEIT_TIPPS.forEach(t => ul.append(el('li', '', t)));
+    box.append(ul);
+    ziel.append(box);
+  }
+  if (!aufgaben.length) {
+    ziel.append(el('p', 'leer-hinweis', 'Für heute ist kein Thema ausgewählt. Im Elternbereich kannst du Themen einschalten.'));
+    return;
+  }
+  let nr = 0;
+  THEMEN.forEach(thema => {
+    const eigene = aufgaben.filter(a => a.thema === thema.id);
+    if (!eigene.length) return;
+    const titel = el('h2', 'thema-titel');
+    titel.style.setProperty('--c', thema.farbe);
+    titel.append(el('span', '', thema.icon), el('span', '', thema.name));
+    const grid = el('div', 'aufgaben-grid');
+    const mitHinweis = themenEinst[thema.id].hinweise;
+    eigene.forEach(a => {
+      const karte = baueAufgabe(a, ++nr, mitLoesung, thema.farbe, mitHinweis);
+      if (!mitLoesung) machInteraktiv(karte, a);
+      grid.append(karte);
+    });
+    ziel.append(titel);
+    if (mitLoesung) ziel.append(el('p', 'achte', ACHTE_AUF[thema.id]));
+    ziel.append(grid);
+  });
+}
+
+/* =====================================================================
+   Rechnen am Tablet: Eingabefelder, Ziffernblock, Prüfen und Rückmeldung
+   ===================================================================== */
+const EINHEITEN_TASTEN = ['mm', 'cm', 'm', 'km', 'g', 'kg', 't', 'ml', 'l', 's', 'min', 'h'];
+const ohneLeer = s => String(s ?? '').replace(/[\s  ]/g, '');
+/* Vergleicht eine Eingabe mit der Lösung: Zahlen nach ihrem Wert (1,50 = 1,5), Uhrzeiten nach Minuten, sonst als Text */
+function gleich(eingabe, soll) {
+  const e = ohneLeer(eingabe), s = ohneLeer(soll);
+  if (!e) return false;
+  if (/^\d+(,\d+)?$/.test(s)) return /^\d+(,\d+)?$/.test(e) && Number(e.replace(',', '.')) === Number(s.replace(',', '.'));
+  const uhrzeit = x => { const m = /^(\d{1,2}):(\d{2})$/.exec(x); return m ? Number(m[1]) * 60 + Number(m[2]) : NaN; };
+  if (/^\d{1,2}:\d{2}$/.test(s)) return uhrzeit(e) === uhrzeit(s);
+  return e.toLowerCase() === s.toLowerCase();
+}
+const maxVersuche = a => (a.layout === 'wahl' || a.typ === 'vergleichen' || a.stimmt !== undefined ? 1 : 2);
+function zustandVon(key) {
+  const tag = eingaben[datum] || (eingaben[datum] = {});
+  return tag[key] || (tag[key] = { felder: {}, versuche: 0, status: 'offen' });
+}
+const speichereEingaben = () => speichereObjekt(EINGABE_SPEICHER, eingaben);
+const gesperrt = ia => ia.z.status !== 'offen';
+const wertVon = feld => feld.ia.z.felder[feld.id] || '';
+
+/* Ein Eingabefeld ist eine Kästchenzelle oder eine Lücke. Was das Kind eintippt, steht in span.ein
+   und wird beim Drucken ausgeblendet, damit das Papierblatt leer bleibt. */
+function neuesFeld(ia, ziel, opt) {
+  const feld = {
+    ia, el: ziel, id: opt.id, max: opt.max || 1, art: opt.art || 'zahl',
+    extras: opt.extras || [], richtung: opt.richtung || null, reihe: opt.reihe || null,
+  };
+  ziel.classList.add('feld');
+  ziel.tabIndex = 0;
+  ziel.setAttribute('role', 'textbox');
+  ziel.setAttribute('aria-label', opt.label || 'Eingabefeld');
+  if (feld.reihe) feld.reihe.push(feld);
+  ia.felder.push(feld);
+  zeigeWert(feld);
+  ziel.addEventListener('click', () => aktiviere(feld));
+  return feld;
+}
+function zeigeWert(feld) {
+  feld.el.textContent = '';
+  feld.el.append(el('span', 'ein', wertVon(feld) || ' '));
+}
+function setzeWert(feld, wert) {
+  if (wert) feld.ia.z.felder[feld.id] = wert; else delete feld.ia.z.felder[feld.id];
+  zeigeWert(feld);
+  speichereEingaben();
+}
+const leerAlle = felder => felder.every(f => !wertVon(f));
+/* Ergebnis in einer Kästchenzeile: Die Einer müssen ganz rechts stehen, dazwischen darf nichts fehlen */
+function zeileRichtig(felder, soll) {
+  const w = felder.map(wertVon);
+  const erste = w.findIndex(x => x);
+  if (erste < 0 || !w[w.length - 1]) return false;
+  const text = w.slice(erste).join('');
+  return w.slice(erste).every(x => x) && /^\d+$/.test(text) && Number(text) === Number(soll);
+}
+/* Lücken einer Zeile als Eingabefelder; jede Lücke wird einzeln bewertet */
+function lueckenFelder(ia, elemente, soll, praefix) {
+  return elemente.map((ziel, j) => {
+    const t = soll[j];
+    let art = 'zahl';
+    if (t.l === '<' || t.l === '>') art = 'vergleich';
+    else if (EINHEITEN_TASTEN.includes(t.l)) art = 'einheit';
+    const feld = neuesFeld(ia, ziel, {
+      id: `${praefix}${j}`, art, max: 12, label: 'Lücke',
+      extras: art === 'zahl' ? [',', ...(t.l.includes(':') ? [':'] : [])] : [],
+    });
+    ia.gruppen.push({ els: [ziel], leer: () => !wertVon(feld), pruefe: () => gleich(wertVon(feld), t.l) });
+    return feld;
+  });
+}
+
+function machInteraktiv(karte, a) {
+  const key = `${a.thema}|${a.sig}`;
+  const ia = { a, key, karte, z: zustandVon(key), felder: [], gruppen: [] };
+  karte.classList.add('interaktiv');
+  const sollLuecken = [...(a.layout === 'zeile' ? a.teile : []), ...(a.unten || [])].filter(t => typeof t !== 'string');
+  lueckenFelder(ia, [...karte.querySelectorAll('.luecke')], sollLuecken, 'l');
+
+  if (a.layout === 'stapel' && a.stapel.falsch == null) {
+    const reihen = [...karte.querySelector('table.karo').rows];
+    const ue = reihen.find(r => r.classList.contains('uebertrag')), erg = reihen.find(r => r.classList.contains('ergebnis'));
+    const ueReihe = [], ergReihe = [];
+    [...ue.cells].slice(1).forEach((td, j) => neuesFeld(ia, td, { id: `u${j}`, reihe: ueReihe, label: 'Übertrag' }));
+    const felder = [...erg.cells].slice(1).map((td, j) => neuesFeld(ia, td, { id: `e${j}`, reihe: ergReihe, richtung: 'links', label: 'Ergebnis' }));
+    ia.gruppen.push({ els: felder.map(f => f.el), leer: () => leerAlle(felder), pruefe: () => zeileRichtig(felder, a.stapel.ergebnis) });
+  }
+
+  if (a.layout === 'raster') {
+    const r = a.raster, reihen = [...karte.querySelector('table.karo').rows], geteilt = a.rechnung.op === ':';
+    const kopfIdx = r.kopf.map((z, i) => (z.loes ? i : -1)).filter(i => i >= 0);
+    if (kopfIdx.length) {
+      const reihe = [], soll = kopfIdx.map(i => r.kopf[i].t).join('');
+      const felder = kopfIdx.map(i => neuesFeld(ia, reihen[0].cells[i], {
+        id: `k${i}`, reihe, richtung: 'rechts', extras: geteilt ? ['R'] : [], label: 'Ergebnis',
+      }));
+      ia.gruppen.push({ els: felder.map(f => f.el), leer: () => leerAlle(felder), pruefe: () => felder.map(wertVon).join('').toUpperCase() === soll });
+    }
+    const zeilen = reihen.slice(1).map((tr, zi) => {
+      const reihe = [];
+      [...tr.cells].forEach((td, j) => neuesFeld(ia, td, { id: `z${zi}-${j}`, reihe, richtung: geteilt ? 'rechts' : 'links', extras: ['−'], label: 'Rechenkästchen' }));
+      return reihe;
+    });
+    if (!kopfIdx.length) {
+      // Schriftlich malnehmen: Das Ergebnis ist die unterste beschriebene Zeile
+      const tab = karte.querySelector('table.karo');
+      ia.gruppen.push({
+        els: [tab], leer: () => zeilen.every(leerAlle),
+        pruefe: () => {
+          const unten = [...zeilen].reverse().find(z => !leerAlle(z));
+          const text = unten.map(wertVon).join('');
+          return /^\d+$/.test(text) && Number(text) === a.rechnung.z;
+        },
+      });
+    }
+  }
+
+  if (a.layout === 'tafel' && a.tafel.leer) {
+    const reihe = [];
+    [...karte.querySelector('table.tafel').rows[1].cells].forEach((td, j) => {
+      const soll = a.tafel.werte[j];
+      const feld = neuesFeld(ia, td, { id: `t${j}`, reihe, richtung: 'rechts', label: `Spalte ${a.tafel.spalten[j]}` });
+      ia.gruppen.push({
+        els: [td], optional: soll === '', leer: () => !wertVon(feld),
+        pruefe: () => (soll === '' ? ['', '0'].includes(wertVon(feld)) : wertVon(feld) === soll),
+      });
+    });
+  }
+
+  if (a.layout === 'strahl' && a.strahl.eintragen) {
+    const svg = karte.querySelector('svg.strahl');
+    svg.classList.add('tippbar');
+    const zeigeC = () => {
+      svg.querySelectorAll('.kind-pfeil').forEach(g => g.remove());
+      if (ia.z.strahl != null) strahlPfeil(svg, a.strahl, ia.z.strahl, 'C', '#2F6FDE', 'kind-pfeil ein');
+    };
+    svg.addEventListener('click', ereignis => {
+      if (gesperrt(ia)) return;
+      const punkt = svg.createSVGPoint();
+      punkt.x = ereignis.clientX;
+      punkt.y = ereignis.clientY;
+      const x = punkt.matrixTransform(svg.getScreenCTM().inverse()).x;
+      const pos = Math.round((x - STRAHL.x0) / ((STRAHL.x1 - STRAHL.x0) / a.strahl.n));
+      ia.z.strahl = Math.min(a.strahl.n - 1, Math.max(1, pos));
+      speichereEingaben();
+      zeigeC();
+    });
+    zeigeC();
+    karte.querySelector('.auftrag').after(el('p', 'tablet-hinweis kein-druck', 'Tippe auf den Zahlenstrich, an dem C stehen soll.'));
+    ia.gruppen.push({ els: [svg], leer: () => ia.z.strahl == null, pruefe: () => ia.z.strahl === a.strahl.eintragen.pos });
+  }
+
+  if (a.layout === 'wahl') {
+    const optionen = [...karte.querySelectorAll('.option')];
+    const markiere = () => optionen.forEach((o, j) => {
+      o.classList.toggle('gewaehlt', ia.z.wahl === j);
+      o.setAttribute('aria-checked', String(ia.z.wahl === j));
+    });
+    optionen.forEach((o, j) => {
+      o.classList.add('waehlbar');
+      o.tabIndex = 0;
+      o.setAttribute('role', 'radio');
+      o.addEventListener('click', () => { if (gesperrt(ia)) return; ia.z.wahl = j; speichereEingaben(); markiere(); });
+    });
+    markiere();
+    ia.gruppen.push({ els: optionen, leer: () => ia.z.wahl == null, pruefe: () => ia.z.wahl === a.richtig });
+  }
+
+  if (a.layout === 'text') baueSachEingabe(ia);
+
+  const leiste = el('div', 'ia-leiste kein-druck');
+  const knopf = el('button', 'pruefen-knopf', 'Prüfen ✓');
+  knopf.type = 'button';
+  knopf.addEventListener('click', () => pruefeAufgabe(ia));
+  const meldung = el('p', 'rueckmeldung');
+  meldung.setAttribute('aria-live', 'polite');
+  leiste.append(knopf, meldung);
+  karte.append(leiste);
+  ia.knopf = knopf;
+  ia.meldung = meldung;
+  karte.iaDaten = ia;
+
+  // gespeicherten Stand wiederherstellen
+  if (ia.z.status !== 'offen') zeigeAbschluss(ia);
+  else if (ia.z.versuche > 0) {
+    (ia.z.markiert || []).forEach(i => ia.gruppen[i] && ia.gruppen[i].els.forEach(e => e.classList.add('markiert-falsch')));
+    zeigeMeldung(ia, NOCHMAL, 'nochmal');
+    zeigeNachtipp(ia);
+  }
+}
+
+/* Sachaufgaben: Ergebnisfeld, „Nicht lösbar“ oder Ja/Nein */
+function baueSachEingabe(ia) {
+  const a = ia.a, box = el('div', 'antwort-feld kein-druck');
+  box.append(el('div', 'af-titel', a.stimmt !== undefined ? 'Deine Antwort:' : 'Dein Ergebnis:'));
+  const knopf = (text, gewaehlt, aktion) => {
+    const b = el('button', 'wahl-knopf', text);
+    b.type = 'button';
+    b.addEventListener('click', () => { if (!gesperrt(ia)) aktion(); });
+    b.zeige = () => b.classList.toggle('gewaehlt', gewaehlt());
+    return b;
+  };
+  if (a.stimmt !== undefined) {
+    const ja = knopf('Ja, das kann stimmen', () => ia.z.ja === true, () => { ia.z.ja = true; speichereEingaben(); ja.zeige(); nein.zeige(); });
+    const nein = knopf('Nein, das kann nicht stimmen', () => ia.z.ja === false, () => { ia.z.ja = false; speichereEingaben(); ja.zeige(); nein.zeige(); });
+    ja.zeige();
+    nein.zeige();
+    box.append(ja, nein);
+    ia.gruppen.push({ els: [ja, nein], leer: () => ia.z.ja == null, pruefe: () => ia.z.ja === a.stimmt });
+  } else {
+    const zeile = baueZeile(a.eingabe, false, true);
+    box.append(zeile);
+    const soll = a.eingabe.filter(t => typeof t !== 'string'), elemente = [...zeile.querySelectorAll('.luecke')];
+    if (a.typ === 'sachPruefen') {
+      // Lösbar oder nicht? Beides wird als eine Antwort bewertet.
+      const felder = elemente.map((ziel, j) => neuesFeld(ia, ziel, { id: `a${j}`, art: 'zahl', max: 12, extras: [',', ':'], label: 'Ergebnis' }));
+      const nicht = knopf('Nicht lösbar, es fehlt eine Angabe', () => !!ia.z.nichtLoesbar, () => {
+        ia.z.nichtLoesbar = !ia.z.nichtLoesbar;
+        speichereEingaben();
+        nicht.zeige();
+      });
+      nicht.zeige();
+      box.append(nicht);
+      ia.gruppen.push({
+        els: [box], leer: () => !ia.z.nichtLoesbar && leerAlle(felder),
+        pruefe: () => (a.loesbar ? !ia.z.nichtLoesbar && felder.every((f, j) => gleich(wertVon(f), soll[j].l)) : !!ia.z.nichtLoesbar),
+      });
+    } else lueckenFelder(ia, elemente, soll, 'a');
+  }
+  ia.karte.querySelector('.sachtext').after(box);
+}
+
+const NOCHMAL = 'Noch nicht ganz! Schau dir die markierten Stellen noch einmal an. Du hast noch einen Versuch.';
+function zeigeMeldung(ia, text, art) {
+  ia.meldung.textContent = text;
+  ia.meldung.className = `rueckmeldung ${art}`;
+}
+function zeigeNachtipp(ia) {
+  // Nach dem ersten Fehlversuch hilft der Tipp, auch wenn die Tipps sonst ausgeschaltet sind
+  if (!ia.a.hinweis || ia.karte.querySelector('.tipp')) return;
+  const tipp = baueTipp(ia.a.hinweis);
+  tipp.classList.add('kein-druck');
+  ia.karte.querySelector('.ia-leiste').before(tipp);
+}
+function pruefeAufgabe(ia) {
+  if (gesperrt(ia)) return;
+  schliesseTastenfeld();
+  const pflicht = ia.gruppen.filter(g => !g.optional);
+  if (pflicht.some(g => g.leer())) {
+    zeigeMeldung(ia, pflicht.every(g => g.leer()) ? 'Trage zuerst dein Ergebnis ein.' : 'Es ist noch ein Feld leer.', 'hinweis');
+    return;
+  }
+  ia.z.versuche += 1;
+  ia.karte.querySelectorAll('.markiert-falsch').forEach(e => e.classList.remove('markiert-falsch'));
+  const falsch = ia.gruppen.filter(g => !g.pruefe());
+  if (!falsch.length) abschliessen(ia, true);
+  else if (ia.z.versuche >= maxVersuche(ia.a)) abschliessen(ia, false);
+  else {
+    falsch.forEach(g => g.els.forEach(e => e.classList.add('markiert-falsch')));
+    ia.z.markiert = falsch.map(g => ia.gruppen.indexOf(g));
+    zeigeMeldung(ia, NOCHMAL, 'nochmal');
+    zeigeNachtipp(ia);
+  }
+  speichereEingaben();
+}
+function abschliessen(ia, richtig) {
+  const a = ia.a;
+  ia.z.status = richtig ? 'richtig' : 'falsch';
+  delete ia.z.markiert;
+  speichereEingaben();
+  // automatisch eintragen; richtig im 2. Versuch zählt als geschafft, die Aufgabenart kommt aber bald wieder
+  const tag = ergebnisse[datum] || (ergebnisse[datum] = {});
+  tag[ia.key] = { r: richtig, f: '', thema: a.thema, typ: a.typ, stufe: a.stufe, versuch: ia.z.versuche, quelle: 'kind' };
+  speichereObjekt(ERGEBNIS_SPEICHER, ergebnisse);
+  holePlan(datum, true);
+  zeigeAbschluss(ia);
+  zeigeKindFortschritt();
+  zeichneStand();
+  zeichneUebersicht();
+}
+function zeigeAbschluss(ia) {
+  const a = ia.a, richtig = ia.z.status === 'richtig';
+  ia.karte.classList.add(richtig ? 'status-richtig' : 'status-falsch');
+  ia.knopf.remove();
+  if (richtig) {
+    zeigeMeldung(ia, ia.z.versuche > 1 ? 'Richtig! Gut, dass du noch einmal nachgeschaut hast.' : 'Super, richtig! 🎉', 'gut');
+    return;
+  }
+  zeigeMeldung(ia, 'Diesmal hat es nicht geklappt. Schau dir an, wie es geht:', 'falsch');
+  const box = el('div', 'loesung-zeigen loesung kein-druck');
+  box.append(el('div', 'lz-titel', 'So geht es richtig'));
+  if (a.layout !== 'text') box.append(...baueInhalt(a, true));
+  const weg = baueRechenweg(a);
+  if (weg) box.append(weg);
+  if (a.antwort) box.append(el('div', 'antwort', `Antwort: ${a.antwort}`));
+  ia.karte.append(box);
+}
+function zeigeKindFortschritt() {
+  const tag = eingaben[datum] || {}, n = aktuelleAufgaben.length;
+  const fertig = aktuelleAufgaben.filter(a => { const z = tag[`${a.thema}|${a.sig}`]; return z && z.status !== 'offen'; }).length;
+  const ziel = $('kind-fortschritt');
+  ziel.classList.toggle('alles', n > 0 && fertig === n);
+  if (!n || !fertig) ziel.textContent = n ? 'Tippe in ein Kästchen und rechne los!' : '';
+  else ziel.textContent = fertig === n ? `Alle ${n} Aufgaben geschafft – toll gemacht! 🎉` : `Geschafft: ${fertig} von ${n} Aufgaben`;
+}
+
+/* ---------- Ziffernblock ---------- */
+let aktivesFeld = null;
+function aktiviere(feld) {
+  if (gesperrt(feld.ia)) return;
+  if (aktivesFeld) aktivesFeld.el.classList.remove('aktiv');
+  aktivesFeld = feld;
+  feld.el.classList.add('aktiv');
+  baueTasten(feld);
+  $('tastenfeld').hidden = false;
+  document.body.classList.add('tf-offen');
+  const rahmen = feld.el.getBoundingClientRect(), frei = window.innerHeight - $('tastenfeld').offsetHeight;
+  if (rahmen.bottom > frei - 12 || rahmen.top < 0) window.scrollBy({ top: rahmen.top - frei / 2 });
+}
+function schliesseTastenfeld() {
+  if (aktivesFeld) aktivesFeld.el.classList.remove('aktiv');
+  aktivesFeld = null;
+  const tf = document.getElementById('tastenfeld');
+  if (tf) tf.hidden = true;
+  document.body.classList.remove('tf-offen');
+}
+function baueTasten(feld) {
+  const tasten = $('tf-tasten');
+  tasten.textContent = '';
+  let liste;
+  if (feld.art === 'einheit') liste = [...EINHEITEN_TASTEN];
+  else if (feld.art === 'vergleich') liste = ['<', '>'];
+  else {
+    const extras = feld.extras.slice();
+    liste = [...(extras.length > 1 ? extras.splice(1).concat(['', '', '']).slice(0, 3) : []),
+      '7', '8', '9', '4', '5', '6', '1', '2', '3', extras[0] || '', '0'];
+  }
+  tasten.className = `tf-tasten ${feld.art}`;
+  liste.push('⌫');
+  liste.forEach(z => {
+    if (!z) { tasten.append(el('span')); return; }
+    const b = el('button', z === '⌫' ? 'weg' : '', z);
+    b.type = 'button';
+    if (z === '⌫') b.setAttribute('aria-label', 'Löschen');
+    b.addEventListener('click', () => tippeZeichen(z));
+    tasten.append(b);
+  });
+}
+function nachbar(feld, richtung) {
+  if (!richtung || !feld.reihe) return null;
+  return feld.reihe[feld.reihe.indexOf(feld) + (richtung === 'links' ? -1 : 1)] || null;
+}
+function tippeZeichen(z) {
+  const f = aktivesFeld;
+  if (!f || gesperrt(f.ia)) return;
+  f.el.classList.remove('markiert-falsch');
+  const w = wertVon(f);
+  if (z === '⌫') {
+    if (f.max > 1 && f.art === 'zahl') setzeWert(f, w.slice(0, -1));
+    else if (w) setzeWert(f, '');
+    else {
+      const zurueck = nachbar(f, f.richtung === 'links' ? 'rechts' : f.richtung === 'rechts' ? 'links' : null);
+      if (zurueck) { aktiviere(zurueck); setzeWert(zurueck, ''); }
+    }
+    return;
+  }
+  if (f.art !== 'zahl') { setzeWert(f, z); return; }
+  if (f.max === 1) {
+    setzeWert(f, z);
+    const weiter = nachbar(f, f.richtung);
+    if (weiter) aktiviere(weiter);
+  } else if (w.length < f.max) setzeWert(f, w + z);
+}
+function wechsleFeld(schritt) {
+  const f = aktivesFeld;
+  if (!f) return;
+  const liste = f.ia.felder, i = liste.indexOf(f) + schritt;
+  if (liste[i]) aktiviere(liste[i]);
+}
+/* Bedienung des Ziffernblocks, auch mit einer Tastatur; wird beim Start einmal eingerichtet */
+function richteTastenfeldEin() {
+$('tf-links').addEventListener('click', () => wechsleFeld(-1));
+$('tf-rechts').addEventListener('click', () => wechsleFeld(1));
+$('tf-fertig').addEventListener('click', schliesseTastenfeld);
+document.addEventListener('keydown', e => {
+  if (!aktivesFeld || !$('pin-dialog').hidden || document.body.dataset.view !== 'kind') return;
+  const f = aktivesFeld;
+  let z = null;
+  if (/^[0-9]$/.test(e.key) && f.art === 'zahl') z = e.key;
+  else if ((e.key === ',' || e.key === '.') && f.extras.includes(',')) z = ',';
+  else if (e.key === ':' && f.extras.includes(':')) z = ':';
+  else if (e.key.toLowerCase() === 'r' && f.extras.includes('R')) z = 'R';
+  else if (e.key === '-' && f.extras.includes('−')) z = '−';
+  else if ((e.key === '<' || e.key === '>') && f.art === 'vergleich') z = e.key;
+  else if (e.key === 'Backspace' || e.key === 'Delete') z = '⌫';
+  else if (e.key === 'ArrowLeft') { wechsleFeld(-1); e.preventDefault(); return; }
+  else if (e.key === 'ArrowRight' || e.key === 'Tab') { wechsleFeld(e.shiftKey ? -1 : 1); e.preventDefault(); return; }
+  else if (e.key === 'Enter') { pruefeAufgabe(f.ia); e.preventDefault(); return; }
+  else if (e.key === 'Escape') { schliesseTastenfeld(); return; }
+  if (z) { tippeZeichen(z); e.preventDefault(); }
+});
+}
+
+/* =====================================================================
+   Einstellungen und Bedienung
+   ===================================================================== */
+function standardEinstellungen() {
+  const themen = {};
+  THEMEN.forEach(t => { themen[t.id] = { an: true, stufe: 1, hinweise: false }; });
+  return { name: '', anzahl: 6, einstieg: true, schriftlichTeilen: true, fehlersuche: false, ueberschlag: true, probe: false, themen };
+}
+function ladeEinstellungen() {
+  const e = standardEinstellungen();
+  try {
+    const roh = JSON.parse(localStorage.getItem(SPEICHER) || 'null');
+    if (roh && typeof roh === 'object') {
+      if (typeof roh.name === 'string') e.name = roh.name.slice(0, 20);
+      if (Number.isInteger(roh.anzahl)) e.anzahl = Math.min(20, Math.max(4, roh.anzahl));
+      e.einstieg = roh.einstieg !== false;
+      e.schriftlichTeilen = roh.schriftlichTeilen !== false;
+      e.fehlersuche = roh.fehlersuche === true;
+      e.ueberschlag = roh.ueberschlag !== false;
+      e.probe = roh.probe === true;
+      THEMEN.forEach(t => {
+        const r = roh.themen && roh.themen[t.id];
+        if (!r) return;
+        e.themen[t.id].an = r.an !== false;
+        if ([0, 1, 2].includes(r.stufe)) e.themen[t.id].stufe = r.stufe;
+        e.themen[t.id].hinweise = r.hinweise === true;
+      });
+    }
+  } catch (fehler) { /* ohne gespeicherte Einstellungen geht es mit den Standardwerten weiter */ }
+  return e;
+}
+function speichereEinstellungen() {
+  try { localStorage.setItem(SPEICHER, JSON.stringify(einst)); } catch (fehler) { /* Speichern ist nicht möglich */ }
+}
+
+/* ---------- Ergebnisse und festgeschriebene Tagespläne ---------- */
+const ERGEBNIS_SPEICHER = 'mathe-tagesblatt-ergebnisse-v1';
+const PLAN_SPEICHER = 'mathe-tagesblatt-plaene-v1';
+const EINGABE_SPEICHER = 'mathe-tagesblatt-eingaben-v1';
+const ISO_MUSTER = /^\d{4}-\d{2}-\d{2}$/;
+const FEHLERARTEN = {
+  zahlen: ['Stellenwert verwechselt', 'Fehler bei einer Null', 'Falsch gerundet', 'Zahlenstrahl falsch abgelesen', '< und > verwechselt', 'Sonstiges'],
+  plusminus: ['Übertrag vergessen oder falsch', 'Nicht genau untereinander geschrieben', 'Verrechnet', 'Fehler bei einer Null', 'Fehler nicht gefunden', 'Sonstiges'],
+  malgeteilt: ['Einmaleins-Fehler', 'Übertrag oder Merkzahl falsch', 'Teilergebnis an falscher Stelle', 'Ablauf beim Teilen (herunterholen, Rest)', 'Fehler bei einer Null', 'Sonstiges'],
+  groessen: ['Umrechnungszahl falsch', 'Falsche Richtung (mal statt geteilt)', 'Komma oder Null falsch gesetzt', 'Keine Vorstellung von der Größe', 'Verrechnet', 'Sonstiges'],
+  sach: ['Aufgabe nicht verstanden', 'Falsche Rechenart', 'Einen Schritt vergessen', 'Überflüssige Angabe mitgerechnet', 'Fehlende Angabe nicht bemerkt', 'Verrechnet', 'Antwort fehlt oder passt nicht', 'Sonstiges'],
+};
+function ladeObjekt(schluessel) {
+  try {
+    const o = JSON.parse(localStorage.getItem(schluessel) || 'null');
+    return o && typeof o === 'object' && !Array.isArray(o) ? o : {};
+  } catch (fehler) { return {}; }
+}
+function speichereObjekt(schluessel, wert) {
+  try { localStorage.setItem(schluessel, JSON.stringify(wert)); } catch (fehler) { /* Speichern ist nicht möglich */ }
+}
+/* Aus allen Einträgen wird je Aufgabenart ein Verlauf: pro Tag „alles richtig“ oder nicht */
+function baueVerlaeufe(erg) {
+  const proTyp = {};
+  Object.keys(erg).filter(iso => ISO_MUSTER.test(iso)).sort().forEach(iso => {
+    const tag = tagNummer(iso), amTag = {};
+    Object.values(erg[iso]).forEach(e => {
+      const key = `${e.typ}@${e.stufe}`;
+      amTag[key] = (amTag[key] ?? true) && e.r === true && !(e.versuch > 1);
+    });
+    Object.entries(amTag).forEach(([key, ok]) => { (proTyp[key] = proTyp[key] || []).push({ tag, ok }); });
+  });
+  return proTyp;
+}
+const fingerabdruck = e => JSON.stringify([e.anzahl, e.einstieg, e.schriftlichTeilen, e.fehlersuche,
+  THEMEN.map(t => [e.themen[t.id].an, e.themen[t.id].stufe])]);
+/* Der Plan eines Tages wird festgeschrieben, sobald der Tag erreicht ist, gedruckt oder etwas eingetragen wird.
+   So passt ein gedrucktes Blatt auch dann noch zum Lösungsblatt, wenn später Ergebnisse früherer Tage dazukommen. */
+function holePlan(iso, festschreiben) {
+  const fp = fingerabdruck(einst), alt = plaene[iso];
+  if (alt && alt.fp === fp && alt.plan) return alt.plan;
+  const plan = planeTag(iso, einst, baueVerlaeufe(ergebnisse));
+  if (festschreiben || iso <= heuteIso()) {
+    plaene[iso] = { fp, plan };
+    speichereObjekt(PLAN_SPEICHER, plaene);
+  }
+  return plan;
+}
+
+const isoVon = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const datumAus = iso => { const [j, m, t] = iso.split('-').map(Number); return new Date(j, m - 1, t); };
+const heuteIso = () => isoVon(new Date());
+
+let einst = ladeEinstellungen();
+let ergebnisse = ladeObjekt(ERGEBNIS_SPEICHER);
+const eingaben = ladeObjekt(EINGABE_SPEICHER);
+const plaene = ladeObjekt(PLAN_SPEICHER);
+let datum = heuteIso();
+let aktuelleAufgaben = [];
+const $ = id => document.getElementById(id);
+const langesDatum = iso => datumAus(iso).toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+/* ---------- Eintragen von richtig/falsch im Elternbereich ---------- */
+function baueEintrag(a) {
+  const key = `${a.thema}|${a.sig}`;
+  const zeile = el('div', 'eintrag kein-druck');
+  const richtig = el('button', 'e-knopf richtig', '✓ Richtig'), falsch = el('button', 'e-knopf falsch', '✗ Falsch');
+  richtig.type = 'button';
+  falsch.type = 'button';
+  const wahl = el('select', 'e-fehler');
+  wahl.setAttribute('aria-label', 'Fehlerart');
+  const leer = el('option', '', 'Fehlerart wählen …');
+  leer.value = '';
+  wahl.append(leer);
+  FEHLERARTEN[a.thema].forEach(f => { const o = el('option', '', f); o.value = f; wahl.append(o); });
+  const vomKind = el('span', 'vom-kind');
+  const zeige = () => {
+    const e = (ergebnisse[datum] || {})[key];
+    vomKind.textContent = e && e.quelle === 'kind'
+      ? `Am Tablet: ${e.r ? (e.versuch > 1 ? 'richtig im 2. Versuch' : 'richtig') : 'nicht geschafft'}` : '';
+    richtig.classList.toggle('aktiv', !!e && e.r === true);
+    falsch.classList.toggle('aktiv', !!e && e.r === false);
+    richtig.setAttribute('aria-pressed', String(!!e && e.r === true));
+    falsch.setAttribute('aria-pressed', String(!!e && e.r === false));
+    wahl.hidden = !(e && e.r === false);
+    wahl.value = e && e.f ? e.f : '';
+  };
+  const setze = r => {
+    const tag = ergebnisse[datum] || (ergebnisse[datum] = {});
+    if (tag[key] && tag[key].r === r) delete tag[key];          // nochmal klicken nimmt den Eintrag zurück
+    else tag[key] = { r, f: '', thema: a.thema, typ: a.typ, stufe: a.stufe };
+    if (!Object.keys(tag).length) delete ergebnisse[datum];
+    nachEintrag();
+    zeige();
+  };
+  richtig.addEventListener('click', () => setze(true));
+  falsch.addEventListener('click', () => setze(false));
+  wahl.addEventListener('change', () => {
+    const e = (ergebnisse[datum] || {})[key];
+    if (e) { e.f = wahl.value; nachEintrag(); }
+  });
+  zeige();
+  zeile.append(richtig, falsch, wahl, vomKind);
+  return zeile;
+}
+function nachEintrag() {
+  speichereObjekt(ERGEBNIS_SPEICHER, ergebnisse);
+  holePlan(datum, true);
+  zeichneStand();
+  zeichneUebersicht();
+}
+function zeichneStand() {
+  const tag = ergebnisse[datum] || {};
+  const eintraege = aktuelleAufgaben.map(a => tag[`${a.thema}|${a.sig}`]).filter(Boolean);
+  const richtig = eintraege.filter(e => e.r).length;
+  let text = 'Trage nach dem Kontrollieren bei jeder Aufgabe ein, ob sie richtig oder falsch war. '
+    + 'Unsichere Aufgabenarten kommen dann früher wieder, sichere seltener. ';
+  text += eintraege.length
+    ? `Eingetragen: ${eintraege.length} von ${aktuelleAufgaben.length} (${richtig} richtig, ${eintraege.length - richtig} falsch).`
+    : 'Für diesen Tag ist noch nichts eingetragen.';
+  const fest = plaene[datum] && plaene[datum].fp === fingerabdruck(einst);
+  if (datum > heuteIso() && !fest) text += ' Dieses Blatt ist eine Vorschau: Es kann sich noch ändern, bis du es druckst oder der Tag erreicht ist.';
+  $('eintrag-stand').textContent = text;
+}
+
+/* ---------- Fortschrittsübersicht ---------- */
+function baueTabelle(spalten, zeilen) {
+  const tab = el('table', 'ueb-tab'), kopf = el('tr');
+  spalten.forEach(s => kopf.append(el('th', '', s)));
+  tab.append(kopf);
+  zeilen.forEach(z => {
+    const tr = el('tr');
+    z.forEach(zelle => { const td = el('td'); td.append(zelle); tr.append(td); });
+    tab.append(tr);
+  });
+  return tab;
+}
+const anteil = liste => `${liste.filter(e => e.r).length} von ${liste.length} (${Math.round(100 * liste.filter(e => e.r).length / liste.length)} %)`;
+function einschaetzung(liste) {
+  if (liste.length < 6) return 'Noch zu wenige Ergebnisse für eine Einschätzung.';
+  const q = 100 * liste.filter(e => e.r).length / liste.length;
+  if (q >= 90) return 'Sitzt sicher. Du kannst die Schwierigkeit erhöhen oder die Tipps abschalten.';
+  if (q >= 70) return 'Passt gut, so weitermachen.';
+  if (q >= 50) return 'Noch unsicher. Tipps einschalten oder die Schwierigkeit senken.';
+  return 'Hier fehlen vermutlich Grundlagen. Mehr vom Gleichen hilft dann wenig, am besten mit der Lehrkraft sprechen.';
+}
+function haeufigste(texte) {
+  const zahl = {};
+  texte.forEach(t => { zahl[t] = (zahl[t] || 0) + 1; });
+  return Object.entries(zahl).sort((a, b) => b[1] - a[1]);
+}
+function zeichneUebersicht() {
+  const ziel = $('uebersicht');
+  ziel.textContent = '';
+  const heute = tagNummer(heuteIso()), name = einst.name.trim();
+  const alle = [];
+  Object.keys(ergebnisse).filter(iso => ISO_MUSTER.test(iso)).sort().forEach(iso => {
+    Object.values(ergebnisse[iso]).forEach(e => alle.push({ ...e, tag: tagNummer(iso) }));
+  });
+  const kopf = el('div', 'druck-kopf nur-druck');
+  kopf.append(el('div', 'dk-titel', 'Mathe-Übungsübersicht'), el('div', 'dk-datum', `Stand: ${langesDatum(heuteIso())}`),
+    el('div', 'dk-name', name ? `für ${name}` : ''));
+  ziel.append(kopf);
+  if (!alle.length) {
+    ziel.append(el('p', 'hinweis', 'Noch keine Ergebnisse eingetragen. Sobald du bei den Lösungen „Richtig“ oder „Falsch“ anklickst, erscheint hier die Auswertung.'));
+    return;
+  }
+  const frisch = alle.filter(e => e.tag > heute - 30);
+  ziel.append(el('p', 'ueb-summe', frisch.length
+    ? `Letzte 30 Tage: ${frisch.length === 1 ? '1 Aufgabe' : `${frisch.length} Aufgaben`} an ${new Set(frisch.map(e => e.tag)).size === 1 ? 'einem Tag' : `${new Set(frisch.map(e => e.tag)).size} Tagen`}, richtig waren ${anteil(frisch)}.`
+    : 'In den letzten 30 Tagen wurde nichts eingetragen.'));
+
+  if (frisch.length) {
+    ziel.append(el('h3', 'ueb-titel', 'Bereiche (letzte 30 Tage)'));
+    ziel.append(baueTabelle(['Bereich', 'Richtig', 'Häufigster Fehler', 'Einschätzung'],
+      THEMEN.map(t => [t, frisch.filter(e => e.thema === t.id)]).filter(([, l]) => l.length).map(([t, l]) => {
+        const fehler = haeufigste(l.filter(e => !e.r && e.f).map(e => e.f));
+        return [`${t.icon} ${t.name}`, anteil(l), fehler.length ? `${fehler[0][0]} (${fehler[0][1]}×)` : '–', einschaetzung(l)];
+      })));
+  }
+
+  ziel.append(el('h3', 'ueb-titel', 'Aufgabenarten (alle Ergebnisse)'));
+  const verlaeufe = baueVerlaeufe(ergebnisse), proTyp = {};
+  alle.forEach(e => { (proTyp[`${e.typ}@${e.stufe}`] = proTyp[`${e.typ}@${e.stufe}`] || []).push(e); });
+  const reihenfolge = THEMEN.map(t => t.id);
+  const zeilen = Object.entries(proTyp)
+    .sort((a, b) => reihenfolge.indexOf(a[1][0].thema) - reihenfolge.indexOf(b[1][0].thema) || a[0].localeCompare(b[0]))
+    .map(([key, liste]) => {
+      const zeichen = el('span', 'ueb-zeichen');
+      liste.slice(-6).forEach(e => zeichen.append(el('span', e.r ? 'gut' : 'schlecht', e.r ? '✓' : '✗')));
+      const stand = typStand(verlaeufe[key], heute);
+      const wieder = stand.faelligIn <= 0 ? 'jetzt fällig' : stand.faelligIn === 1 ? 'morgen' : `in ${stand.faelligIn} Tagen`;
+      return [TYP_NAME[liste[0].typ] || liste[0].typ, STUFEN[liste[0].stufe] || '', anteil(liste), zeichen, wieder];
+    });
+  ziel.append(baueTabelle(['Aufgabenart', 'Stufe', 'Richtig', 'Letzte Ergebnisse', 'Wieder dran'], zeilen));
+
+  const fehler = haeufigste(frisch.filter(e => !e.r).map(e => `${THEMEN.find(t => t.id === e.thema).name}: ${e.f || 'ohne Angabe'}`));
+  if (fehler.length) {
+    ziel.append(el('h3', 'ueb-titel', 'Fehlerarten (letzte 30 Tage)'));
+    ziel.append(baueTabelle(['Bereich und Fehlerart', 'Anzahl'], fehler.map(([text, n]) => [text, `${n}×`])));
+  }
+}
+
+function zeichne() {
+  schliesseTastenfeld();
+  aktuelleAufgaben = erzeugeAufgaben(datum, einst, holePlan(datum));
+  const aufgaben = aktuelleAufgaben;
+  const datumText = datumAus(datum).toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const name = einst.name.trim();
+  baueBlatt($('blatt-aufgaben'), aufgaben, false, datumText, name, einst.themen);
+  baueBlatt($('blatt-loesungen'), aufgaben, true, datumText, name, einst.themen);
+  $('gruss').textContent = name ? `Hallo ${name}!` : 'Hallo!';
+  $('untertitel').textContent = datum === heuteIso() ? 'Deine Mathe-Aufgaben für heute' : 'Deine Mathe-Aufgaben';
+  $('kind-datum').textContent = datumText;
+  $('mutmacher').textContent = MUTMACHER[tagNummer(datum) % MUTMACHER.length];
+  $('loesung-titel').textContent = `Lösungen für ${datumText}`;
+  $('datum').value = datum;
+  zeichneStand();
+  zeichneUebersicht();
+  zeigeKindFortschritt();
+}
+function setzeAnsicht(ansicht) {
+  // Beim Wechsel neu zeichnen, damit beide Ansichten den aktuellen Stand der Eingaben zeigen
+  if (aktuelleAufgaben.length && document.body.dataset.view !== ansicht) zeichne();
+  document.body.dataset.view = ansicht;
+  document.body.dataset.print = ansicht === 'eltern' ? 'loesungen' : 'aufgaben';
+  window.scrollTo(0, 0);
+}
+function setzeDatum(iso) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return;
+  datum = iso;
+  zeichne();
+}
+function verschiebeTag(tage) {
+  const d = datumAus(datum);
+  d.setDate(d.getDate() + tage);
+  setzeDatum(isoVon(d));
+}
+function drucke(art) {
+  if (art !== 'uebersicht') { holePlan(datum, true); zeichneStand(); }   // gedruckte Blätter ändern sich nicht mehr
+  document.body.dataset.print = art;
+  window.print();
+}
+
+function baueEinstellungen() {
+  $('e-name').value = einst.name;
+  $('e-anzahl').value = einst.anzahl;
+  const tab = $('e-themen');
+  const kopf = el('tr');
+  kopf.append(el('th', '', 'Thema'), el('th', '', 'Schwierigkeit'), el('th', '', 'Lösungshinweise'));
+  tab.append(kopf);
+  THEMEN.forEach(thema => {
+    const tr = el('tr');
+    const tdAn = el('td'), tdStufe = el('td'), tdTipp = el('td');
+    const tippLabel = el('label');
+    const tipp = el('input');
+    tipp.type = 'checkbox';
+    tipp.checked = einst.themen[thema.id].hinweise;
+    tipp.setAttribute('aria-label', `Lösungshinweise für ${thema.name}`);
+    tippLabel.append(tipp, 'anzeigen');
+    tdTipp.append(tippLabel);
+    tipp.addEventListener('change', () => {
+      einst.themen[thema.id].hinweise = tipp.checked;
+      speichereEinstellungen(); zeichne();
+    });
+    const label = el('label');
+    const haken = el('input');
+    haken.type = 'checkbox';
+    haken.checked = einst.themen[thema.id].an;
+    label.append(haken, `${thema.icon} ${thema.name}`);
+    tdAn.append(label);
+    const wahl = el('select');
+    wahl.setAttribute('aria-label', `Schwierigkeit für ${thema.name}`);
+    STUFEN.forEach((s, i) => { const o = el('option', '', s); o.value = String(i); wahl.append(o); });
+    wahl.value = String(einst.themen[thema.id].stufe);
+    wahl.disabled = !haken.checked;
+    tipp.disabled = !haken.checked;
+    tdStufe.append(wahl);
+    tr.append(tdAn, tdStufe, tdTipp);
+    tab.append(tr);
+    // Zusatzschalter unter einzelnen Bereichen
+    const UNTERPUNKTE = {
+      malgeteilt: ['schriftlichTeilen', 'Schriftliches Teilen üben', ' – nicht überall Stoff der Grundschule, am besten bei der Lehrkraft nachfragen'],
+      plusminus: ['fehlersuche', '„Finde den Fehler“-Aufgaben', ' – erst einschalten, wenn das schriftliche Rechnen schon recht sicher sitzt'],
+    };
+    let unterpunkt = null;
+    if (UNTERPUNKTE[thema.id]) {
+      const [feld, text, erklaerung] = UNTERPUNKTE[thema.id];
+      const zeile = el('tr'), td = el('td', 'unterpunkt'), l = el('label');
+      td.colSpan = 3;
+      unterpunkt = el('input');
+      unterpunkt.type = 'checkbox';
+      unterpunkt.checked = einst[feld];
+      unterpunkt.disabled = !haken.checked;
+      l.append(unterpunkt, text, el('span', 'klein', erklaerung));
+      td.append(l);
+      zeile.append(td);
+      tab.append(zeile);
+      unterpunkt.addEventListener('change', () => {
+        einst[feld] = unterpunkt.checked;
+        speichereEinstellungen(); zeichne();
+      });
+    }
+    haken.addEventListener('change', () => {
+      einst.themen[thema.id].an = haken.checked;
+      wahl.disabled = !haken.checked;
+      tipp.disabled = !haken.checked;
+      if (unterpunkt) unterpunkt.disabled = !haken.checked;
+      speichereEinstellungen(); zeichne();
+    });
+    wahl.addEventListener('change', () => {
+      einst.themen[thema.id].stufe = Number(wahl.value);
+      speichereEinstellungen(); zeichne();
+    });
+  });
+  ['ueberschlag', 'probe'].forEach(feld => {
+    const haken = $(`e-${feld}`);
+    haken.checked = einst[feld];
+    haken.addEventListener('change', () => { einst[feld] = haken.checked; speichereEinstellungen(); zeichne(); });
+  });
+  $('e-einstieg').checked = einst.einstieg;
+  $('e-einstieg').addEventListener('change', () => {
+    einst.einstieg = $('e-einstieg').checked;
+    speichereEinstellungen(); zeichne();
+  });
+  $('e-name').addEventListener('input', () => {
+    einst.name = $('e-name').value;
+    speichereEinstellungen(); zeichne();
+  });
+  $('e-anzahl').addEventListener('change', () => {
+    const n = Math.min(20, Math.max(4, Math.round(Number($('e-anzahl').value)) || 10));
+    $('e-anzahl').value = n;
+    einst.anzahl = n;
+    speichereEinstellungen(); zeichne();
+  });
+}
+
+/* ---------- PIN für den Elternbereich ----------
+   Kein echter Einbruchschutz, aber genug, damit das Kind nicht versehentlich an die Lösungen kommt.
+   Gespeichert wird nur eine Prüfsumme, nicht die PIN selbst. */
+const PIN_SPEICHER = 'mathe-tagesblatt-pin-v1';
+const ENTSPERRT = 'mathe-tagesblatt-entsperrt';
+function pinPruefsumme(pin) {
+  let h = 2166136261;
+  for (const c of `axolotl:${pin}`) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); }
+  return (h >>> 0).toString(36);
+}
+function leseSpeicher(schluessel) { try { return localStorage.getItem(schluessel); } catch (fehler) { return null; } }
+function schreibeSpeicher(schluessel, wert) {
+  try { if (wert == null) localStorage.removeItem(schluessel); else localStorage.setItem(schluessel, wert); } catch (fehler) { /* Speichern ist nicht möglich */ }
+}
+const pinGesetzt = () => !!leseSpeicher(PIN_SPEICHER);
+function merkeFreigabe(an) {
+  try { if (an) sessionStorage.setItem(ENTSPERRT, '1'); else sessionStorage.removeItem(ENTSPERRT); } catch (fehler) { /* ohne Speicher keine Freigabe merken */ }
+}
+function freigegeben() { try { return sessionStorage.getItem(ENTSPERRT) === '1'; } catch (fehler) { return false; } }
+
+/* Ziffernfeld-Dialog: liefert die eingegebene 4-stellige PIN oder null bei „Abbrechen“.
+   pruefe(pin) gibt true zurück oder einen Fehlertext; dann bleibt der Dialog offen. */
+function pinEingabe({ titel, text, pruefe = () => true, vergessen = false }) {
+  return new Promise(fertig => {
+    const dialog = $('pin-dialog'), box = dialog.querySelector('.pin-box');
+    const punkte = [...dialog.querySelectorAll('.pin-punkte span')];
+    let pin = '';
+    $('pin-titel').textContent = titel;
+    $('pin-text').textContent = text;
+    $('pin-meldung').textContent = '';
+    $('pin-vergessen').hidden = !vergessen;
+    const zeige = () => punkte.forEach((p, i) => p.classList.toggle('voll', i < pin.length));
+    const ende = wert => {
+      dialog.hidden = true;
+      document.removeEventListener('keydown', taste);
+      fertig(wert);
+    };
+    const tippe = z => {
+      if (z === 'weg') pin = pin.slice(0, -1);
+      else if (pin.length < 4) pin += z;
+      $('pin-meldung').textContent = '';
+      zeige();
+      if (pin.length < 4) return;
+      const ergebnis = pruefe(pin);
+      if (ergebnis === true) { ende(pin); return; }
+      $('pin-meldung').textContent = ergebnis;
+      box.classList.remove('wackeln');
+      void box.offsetWidth;
+      box.classList.add('wackeln');
+      pin = '';
+      setTimeout(zeige, 250);
+    };
+    function taste(e) {
+      if (/^[0-9]$/.test(e.key)) tippe(e.key);
+      else if (e.key === 'Backspace') tippe('weg');
+      else if (e.key === 'Escape') ende(null);
+      else return;
+      e.preventDefault();
+    }
+    const tasten = $('pin-tasten');
+    tasten.textContent = '';
+    ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'weg'].forEach(z => {
+      if (!z) { tasten.append(el('span')); return; }
+      const b = el('button', z === 'weg' ? 'klein' : '', z === 'weg' ? '⌫' : z);
+      b.type = 'button';
+      if (z === 'weg') b.setAttribute('aria-label', 'Letzte Ziffer löschen');
+      b.addEventListener('click', () => tippe(z));
+      tasten.append(b);
+    });
+    $('pin-abbrechen').onclick = () => ende(null);
+    $('pin-vergessen').onclick = () => {
+      $('pin-meldung').textContent = 'Ohne PIN geht es nur, wenn du die gespeicherten Daten dieser Seite im Browser löschst. '
+        + 'Dabei gehen Einstellungen und Ergebnisse verloren, außer du hast eine Sicherung gespeichert.';
+    };
+    document.addEventListener('keydown', taste);
+    zeige();
+    dialog.hidden = false;
+  });
+}
+async function oeffneElternbereich() {
+  if (pinGesetzt() && !freigegeben()) {
+    const ok = await pinEingabe({
+      titel: 'Elternbereich', text: 'Bitte gib die PIN ein.', vergessen: true,
+      pruefe: pin => pinPruefsumme(pin) === leseSpeicher(PIN_SPEICHER) || 'Die PIN stimmt nicht.',
+    });
+    if (!ok) return;
+  }
+  merkeFreigabe(true);
+  setzeAnsicht('eltern');
+}
+async function pinFestlegen() {
+  const erste = await pinEingabe({ titel: 'Neue PIN', text: 'Wähle 4 Ziffern, die dein Kind nicht kennt.' });
+  if (!erste) return;
+  const zweite = await pinEingabe({
+    titel: 'PIN wiederholen', text: 'Bitte gib dieselben 4 Ziffern noch einmal ein.',
+    pruefe: pin => pin === erste || 'Die PINs stimmen nicht überein. Bitte noch einmal.',
+  });
+  if (!zweite) return;
+  schreibeSpeicher(PIN_SPEICHER, pinPruefsumme(zweite));
+  zeigePinStatus();
+}
+function zeigePinStatus() {
+  const da = pinGesetzt();
+  $('pin-status').textContent = da
+    ? 'ist festgelegt. Beim Wechsel aus der Kinderansicht wird sie abgefragt.'
+    : 'noch keine festgelegt. Ohne PIN kommt dein Kind über „Für Eltern“ an alle Lösungen.';
+  $('pin-setzen').textContent = da ? 'PIN ändern' : 'PIN festlegen';
+  $('pin-entfernen').hidden = !da;
+  $('pin-zeile').classList.toggle('fehlt', !da);
+}
+$('pin-setzen').addEventListener('click', pinFestlegen);
+$('pin-entfernen').addEventListener('click', () => {
+  if (!window.confirm('PIN wirklich entfernen? Danach ist der Elternbereich wieder frei zugänglich.')) return;
+  schreibeSpeicher(PIN_SPEICHER, null);
+  zeigePinStatus();
+});
+$('zu-eltern').addEventListener('click', oeffneElternbereich);
+$('zu-kind').addEventListener('click', () => { merkeFreigabe(false); setzeAnsicht('kind'); });
+
+/* ---------- Sicherung als Datei ---------- */
+const SICHERUNG_ART = 'mathe-tagesblatt-sicherung';
+$('sicherung-speichern').addEventListener('click', () => {
+  const daten = {
+    art: SICHERUNG_ART, version: 1, erstellt: new Date().toISOString(),
+    einstellungen: einst, ergebnisse, plaene, pin: leseSpeicher(PIN_SPEICHER),
+  };
+  const url = URL.createObjectURL(new Blob([JSON.stringify(daten, null, 1)], { type: 'application/json' }));
+  const link = el('a');
+  link.href = url;
+  link.download = `mathe-sicherung-${heuteIso()}.json`;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+});
+$('sicherung-laden').addEventListener('click', () => $('sicherung-datei').click());
+$('sicherung-datei').addEventListener('change', async () => {
+  const datei = $('sicherung-datei').files[0];
+  $('sicherung-datei').value = '';
+  if (!datei) return;
+  let daten;
+  try { daten = JSON.parse(await datei.text()); } catch (fehler) { daten = null; }
+  const objekt = o => o && typeof o === 'object' && !Array.isArray(o);
+  if (!objekt(daten) || daten.art !== SICHERUNG_ART || !objekt(daten.einstellungen) || !objekt(daten.ergebnisse)) {
+    window.alert('Diese Datei ist keine Sicherung des Mathe-Tagesblatts.');
+    return;
+  }
+  const tage = Object.keys(daten.ergebnisse).length;
+  const von = daten.erstellt ? ` vom ${new Date(daten.erstellt).toLocaleDateString('de-DE')}` : '';
+  if (!window.confirm(`Sicherung${von} mit Ergebnissen von ${tage} ${tage === 1 ? 'Tag' : 'Tagen'} laden? `
+    + 'Die Einstellungen und Ergebnisse auf diesem Gerät werden dabei ersetzt.')) return;
+  speichereObjekt(SPEICHER, daten.einstellungen);
+  speichereObjekt(ERGEBNIS_SPEICHER, daten.ergebnisse);
+  speichereObjekt(PLAN_SPEICHER, objekt(daten.plaene) ? daten.plaene : {});
+  schreibeSpeicher(PIN_SPEICHER, typeof daten.pin === 'string' && daten.pin ? daten.pin : null);
+  // Neu laden, damit alle Einstellungen sauber übernommen werden; der Elternbereich bleibt offen
+  merkeFreigabe(true);
+  location.hash = 'eltern';
+  location.reload();
+});
+$('tag-zurueck').addEventListener('click', () => verschiebeTag(-1));
+$('tag-vor').addEventListener('click', () => verschiebeTag(1));
+$('tag-heute').addEventListener('click', () => setzeDatum(heuteIso()));
+$('datum').addEventListener('change', () => setzeDatum($('datum').value));
+$('druck-aufgaben').addEventListener('click', () => drucke('aufgaben'));
+$('druck-loesungen').addEventListener('click', () => drucke('loesungen'));
+$('druck-uebersicht').addEventListener('click', () => drucke('uebersicht'));
+$('loesche-ergebnisse').addEventListener('click', () => {
+  if (!Object.keys(ergebnisse).length) return;
+  if (!window.confirm('Wirklich alle eingetragenen Ergebnisse löschen? Das lässt sich nicht rückgängig machen.')) return;
+  ergebnisse = {};
+  speichereObjekt(ERGEBNIS_SPEICHER, ergebnisse);
+  zeichne();
+});
+window.addEventListener('afterprint', () => {
+  document.body.dataset.print = document.body.dataset.view === 'eltern' ? 'loesungen' : 'aufgaben';
+});
+
+baueEinstellungen();
+zeigePinStatus();
+richteTastenfeldEin();
+// Direktaufruf des Elternbereichs: ohne PIN sofort, mit PIN nur nach Abfrage oder bestehender Freigabe in diesem Tab
+if (location.hash === '#eltern' || location.hash === '#uebersicht') {
+  if (!pinGesetzt() || freigegeben()) {
+    setzeAnsicht('eltern');
+    if (location.hash === '#uebersicht') document.body.dataset.print = 'uebersicht';
+  } else oeffneElternbereich();
+}
+zeichne();
+
+/* Online (über http/https): als App installierbar und ohne Internet nutzbar. Beim Öffnen als Datei passiert hier nichts. */
+if (/^https?:$/.test(location.protocol)) {
+  const manifest = el('link');
+  manifest.rel = 'manifest';
+  manifest.href = 'manifest.webmanifest';
+  document.head.append(manifest);
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { /* dann eben ohne Offline-Betrieb */ });
+}
+
+/* Für die automatische Prüfung der Aufgaben */
+window.MatheBlatt = { erzeugeAufgaben, standardEinstellungen, THEMEN, planeTag, typStand, baueVerlaeufe, GENERATOR, TYP_NAME, baueAufgabe, machInteraktiv,
+  testDaten: () => ({ eingaben, ergebnisse, datum }) };
+})();
+</script>
+</body>
+</html>
