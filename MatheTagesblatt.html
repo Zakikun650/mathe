@@ -561,6 +561,21 @@
   .tf-zeichen[hidden] { display: none; }
   .tf-zeichen button { font: inherit; font-size: 28px; font-weight: 800; height: 50px; border-radius: 14px; border: 1px solid #F2C94C; background: #FFF6D6; color: #8A5A00; cursor: pointer; }
   .tf-zeichen button:active { background: #FFE9A8; }
+  .beispiel-box { margin-top: 12px; padding: 12px 16px 14px; border-radius: 14px; background: #FFFBEA; border: 2px dashed #E3B93C; }
+  .beispiel-box[hidden] { display: none; }
+  .bb-titel { font-weight: 800; color: #8A6D1A; margin-bottom: 6px; }
+  .einmaleins-start { border-top-style: dashed; }
+  .es-titel { font-size: 22px; font-weight: 800; color: #C2560C; margin-bottom: 4px; }
+  .es-gitter { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 0 28px; }
+  .es-loesung { font-weight: 700; color: #12805C; }
+  @media screen {
+    .luecke.es-richtig { border: 2.5px solid #12805C; background: #E8F6EF; }
+    .luecke.es-falsch { border: 2.5px solid #E8702A; background: #FFF1E6; }
+  }
+  @media print {
+    .es-titel { font-size: 13pt; }
+    .es-gitter { grid-template-columns: 1fr 1fr; gap: 0 8mm; }
+  }
   .tf-tasten.einheit { grid-template-columns: repeat(4, 1fr); }
   .tf-tasten.vergleich { grid-template-columns: repeat(3, 1fr); }
   .tf-tasten button, .tf-leiste button {
@@ -763,6 +778,7 @@
       <label class="quer"><input type="checkbox" id="e-einstieg"> Mit einer leichten Aufgabe beginnen</label>
       <label class="quer"><input type="checkbox" id="e-ueberschlag"> Überschlag vor dem schriftlichen Rechnen</label>
       <label class="quer"><input type="checkbox" id="e-probe"> Probe nach dem Rechnen (dauert länger)</label>
+      <label class="quer"><input type="checkbox" id="e-einmaleinsStart"> Einmaleins-Start zum Aufwärmen</label>
     </div>
     <table class="themen-tab" id="e-themen"></table>
     <p class="hinweis">Fachstellen empfehlen kurze Übungszeiten von etwa 10 bis 20 Minuten am Tag, also lieber wenige Aufgaben als viele.
@@ -2544,6 +2560,7 @@ function baueBlatt(ziel, aufgaben, mitLoesung, datumText, name, themenEinst) {
     ziel.append(el('p', 'leer-hinweis', 'Für heute ist kein Thema ausgewählt. Im Elternbereich kannst du Themen einschalten.'));
     return;
   }
+  if (einst.einmaleinsStart !== false) ziel.append(baueEinmaleinsStart(mitLoesung));
   let nr = 0;
   THEMEN.forEach(thema => {
     const eigene = aufgaben.filter(a => a.thema === thema.id);
@@ -2760,7 +2777,25 @@ function machInteraktiv(karte, a) {
   };
   schalter.addEventListener('click', () => zeigeZettel(zettel.hidden));
   zeigeZettel(!!(notizStriche(datum, key, false) || []).length);   // beschriebene Zettel bleiben offen
-  leiste.append(knopf, schalter, meldung);
+  const beispielKnopf = el('button', 'notiz-schalter', '💡 Beispiel');
+  beispielKnopf.type = 'button';
+  let beispiel = null;
+  const zeigeBeispiel = offen => {
+    if (offen && !beispiel) {
+      beispiel = baueBeispiel(a);
+      if (!beispiel) { beispielKnopf.remove(); return; }
+      leiste.before(beispiel);
+    }
+    if (beispiel) beispiel.hidden = !offen;
+    beispielKnopf.textContent = offen ? '💡 Beispiel zuklappen' : '💡 Beispiel';
+    beispielKnopf.setAttribute('aria-expanded', String(offen));
+  };
+  beispielKnopf.addEventListener('click', () => {
+    const offen = !beispiel || beispiel.hidden;
+    if (offen && ia.z.status === 'offen' && !ia.z.beispiel) { ia.z.beispiel = true; speichereEingaben(); }
+    zeigeBeispiel(offen);
+  });
+  leiste.append(knopf, beispielKnopf, schalter, meldung);
   karte.append(zettel, leiste);
   ia.knopf = knopf;
   ia.meldung = meldung;
@@ -2866,7 +2901,7 @@ function abschliessen(ia, richtig) {
   tag[ia.key] = {
     r: richtig, f: richtig ? '' : erkannt[erkannt.length - 1] || '', fAuto: !richtig && erkannt.length > 0,
     vorher: richtig ? (ia.z.fehler || [])[0] || '' : '',
-    thema: a.thema, typ: a.typ, stufe: a.stufe, versuch: ia.z.versuche, quelle: 'kind',
+    thema: a.thema, typ: a.typ, stufe: a.stufe, versuch: ia.z.versuche, quelle: 'kind', beispiel: !!ia.z.beispiel,
   };
   speichereObjekt(ERGEBNIS_SPEICHER, ergebnisse);
   holePlan(datum, true);
@@ -3024,6 +3059,106 @@ function erkenneFehler(ia) {
     if (a.loesbar && ia.z.nichtLoesbar) return F('Aufgabe nicht verstanden', 'Schau noch einmal: Eigentlich steht alles da, was du brauchst.');
   }
   return null;
+}
+
+/* ---------- Beispiel zeigen ----------
+   Eine ähnliche Aufgabe derselben Art und Stufe, fertig gerechnet mit Rechenweg.
+   Wer ein Beispiel angeschaut hat, bekommt die Aufgabenart bald wieder – auch wenn sie dann richtig war. */
+function beispielAufgabe(a) {
+  const g = GENERATOR[a.thema];
+  for (let v = 0; v < 12; v++) {
+    const rng = makeRng(`beispiel|${a.thema}|${a.sig}|${v}`);
+    const kontext = { ...g.tag(rng, a.stufe), typen: [a.typ] };
+    const b = g.gen(rng, a.stufe, 0, kontext);
+    if (b.sig !== a.sig && b.typ === a.typ) return { ...b, thema: a.thema, stufe: a.stufe };
+  }
+  return null;
+}
+function baueBeispiel(a) {
+  const b = beispielAufgabe(a);
+  if (!b) return null;
+  const box = el('div', 'beispiel-box loesung kein-druck');
+  box.append(el('div', 'bb-titel', '💡 Ein Beispiel: So rechnet man so eine Aufgabe'));
+  if (b.auftrag) box.append(el('p', 'auftrag', b.auftrag));
+  box.append(...baueInhalt(b, true));
+  const weg = baueRechenweg(b);
+  if (weg) box.append(weg);
+  if (b.antwort) box.append(el('div', 'antwort', `Antwort: ${b.antwort}`));
+  return box;
+}
+
+/* ---------- Einmaleins-Start ----------
+   Ein bis zwei Minuten zum Aufwärmen: Kernaufgaben (· 2, · 5, · 10), Ableiten aus Kernaufgaben und eine Umkehraufgabe.
+   Gehört nicht zu den Tagesaufgaben, zählt nicht für den Stempel und wird nur für den Elternbereich mitgezählt. */
+const EINMALEINS_SCHLUESSEL = 'einmaleins|start';
+function einmaleinsAufgaben(iso) {
+  const rng = makeRng(`einmaleins|${iso}`), reihe = () => rng.int(3, 9);
+  const liste = [];
+  mische([2, 5, 10], rng).slice(0, 2).forEach(k => { const b = reihe(); liste.push([`${k} · ${b} = `, L(k * b)]); });
+  // Ableiten: aus einer Kernaufgabe die Nachbaraufgabe gewinnen
+  mische([[5, 6], [10, 9], [2, 4], [5, 4]], rng).slice(0, 3).forEach(([k, z]) => {
+    const b = reihe();
+    liste.push([`${k} · ${b} = ${k * b}, also ${z} · ${b} = `, L(z * b)]);
+  });
+  const b = reihe(), q = rng.int(3, 9);
+  liste.push([`${b * q} : ${b} = `, L(q)]);
+  return liste;
+}
+function baueEinmaleinsStart(mitLoesung) {
+  const liste = einmaleinsAufgaben(datum);
+  const karte = el('article', 'aufgabe breit einmaleins-start');
+  karte.style.setProperty('--c', '#E8702A');
+  karte.append(el('div', 'es-titel', '⚡ Einmaleins-Start'));
+  karte.append(el('p', 'auftrag', 'Zum Aufwärmen: Rechne im Kopf. Nutze, was du schon weißt!'));
+  const gitter = el('div', 'es-gitter');
+  liste.forEach(teile => gitter.append(baueZeile(teile, mitLoesung, true)));
+  karte.append(gitter);
+  if (mitLoesung) return karte;
+
+  const pseudo = { thema: 'einmaleins', sig: 'start', typ: 'einmaleinsStart', layout: 'zeile' };
+  const ia = { a: pseudo, key: EINMALEINS_SCHLUESSEL, karte, z: zustandVon(EINMALEINS_SCHLUESSEL), felder: [], gruppen: [] };
+  const soll = liste.flatMap(teile => teile.filter(t => typeof t !== 'string'));
+  const luecken = lueckenFelder(ia, [...gitter.querySelectorAll('.luecke')], soll, 'l');
+  const leiste = el('div', 'ia-leiste kein-druck');
+  const knopf = el('button', 'pruefen-knopf', 'Prüfen ✓');
+  knopf.type = 'button';
+  const meldung = el('p', 'rueckmeldung');
+  meldung.setAttribute('aria-live', 'polite');
+  leiste.append(knopf, meldung);
+  karte.append(leiste);
+  ia.pruefen = () => knopf.click();
+  const zeigeErgebnis = () => {
+    knopf.remove();
+    let richtig = 0;
+    luecken.forEach((f, j) => {
+      const ok = gleich(wertVon(f), soll[j].l);
+      if (ok) richtig++;
+      f.el.classList.add(ok ? 'es-richtig' : 'es-falsch');
+      if (!ok) f.el.after(el('span', 'es-loesung kein-druck', ` → ${soll[j].l}`));
+    });
+    meldung.textContent = richtig === luecken.length
+      ? `Alle ${richtig} richtig – super aufgewärmt! 🎉`
+      : `${richtig} von ${luecken.length} richtig – gut aufgewärmt! Die Lösungen stehen daneben.`;
+    meldung.className = 'rueckmeldung gut';
+    return richtig;
+  };
+  knopf.addEventListener('click', () => {
+    if (gesperrt(ia)) return;
+    schliesseTastenfeld();
+    if (luecken.some(f => !wertVon(f))) {
+      meldung.textContent = 'Fülle zuerst alle Lücken aus.';
+      meldung.className = 'rueckmeldung hinweis';
+      return;
+    }
+    ia.z.status = 'fertig';
+    speichereEingaben();
+    const richtig = zeigeErgebnis();
+    einmaleinsVerlauf[datum] = { richtig, von: luecken.length };
+    speichereObjekt(EINMALEINS_SPEICHER, einmaleinsVerlauf);
+    zeichneUebersicht();
+  });
+  if (ia.z.status === 'fertig') zeigeErgebnis();
+  return karte;
 }
 
 /* ---------- Schmierzettel: mit dem Finger oder Stift kritzeln, je Aufgabe, aufbewahrt für 7 Tage ----------
@@ -3366,7 +3501,7 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'Backspace' || e.key === 'Delete') z = '⌫';
   else if (e.key === 'ArrowLeft') { wechsleFeld(-1); e.preventDefault(); return; }
   else if (e.key === 'ArrowRight' || e.key === 'Tab') { wechsleFeld(e.shiftKey ? -1 : 1); e.preventDefault(); return; }
-  else if (e.key === 'Enter') { pruefeAufgabe(f.ia); e.preventDefault(); return; }
+  else if (e.key === 'Enter') { (f.ia.pruefen || pruefeAufgabe)(f.ia); e.preventDefault(); return; }
   else if (e.key === 'Escape') { schliesseTastenfeld(); return; }
   if (z) { tippeZeichen(z); e.preventDefault(); }
 });
@@ -3378,7 +3513,7 @@ document.addEventListener('keydown', e => {
 function standardEinstellungen() {
   const themen = {};
   THEMEN.forEach(t => { themen[t.id] = { an: true, stufe: 1, hinweise: false }; });
-  return { name: '', anzahl: 6, einstieg: true, schriftlichTeilen: true, fehlersuche: false, ueberschlag: true, probe: false, themen };
+  return { name: '', anzahl: 6, einstieg: true, schriftlichTeilen: true, fehlersuche: false, ueberschlag: true, probe: false, einmaleinsStart: true, themen };
 }
 function ladeEinstellungen() {
   const e = standardEinstellungen();
@@ -3392,6 +3527,7 @@ function ladeEinstellungen() {
       e.fehlersuche = roh.fehlersuche === true;
       e.ueberschlag = roh.ueberschlag !== false;
       e.probe = roh.probe === true;
+      e.einmaleinsStart = roh.einmaleinsStart !== false;
       THEMEN.forEach(t => {
         const r = roh.themen && roh.themen[t.id];
         if (!r) return;
@@ -3413,6 +3549,7 @@ const PLAN_SPEICHER = 'mathe-tagesblatt-plaene-v1';
 const EINGABE_SPEICHER = 'mathe-tagesblatt-eingaben-v1';
 const NOTIZ_SPEICHER = 'mathe-tagesblatt-notizen-v1';
 const SAMMEL_SPEICHER = 'mathe-tagesblatt-sammelheft-v1';
+const EINMALEINS_SPEICHER = 'mathe-tagesblatt-einmaleins-v1';
 const ISO_MUSTER = /^\d{4}-\d{2}-\d{2}$/;
 const FEHLERARTEN = {
   zahlen: ['Stellenwert verwechselt', 'Fehler bei einer Null', 'Falsch gerundet', 'Zahlenstrahl falsch abgelesen', '< und > verwechselt', 'Sonstiges'],
@@ -3437,7 +3574,7 @@ function baueVerlaeufe(erg) {
     const tag = tagNummer(iso), amTag = {};
     Object.values(erg[iso]).forEach(e => {
       const key = `${e.typ}@${e.stufe}`;
-      amTag[key] = (amTag[key] ?? true) && e.r === true && !(e.versuch > 1);
+      amTag[key] = (amTag[key] ?? true) && e.r === true && !(e.versuch > 1) && !e.beispiel;
     });
     Object.entries(amTag).forEach(([key, ok]) => { (proTyp[key] = proTyp[key] || []).push({ tag, ok }); });
   });
@@ -3467,6 +3604,7 @@ let ergebnisse = ladeObjekt(ERGEBNIS_SPEICHER);
 const eingaben = ladeObjekt(EINGABE_SPEICHER);
 const notizen = ladeObjekt(NOTIZ_SPEICHER);
 let sammelheft = null;   // wird beim Start geladen
+const einmaleinsVerlauf = ladeObjekt(EINMALEINS_SPEICHER);
 const plaene = ladeObjekt(PLAN_SPEICHER);
 let datum = heuteIso();
 let aktuelleAufgaben = [];
@@ -3493,7 +3631,7 @@ function baueEintrag(a) {
     if (e && e.quelle === 'kind') {
       if (e.r) text = e.versuch > 1 ? `richtig im 2. Versuch${e.vorher ? ` (beim 1. Versuch vermutlich: ${e.vorher})` : ''}` : 'richtig';
       else text = `nicht geschafft${e.fAuto && e.f ? ' – Fehlerart automatisch erkannt' : ''}`;
-      text = `Am Tablet: ${text}`;
+      text = `Am Tablet: ${text}${e.beispiel ? ' · mit Beispiel' : ''}`;
     }
     vomKind.textContent = text;
     richtig.classList.toggle('aktiv', !!e && e.r === true);
@@ -3582,6 +3720,11 @@ function zeichneUebersicht() {
   ziel.append(kopf);
   const tageImHeft = sammelheft ? sammelheft.tage.length : 0;
   ziel.append(el('p', 'hinweis', `Sammelheft: ${tageImHeft} ${tageImHeft === 1 ? 'Übungstag' : 'Übungstage'} mit Stempel.`));
+  const esTage = Object.keys(einmaleinsVerlauf).filter(iso => ISO_MUSTER.test(iso) && tagNummer(iso) > tagNummer(heuteIso()) - 14);
+  if (esTage.length) {
+    const r = esTage.reduce((s, iso) => s + einmaleinsVerlauf[iso].richtig, 0), v = esTage.reduce((s, iso) => s + einmaleinsVerlauf[iso].von, 0);
+    ziel.append(el('p', 'hinweis', `Einmaleins-Start der letzten 14 Tage: ${r} von ${v} richtig (${Math.round(100 * r / v)} %) an ${esTage.length} ${esTage.length === 1 ? 'Tag' : 'Tagen'}.`));
+  }
   if (!alle.length) {
     ziel.append(el('p', 'hinweis', 'Noch keine Ergebnisse eingetragen. Sobald du bei den Lösungen „Richtig“ oder „Falsch“ anklickst, erscheint hier die Auswertung.'));
     return;
@@ -3736,7 +3879,7 @@ function baueEinstellungen() {
       speichereEinstellungen(); zeichne();
     });
   });
-  ['ueberschlag', 'probe'].forEach(feld => {
+  ['ueberschlag', 'probe', 'einmaleinsStart'].forEach(feld => {
     const haken = $(`e-${feld}`);
     haken.checked = einst[feld];
     haken.addEventListener('change', () => { einst[feld] = haken.checked; speichereEinstellungen(); zeichne(); });
@@ -3882,7 +4025,7 @@ const SICHERUNG_ART = 'mathe-tagesblatt-sicherung';
 $('sicherung-speichern').addEventListener('click', () => {
   const daten = {
     art: SICHERUNG_ART, version: 1, erstellt: new Date().toISOString(),
-    einstellungen: einst, ergebnisse, plaene, pin: leseSpeicher(PIN_SPEICHER), sammelheft,
+    einstellungen: einst, ergebnisse, plaene, pin: leseSpeicher(PIN_SPEICHER), sammelheft, einmaleins: einmaleinsVerlauf,
   };
   const url = URL.createObjectURL(new Blob([JSON.stringify(daten, null, 1)], { type: 'application/json' }));
   const link = el('a');
@@ -3914,6 +4057,7 @@ $('sicherung-datei').addEventListener('change', async () => {
   speichereObjekt(PLAN_SPEICHER, objekt(daten.plaene) ? daten.plaene : {});
   schreibeSpeicher(PIN_SPEICHER, typeof daten.pin === 'string' && daten.pin ? daten.pin : null);
   if (objekt(daten.sammelheft)) speichereObjekt(SAMMEL_SPEICHER, daten.sammelheft);
+  if (objekt(daten.einmaleins)) speichereObjekt(EINMALEINS_SPEICHER, daten.einmaleins);
   // Neu laden, damit alle Einstellungen sauber übernommen werden; der Elternbereich bleibt offen
   merkeFreigabe(true);
   location.hash = 'eltern';
