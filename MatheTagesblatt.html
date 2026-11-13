@@ -39,7 +39,7 @@
     box-shadow: 0 6px 0 #E99A2B;
   }
   .kind-kopf .maskottchen { line-height: 1; flex: none; }
-  .kind-kopf .maskottchen svg { display: block; width: 104px; height: auto; }
+  .kind-kopf .maskottchen .axo { width: 104px; }
   .kind-kopf h1 { margin: 0; font-size: 40px; font-weight: 800; line-height: 1.15; }
   .kind-kopf p { margin: 6px 0 0; font-size: 21px; }
   .datum-pille {
@@ -435,6 +435,112 @@
   .loesung-zeigen { margin-top: 14px; padding: 12px 16px 14px; border-radius: 14px; background: #F3F8F5; border: 2px dashed #9CC9B5; }
   .lz-titel { font-weight: 800; color: #12805C; margin-bottom: 6px; }
   .kind-fortschritt { margin: 8px 0 0; font-weight: 700; font-size: 18px; }
+  .notiz { margin-top: 12px; }
+  .notiz[hidden] { display: none; }
+  .notiz-werkzeuge { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
+  .notiz-knopf, .notiz-schalter {
+    font: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    min-height: 44px;
+    padding: 6px 14px;
+    border-radius: 12px;
+    border: 2px solid #C3CCDB;
+    background: #fff;
+    color: var(--tinte);
+    cursor: pointer;
+  }
+  .notiz-knopf.aktiv { border-color: #2F6FDE; background: #EAF1FD; }
+  .notiz-flaeche {
+    display: block;
+    width: 100%;
+    height: 260px;
+    touch-action: none;
+    border: 1px solid #B7CDE6;
+    border-radius: 12px;
+    background-color: #fff;
+    background-image: linear-gradient(#DCE7F3 1px, transparent 1px), linear-gradient(90deg, #DCE7F3 1px, transparent 1px);
+    background-size: 19px 19px;
+    cursor: crosshair;
+  }
+  .notiz-flaeche.nur-ansehen { cursor: default; touch-action: auto; }
+  .notiz-bild { margin-top: 10px; }
+  .nb-titel { font-size: 13px; font-weight: 700; color: #5B6780; margin-bottom: 4px; }
+  .axo { position: relative; display: inline-block; line-height: 0; }
+  .axo svg { display: block; width: 100%; height: auto; }
+  .axo .axo-extra { position: absolute; left: 0; top: 0; }
+  .axo.regenbogen .axo-koerper { animation: regenbogen 6s linear infinite; }
+  @keyframes regenbogen { from { filter: hue-rotate(0deg); } to { filter: hue-rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .axo.regenbogen .axo-koerper { animation: none; filter: hue-rotate(160deg); } }
+  .tipp-axolotl { filter: var(--axo-filter, none); }
+  .sammel-knopf {
+    font: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    min-height: 44px;
+    margin-top: 10px;
+    padding: 6px 16px;
+    border-radius: 999px;
+    border: 2px solid #fff;
+    background: rgba(255, 255, 255, .7);
+    color: var(--tinte);
+    cursor: pointer;
+  }
+  .sammel-dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 45;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(31, 42, 68, .55);
+  }
+  .sammel-dialog[hidden] { display: none; }
+  .sammel-box {
+    position: relative;
+    width: 100%;
+    max-width: 560px;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+    background: #FFF7E8;
+    border-radius: 22px;
+    padding: 20px 20px 22px;
+    box-shadow: 0 12px 40px rgba(31, 42, 68, .3);
+  }
+  .sammel-box h2 { margin: 0 48px 6px 0; font-size: 22px; }
+  .sammel-box h3 { margin: 16px 0 8px; font-size: 16px; }
+  .sammel-zu { position: absolute; top: 12px; right: 12px; width: 44px; height: 44px; border-radius: 50%; border: none; background: #fff; font-size: 20px; cursor: pointer; color: var(--tinte); }
+  .sammel-meldung { background: #fff; border-radius: 14px; padding: 10px 14px; margin: 6px 0 0; font-weight: 700; font-size: 17px; color: #12805C; }
+  .sammel-meldung[hidden] { display: none; }
+  .sammel-stand { margin: 8px 0 0; font-size: 15px; color: #5B6780; font-weight: 600; }
+  .stempel-raster { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .st-kopf { text-align: center; font-size: 12px; font-weight: 700; color: #5B6780; }
+  .st-tag { position: relative; aspect-ratio: 1; border-radius: 12px; background: #fff; border: 2px dashed #E3D6BE; display: flex; align-items: center; justify-content: center; }
+  .st-tag.heute { border: 2px solid #E99A2B; }
+  .st-tag.zukunft { opacity: .45; }
+  .st-tag.gestempelt { border: 2px solid #F2B8CB; background: #FFF0F5; }
+  .st-datum { position: absolute; top: 3px; left: 6px; font-size: 11px; font-weight: 700; color: #8A7B62; line-height: 1; }
+  .st-tag .axo { width: 70%; margin-top: 6px; }
+  .axolotl-galerie { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
+  .axo-karte {
+    font: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 6px;
+    border-radius: 16px;
+    border: 3px solid transparent;
+    background: #fff;
+    color: var(--tinte);
+    cursor: pointer;
+  }
+  .axo-karte .axo { width: 80px; }
+  .axo-karte.gewaehlt { border-color: #2F6FDE; }
+  .axo-karte.gesperrt { cursor: default; }
+  .axo-karte.gesperrt .axo { filter: grayscale(1) opacity(.35); }
+  .axo-name { font-size: 13px; font-weight: 700; text-align: center; line-height: 1.25; }
   .kind-fortschritt.alles { display: inline-block; background: #fff; border-radius: 12px; padding: 4px 14px; color: #12805C; }
   .vom-kind { font-size: 13px; color: #5B6780; }
   .tastenfeld {
@@ -485,7 +591,7 @@
     .eltern-leiste { position: static; }
     .kind-kopf { padding: 18px 20px; }
     .kind-kopf h1 { font-size: 30px; }
-    .kind-kopf .maskottchen svg { width: 72px; }
+    .kind-kopf .maskottchen .axo { width: 72px; }
     .aufgaben-grid { grid-template-columns: 1fr; }
   }
 
@@ -624,15 +730,14 @@
 
 <div class="seite">
   <header class="kind-kopf nur-kind kein-druck">
-    <div class="maskottchen" aria-hidden="true">
-      <svg viewBox="0 0 140 112"><use href="#axolotl"/></svg>
-    </div>
+    <div class="maskottchen" aria-hidden="true" id="kopf-axolotl"></div>
     <div>
       <h1 id="gruss">Hallo!</h1>
       <p id="untertitel">Deine Mathe-Aufgaben für heute</p>
       <div class="datum-pille" id="kind-datum"></div>
       <p class="mutmacher" id="mutmacher"></p>
       <p class="kind-fortschritt" id="kind-fortschritt" aria-live="polite"></p>
+      <button type="button" class="sammel-knopf" id="sammel-oeffnen">📒 Mein Sammelheft</button>
     </div>
   </header>
 
@@ -700,6 +805,19 @@
       <button type="button" id="tf-rechts" aria-label="Nächstes Feld">▶</button>
       <button type="button" id="tf-fertig" class="tf-fertig">Fertig</button>
     </div>
+  </div>
+</div>
+
+<div class="sammel-dialog kein-druck" id="sammel-dialog" hidden>
+  <div class="sammel-box" role="dialog" aria-modal="true" aria-labelledby="sammel-titel">
+    <button type="button" class="sammel-zu" id="sammel-zu" aria-label="Schließen">✕</button>
+    <h2 id="sammel-titel">Mein Axolotl-Sammelheft</h2>
+    <p class="sammel-meldung" id="sammel-meldung" role="status" hidden></p>
+    <h3>Meine Übungstage</h3>
+    <div class="stempel-raster" id="stempel-raster"></div>
+    <p class="sammel-stand" id="sammel-stand"></p>
+    <h3>Meine Axolotl</h3>
+    <div class="axolotl-galerie" id="axolotl-galerie"></div>
   </div>
 </div>
 
@@ -1042,6 +1160,16 @@ const FEHLER_ERKLAERUNG = {
   kleinVonGross: 'Fehler: In jeder Spalte wurde einfach die kleinere von der größeren Ziffer abgezogen, auch wenn die größere unten stand. Reicht die obere Ziffer nicht, rechnet man mit Übertrag.',
   uebertragMinus: 'Fehler: Der Übertrag wurde nicht mitgerechnet. Die kleine 1 muss in der nächsten Spalte zur unteren Ziffer dazugezählt werden.',
 };
+/* So rechnet jemand, der einen typischen Fehler macht (Übertrag vergessen, kleinere von größerer Ziffer abgezogen) */
+function falschGerechnet(a, b, art) {
+  let falsch = 0;
+  for (let k = 0; k < String(Math.max(a, b)).length; k++) {
+    const x = ziffer(a, k), y = ziffer(b, k);
+    const d = art === 'uebertragPlus' ? (x + y) % 10 : art === 'kleinVonGross' ? Math.abs(x - y) : (x >= y ? x - y : x + 10 - y);
+    falsch += d * 10 ** k;
+  }
+  return falsch;
+}
 function fehlerAufgabe(rng, stufe) {
   const [min, max, grenze] = [[100, 899, 1000], [1000, 89999, 100000], [10000, 899999, 1000000]][stufe];
   for (let v = 0; ; v++) {
@@ -1051,12 +1179,7 @@ function fehlerAufgabe(rng, stufe) {
     else { a = rng.int(min * 2, grenze - 1); b = rng.int(min, a - 1); art = rng.chance(0.5) ? 'kleinVonGross' : 'uebertragMinus'; }
     const richtig = plus ? a + b : a - b;
     if (richtig >= grenze || (!plus && richtig < 10)) continue;
-    let falsch = 0;
-    for (let k = 0; k < String(Math.max(a, b)).length; k++) {
-      const x = ziffer(a, k), y = ziffer(b, k);
-      const d = art === 'uebertragPlus' ? (x + y) % 10 : art === 'kleinVonGross' ? Math.abs(x - y) : (x >= y ? x - y : x + 10 - y);
-      falsch += d * 10 ** k;
-    }
+    const falsch = falschGerechnet(a, b, art);
     if (falsch === richtig && v < 300) continue;
     const op = plus ? '+' : '−';
     return {
@@ -2381,6 +2504,8 @@ function baueAufgabe(a, nr, mitLoesung, farbe, mitHinweis) {
     const weg = baueRechenweg(a);
     if (weg) karte.append(weg);
     if (a.antwort) karte.append(el('div', 'antwort', `Antwort: ${a.antwort}`));
+    const notiz = notizStriche(datum, `${a.thema}|${a.sig}`, false);
+    if (notiz && notiz.length) karte.append(baueNotizBild(notiz));
     karte.append(baueEintrag(a));
   } else {
     if (mitHinweis && a.hinweis) karte.append(baueTipp(a.hinweis));
@@ -2513,7 +2638,7 @@ function machInteraktiv(karte, a) {
   const ia = { a, key, karte, z: zustandVon(key), felder: [], gruppen: [] };
   karte.classList.add('interaktiv');
   const sollLuecken = [...(a.layout === 'zeile' ? a.teile : []), ...(a.unten || [])].filter(t => typeof t !== 'string');
-  lueckenFelder(ia, [...karte.querySelectorAll('.luecke')], sollLuecken, 'l');
+  ia.luecken = lueckenFelder(ia, [...karte.querySelectorAll('.luecke')], sollLuecken, 'l');
 
   if (a.layout === 'stapel' && a.stapel.falsch == null) {
     const reihen = [...karte.querySelector('table.karo').rows];
@@ -2521,6 +2646,7 @@ function machInteraktiv(karte, a) {
     const ueReihe = [], ergReihe = [];
     [...ue.cells].slice(1).forEach((td, j) => neuesFeld(ia, td, { id: `u${j}`, reihe: ueReihe, label: 'Übertrag' }));
     const felder = [...erg.cells].slice(1).map((td, j) => neuesFeld(ia, td, { id: `e${j}`, reihe: ergReihe, richtung: 'links', label: 'Ergebnis' }));
+    ia.ergFelder = felder;
     ia.gruppen.push({ els: felder.map(f => f.el), leer: () => leerAlle(felder), pruefe: () => zeileRichtig(felder, a.stapel.ergebnis) });
   }
 
@@ -2532,6 +2658,7 @@ function machInteraktiv(karte, a) {
       const felder = kopfIdx.map(i => neuesFeld(ia, reihen[0].cells[i], {
         id: `k${i}`, reihe, richtung: 'rechts', extras: geteilt ? ['R'] : [], label: 'Ergebnis',
       }));
+      ia.kopfFelder = felder;
       ia.gruppen.push({ els: felder.map(f => f.el), leer: () => leerAlle(felder), pruefe: () => felder.map(wertVon).join('').toUpperCase() === soll });
     }
     const zeilen = reihen.slice(1).map((tr, zi) => {
@@ -2539,6 +2666,7 @@ function machInteraktiv(karte, a) {
       [...tr.cells].forEach((td, j) => neuesFeld(ia, td, { id: `z${zi}-${j}`, reihe, richtung: geteilt ? 'rechts' : 'links', extras: ['−'], label: 'Rechenkästchen' }));
       return reihe;
     });
+    ia.zeilenFelder = zeilen;
     if (!kopfIdx.length) {
       // Schriftlich malnehmen: Das Ergebnis ist die unterste beschriebene Zeile
       const tab = karte.querySelector('table.karo');
@@ -2558,6 +2686,7 @@ function machInteraktiv(karte, a) {
     [...karte.querySelector('table.tafel').rows[1].cells].forEach((td, j) => {
       const soll = a.tafel.werte[j];
       const feld = neuesFeld(ia, td, { id: `t${j}`, reihe, richtung: 'rechts', label: `Spalte ${a.tafel.spalten[j]}` });
+      (ia.tafelFelder = ia.tafelFelder || []).push(feld);
       ia.gruppen.push({
         els: [td], optional: soll === '', leer: () => !wertVon(feld),
         pruefe: () => (soll === '' ? ['', '0'].includes(wertVon(feld)) : wertVon(feld) === soll),
@@ -2612,8 +2741,19 @@ function machInteraktiv(karte, a) {
   knopf.addEventListener('click', () => pruefeAufgabe(ia));
   const meldung = el('p', 'rueckmeldung');
   meldung.setAttribute('aria-live', 'polite');
-  leiste.append(knopf, meldung);
-  karte.append(leiste);
+  const zettel = baueSchmierzettel(ia);
+  const schalter = el('button', 'notiz-schalter');
+  schalter.type = 'button';
+  const zeigeZettel = offen => {
+    zettel.hidden = !offen;
+    schalter.textContent = offen ? '✏️ Schmierzettel zuklappen' : '✏️ Schmierzettel';
+    schalter.setAttribute('aria-expanded', String(offen));
+    if (offen && zettel.isConnected) zeichneNotizenNeu();
+  };
+  schalter.addEventListener('click', () => zeigeZettel(zettel.hidden));
+  zeigeZettel(!!(notizStriche(datum, key, false) || []).length);   // beschriebene Zettel bleiben offen
+  leiste.append(knopf, schalter, meldung);
+  karte.append(zettel, leiste);
   ia.knopf = knopf;
   ia.meldung = meldung;
   karte.iaDaten = ia;
@@ -2622,7 +2762,7 @@ function machInteraktiv(karte, a) {
   if (ia.z.status !== 'offen') zeigeAbschluss(ia);
   else if (ia.z.versuche > 0) {
     (ia.z.markiert || []).forEach(i => ia.gruppen[i] && ia.gruppen[i].els.forEach(e => e.classList.add('markiert-falsch')));
-    zeigeMeldung(ia, NOCHMAL, 'nochmal');
+    zeigeMeldung(ia, nochmalText(ia), 'nochmal');
     zeigeNachtipp(ia);
   }
 }
@@ -2663,12 +2803,13 @@ function baueSachEingabe(ia) {
         els: [box], leer: () => !ia.z.nichtLoesbar && leerAlle(felder),
         pruefe: () => (a.loesbar ? !ia.z.nichtLoesbar && felder.every((f, j) => gleich(wertVon(f), soll[j].l)) : !!ia.z.nichtLoesbar),
       });
-    } else lueckenFelder(ia, elemente, soll, 'a');
+    } else ia.luecken = lueckenFelder(ia, elemente, soll, 'a');
   }
   ia.karte.querySelector('.sachtext').after(box);
 }
 
 const NOCHMAL = 'Noch nicht ganz! Schau dir die markierten Stellen noch einmal an. Du hast noch einen Versuch.';
+const nochmalText = ia => (ia.z.kindTipp ? `${NOCHMAL} ${ia.z.kindTipp}` : NOCHMAL);
 function zeigeMeldung(ia, text, art) {
   ia.meldung.textContent = text;
   ia.meldung.className = `rueckmeldung ${art}`;
@@ -2691,12 +2832,17 @@ function pruefeAufgabe(ia) {
   ia.z.versuche += 1;
   ia.karte.querySelectorAll('.markiert-falsch').forEach(e => e.classList.remove('markiert-falsch'));
   const falsch = ia.gruppen.filter(g => !g.pruefe());
+  if (falsch.length) {
+    const erkannt = erkenneFehler(ia);
+    (ia.z.fehler = ia.z.fehler || []).push(erkannt ? erkannt.art : '');
+    ia.z.kindTipp = erkannt && erkannt.tipp ? erkannt.tipp : '';
+  }
   if (!falsch.length) abschliessen(ia, true);
   else if (ia.z.versuche >= maxVersuche(ia.a)) abschliessen(ia, false);
   else {
     falsch.forEach(g => g.els.forEach(e => e.classList.add('markiert-falsch')));
     ia.z.markiert = falsch.map(g => ia.gruppen.indexOf(g));
-    zeigeMeldung(ia, NOCHMAL, 'nochmal');
+    zeigeMeldung(ia, nochmalText(ia), 'nochmal');
     zeigeNachtipp(ia);
   }
   speichereEingaben();
@@ -2708,13 +2854,19 @@ function abschliessen(ia, richtig) {
   speichereEingaben();
   // automatisch eintragen; richtig im 2. Versuch zählt als geschafft, die Aufgabenart kommt aber bald wieder
   const tag = ergebnisse[datum] || (ergebnisse[datum] = {});
-  tag[ia.key] = { r: richtig, f: '', thema: a.thema, typ: a.typ, stufe: a.stufe, versuch: ia.z.versuche, quelle: 'kind' };
+  const erkannt = (ia.z.fehler || []).filter(Boolean);
+  tag[ia.key] = {
+    r: richtig, f: richtig ? '' : erkannt[erkannt.length - 1] || '', fAuto: !richtig && erkannt.length > 0,
+    vorher: richtig ? (ia.z.fehler || [])[0] || '' : '',
+    thema: a.thema, typ: a.typ, stufe: a.stufe, versuch: ia.z.versuche, quelle: 'kind',
+  };
   speichereObjekt(ERGEBNIS_SPEICHER, ergebnisse);
   holePlan(datum, true);
   zeigeAbschluss(ia);
   zeigeKindFortschritt();
   zeichneStand();
   zeichneUebersicht();
+  pruefeStempel(true);
 }
 function zeigeAbschluss(ia) {
   const a = ia.a, richtig = ia.z.status === 'richtig';
@@ -2740,6 +2892,364 @@ function zeigeKindFortschritt() {
   ziel.classList.toggle('alles', n > 0 && fertig === n);
   if (!n || !fertig) ziel.textContent = n ? 'Tippe in ein Kästchen und rechne los!' : '';
   else ziel.textContent = fertig === n ? `Alle ${n} Aufgaben geschafft – toll gemacht! 🎉` : `Geschafft: ${fertig} von ${n} Aufgaben`;
+}
+
+/* ---------- Typische Fehler erkennen ----------
+   Passt eine falsche Eingabe zu einem bekannten Fehlermuster, wird die Fehlerart für den Elternbereich
+   vermerkt und das Kind bekommt einen kurzen, passenden Hinweis. Passt nichts sicher, bleibt es offen. */
+const zahlAusFeldern = felder => {
+  const text = (felder || []).map(wertVon).join('');
+  return /^\d+$/.test(text) ? Number(text) : null;
+};
+const kommaWert = s => {
+  const t = ohneLeer(s);
+  return /^\d+(,\d+)?$/.test(t) ? Number(t.replace(',', '.')) : null;
+};
+const ohneNullen = n => String(n).replace(/0/g, '');
+const verhaeltnisIst = (wert, ziel) => wert > 0 && ziel > 0 && Math.abs(Math.log10(wert) - Math.log10(ziel)) < 1e-9;
+function nurEineStelleAnders(soll, ist) {
+  const a = String(soll), b = String(ist);
+  if (a.length !== b.length) return null;
+  const stellen = [...a].map((z, i) => (z !== b[i] ? i : -1)).filter(i => i >= 0);
+  return stellen.length === 1 ? { soll: a[stellen[0]], ist: b[stellen[0]] } : null;
+}
+function erkenneFehler(ia) {
+  const a = ia.a, typ = a.typ, F = (art, tipp = null) => ({ art, tipp });
+
+  if (typ === 'plus' || typ === 'minus') {
+    const ist = zahlAusFeldern(ia.ergFelder);
+    if (ist == null) return null;
+    const [x, y] = a.stapel.operanden;
+    if (typ === 'plus' && a.stapel.operanden.length === 2 && ist === falschGerechnet(x, y, 'uebertragPlus')) {
+      return F('Übertrag vergessen oder falsch', 'Denk an die Überträge: Ergibt eine Spalte 10 oder mehr, kommt eine kleine 1 in die nächste Spalte.');
+    }
+    if (typ === 'minus' && ist === falschGerechnet(x, y, 'kleinVonGross')) {
+      return F('Kleinere von größerer Ziffer abgezogen', 'Achtung: Steht oben die kleinere Ziffer, darfst du nicht einfach umdrehen. Dann brauchst du einen Übertrag.');
+    }
+    if (typ === 'minus' && ist === falschGerechnet(x, y, 'uebertragMinus')) {
+      return F('Übertrag vergessen oder falsch', 'Denk an die kleine 1: Sie wird in der nächsten Spalte zur unteren Ziffer dazugezählt.');
+    }
+    const eine = nurEineStelleAnders(a.stapel.ergebnis, ist);
+    if (eine) return eine.soll === '0' || eine.ist === '0' ? F('Fehler bei einer Null') : F('Verrechnet', 'Fast! Rechne die Spalten noch einmal in Ruhe nach.');
+    return null;
+  }
+
+  if (typ === 'mal1' || typ === 'mal1gross' || typ === 'mal2') {
+    const zeile = [...(ia.zeilenFelder || [])].reverse().find(z => z.some(f => wertVon(f)));
+    const ist = zeile ? zahlAusFeldern(zeile) : null;
+    if (ist == null) return null;
+    const { x, y } = a.rechnung;
+    if (typ === 'mal2' && ist === x * Math.floor(y / 10) + x * (y % 10)) {
+      return F('Teilergebnis an falscher Stelle', 'Die zweite Zeile muss eine Stelle weiter rechts enden als die erste.');
+    }
+    if (typ !== 'mal2') {
+      // Merkzahlen vergessen: jede Stelle nur mit der Einerziffer des Produkts, die vorderste vollständig
+      const n = String(x).length;
+      let ohne = 0;
+      for (let k = 0; k < n; k++) ohne += (k < n - 1 ? (ziffer(x, k) * y) % 10 : ziffer(x, k) * y) * 10 ** k;
+      if (ist === ohne) return F('Übertrag oder Merkzahl falsch', 'Denk an die Merkzahlen: Sie werden bei der nächsten Stelle dazugezählt.');
+    }
+    return null;
+  }
+
+  if (a.layout === 'raster' && ia.kopfFelder) {
+    const text = ia.kopfFelder.map(wertVon).join('').toUpperCase();
+    const m = /^(\d+)(?:R(\d+))?$/.exec(text);
+    if (!m) return null;
+    const q = Number(m[1]), r = m[2] == null ? null : Number(m[2]);
+    const { y, z } = a.rechnung, rest = a.rechnung.r;
+    if (a.rechnung.op === '·') {
+      if (verhaeltnisIst(q, z * 10) || verhaeltnisIst(q, z / 10)) return F('Fehler bei einer Null', 'Achte auf die Null am Ende.');
+      return F('Einmaleins-Fehler');
+    }
+    if (r != null && r >= y) return F('Ablauf beim Teilen (herunterholen, Rest)', 'Der Rest muss immer kleiner sein als die Zahl, durch die du teilst.');
+    if (q !== z && String(z).includes('0') && String(q).length < String(z).length && ohneNullen(q) === ohneNullen(z)) {
+      return F('Fehler bei einer Null', 'Passt die Zahl einmal nicht hinein, schreibst du eine 0 ins Ergebnis.');
+    }
+    if (q === z && (r || 0) !== rest) return F('Ablauf beim Teilen (herunterholen, Rest)', 'Schau noch einmal genau, was am Ende übrig bleibt.');
+    if (verhaeltnisIst(q, z * 10) || verhaeltnisIst(q, z / 10)) return F('Fehler bei einer Null', 'Achte auf die Null am Ende.');
+    if (nurEineStelleAnders(z, q)) return F('Einmaleins-Fehler');
+    return null;
+  }
+
+  if (a.thema === 'zahlen') {
+    if (typ === 'vergleichen') return F('< und > verwechselt');
+    if (typ === 'runden') return F('Falsch gerundet');
+    if (typ === 'zahlenstrahl') return F('Zahlenstrahl falsch abgelesen');
+    if (typ === 'zahlInTafel') {
+      const nullFalsch = (ia.tafelFelder || []).some((f, j) => a.tafel.werte[j] === '0' && wertVon(f) !== '0');
+      return F(nullFalsch ? 'Fehler bei einer Null' : 'Stellenwert verwechselt');
+    }
+    const soll = (a.unten || a.teile || []).filter(t => typeof t !== 'string');
+    const falsch = (ia.luecken || []).map((f, j) => [wertVon(f), soll[j] && soll[j].l]).filter(([ist, s]) => s != null && !gleich(ist, s));
+    if (!falsch.length) return null;
+    const [ist, s] = falsch[0];
+    return ohneNullen(ohneLeer(ist)) === ohneNullen(ohneLeer(s)) ? F('Fehler bei einer Null', 'Schau genau hin: Wie viele Nullen braucht die Zahl?') : F('Stellenwert verwechselt');
+  }
+
+  if (a.thema === 'groessen') {
+    if (typ === 'einheitWaehlen' || typ === 'wasPasst') return F('Keine Vorstellung von der Größe');
+    const soll = a.teile.filter(t => typeof t !== 'string');
+    const paar = (ia.luecken || []).map((f, j) => [kommaWert(wertVon(f)), kommaWert(soll[j].l), wertVon(f), soll[j].l]).find(([k, s]) => k != null && s != null && k !== s);
+    const umrechnung = /^1 \S+ = ([\d  ]+) /.exec(a.hinweis || '');
+    if (!paar || !umrechnung) return null;
+    const [k, s, kText, sText] = paar, f = Number(ohneLeer(umrechnung[1]));
+    const v = k / s;
+    if (verhaeltnisIst(v, f * f) || verhaeltnisIst(v, 1 / (f * f))) {
+      return F('Falsche Richtung (mal statt geteilt)', 'Überlege zuerst: Wird die Zahl größer oder kleiner?');
+    }
+    if ([10, 100, 1000, 0.1, 0.01, 0.001].some(z => verhaeltnisIst(v, z))) {
+      return kText.includes(',') || sText.includes(',')
+        ? F('Komma oder Null falsch gesetzt', 'Schau genau hin, wie viele Stellen hinter das Komma gehören.')
+        : F('Umrechnungszahl falsch', 'Schau noch einmal nach, wie viele kleine Einheiten in eine große passen.');
+    }
+    if (f === 60 && [100 / 60, 60 / 100].some(z => Math.abs(v - z) < 1e-6)) {
+      return F('Umrechnungszahl falsch', 'Achtung: Bei Zeiten rechnest du mit 60, nicht mit 100.');
+    }
+    return null;
+  }
+
+  if (typ === 'sachPruefen') {
+    if (!a.loesbar && !ia.z.nichtLoesbar) {
+      return F('Fehlende Angabe nicht bemerkt', 'Lies noch einmal genau: Hast du wirklich alle Angaben, die du zum Rechnen brauchst?');
+    }
+    if (a.loesbar && ia.z.nichtLoesbar) return F('Aufgabe nicht verstanden', 'Schau noch einmal: Eigentlich steht alles da, was du brauchst.');
+  }
+  return null;
+}
+
+/* ---------- Schmierzettel: mit dem Finger oder Stift kritzeln, je Aufgabe, aufbewahrt für 7 Tage ----------
+   Gespeichert werden die Striche (x als Anteil der Breite in Tausendsteln, y in Pixeln), nicht das Bild. */
+const NOTIZ_HOEHE = 260;
+function notizStriche(tagIso, key, anlegen) {
+  const tag = notizen[tagIso] || (anlegen ? (notizen[tagIso] = {}) : null);
+  if (!tag) return null;
+  return tag[key] || (anlegen ? (tag[key] = []) : null);
+}
+function speichereNotizen() {
+  const grenze = tagNummer(heuteIso()) - 7;
+  Object.keys(notizen).forEach(iso => {
+    if (!ISO_MUSTER.test(iso) || tagNummer(iso) < grenze) { delete notizen[iso]; return; }
+    Object.keys(notizen[iso]).forEach(k => { if (!notizen[iso][k].length) delete notizen[iso][k]; });
+    if (!Object.keys(notizen[iso]).length) delete notizen[iso];
+  });
+  speichereObjekt(NOTIZ_SPEICHER, notizen);
+}
+function maleStriche(flaeche, striche) {
+  const breite = flaeche.clientWidth;
+  if (!breite) return;
+  const dpr = window.devicePixelRatio || 1;
+  if (flaeche.width !== Math.round(breite * dpr) || flaeche.height !== Math.round(NOTIZ_HOEHE * dpr)) {
+    flaeche.width = Math.round(breite * dpr);
+    flaeche.height = Math.round(NOTIZ_HOEHE * dpr);
+  }
+  const ctx = flaeche.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, breite, NOTIZ_HOEHE);
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = '#1F3A93';
+  striche.forEach(s => {
+    // Der Radierer entfernt Striche; die Kästchen im Hintergrund bleiben stehen
+    ctx.globalCompositeOperation = s.r ? 'destination-out' : 'source-over';
+    ctx.lineWidth = s.r ? 24 : 3;
+    ctx.beginPath();
+    for (let i = 0; i < s.p.length; i += 2) {
+      const x = s.p[i] / 1000 * breite, y = s.p[i + 1];
+      if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y);
+    }
+    if (s.p.length === 2) ctx.lineTo(s.p[0] / 1000 * breite + 0.5, s.p[1]);   // einzelner Punkt
+    ctx.stroke();
+  });
+  ctx.globalCompositeOperation = 'source-over';
+}
+function baueSchmierzettel(ia) {
+  const tagIso = datum, lesen = () => notizStriche(tagIso, ia.key, false) || [];
+  const box = el('div', 'notiz kein-druck');
+  const werkzeuge = el('div', 'notiz-werkzeuge');
+  const knopf = (text, aktiv) => {
+    const b = el('button', aktiv ? 'notiz-knopf aktiv' : 'notiz-knopf', text);
+    b.type = 'button';
+    return b;
+  };
+  const stift = knopf('✏️ Stift', true), gummi = knopf('🧽 Radierer'), leeren = knopf('🗑️ Alles löschen');
+  werkzeuge.append(stift, gummi, leeren);
+  const flaeche = el('canvas', 'notiz-flaeche');
+  flaeche.setAttribute('role', 'img');
+  flaeche.setAttribute('aria-label', 'Schmierzettel zum Malen mit dem Finger');
+  box.append(werkzeuge, flaeche);
+  let radieren = false, strich = null;
+  const waehle = r => {
+    radieren = r;
+    stift.classList.toggle('aktiv', !r);
+    gummi.classList.toggle('aktiv', r);
+  };
+  stift.addEventListener('click', () => waehle(false));
+  gummi.addEventListener('click', () => waehle(true));
+  leeren.addEventListener('click', () => {
+    const striche = lesen();
+    if (!striche.length || !window.confirm('Alles auf dem Schmierzettel löschen?')) return;
+    striche.length = 0;
+    speichereNotizen();
+    maleStriche(flaeche, []);
+  });
+  const punkt = e => {
+    const r = flaeche.getBoundingClientRect();
+    const x = Math.round((e.clientX - r.left) / r.width * 1000), y = Math.round(e.clientY - r.top);
+    return [Math.min(1000, Math.max(0, x)), Math.min(NOTIZ_HOEHE, Math.max(0, y))];
+  };
+  flaeche.addEventListener('pointerdown', e => {
+    schliesseTastenfeld();
+    try { flaeche.setPointerCapture(e.pointerId); } catch (fehler) { /* ohne Festhalten geht es auch */ }
+    strich = { r: radieren ? 1 : 0, p: punkt(e) };
+    notizStriche(tagIso, ia.key, true).push(strich);
+    maleStriche(flaeche, lesen());
+    e.preventDefault();
+  });
+  flaeche.addEventListener('pointermove', e => {
+    if (!strich) return;
+    const ereignisse = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+    (ereignisse.length ? ereignisse : [e]).forEach(x => strich.p.push(...punkt(x)));
+    maleStriche(flaeche, lesen());
+  });
+  const ende = () => {
+    if (!strich) return;
+    strich = null;
+    speichereNotizen();
+  };
+  flaeche.addEventListener('pointerup', ende);
+  flaeche.addEventListener('pointercancel', ende);
+  // neu zeichnen, sobald der Zettel sichtbar wird oder sich die Breite ändert
+  flaeche.neuZeichnen = () => maleStriche(flaeche, lesen());
+  if (window.ResizeObserver) new ResizeObserver(flaeche.neuZeichnen).observe(flaeche);
+  return box;
+}
+function baueNotizBild(striche) {
+  const box = el('div', 'notiz-bild kein-druck');
+  box.append(el('div', 'nb-titel', 'Schmierzettel deines Kindes'));
+  const flaeche = el('canvas', 'notiz-flaeche nur-ansehen');
+  flaeche.setAttribute('role', 'img');
+  flaeche.setAttribute('aria-label', 'Notizen des Kindes');
+  box.append(flaeche);
+  flaeche.neuZeichnen = () => maleStriche(flaeche, striche);
+  if (window.ResizeObserver) new ResizeObserver(flaeche.neuZeichnen).observe(flaeche);
+  return box;
+}
+/* alle sichtbaren Schmierzettel neu zeichnen, z. B. nach dem Aufklappen oder einem Ansichtswechsel */
+function zeichneNotizenNeu() {
+  document.querySelectorAll('canvas.notiz-flaeche').forEach(f => f.neuZeichnen && f.neuZeichnen());
+}
+
+/* ---------- Axolotl-Sammelheft ----------
+   Für jeden Tag, an dem alle Aufgaben bearbeitet wurden, gibt es einen Stempel – egal ob richtig oder falsch.
+   Belohnt wird das Dranbleiben. Nach einigen Übungstagen kommt jeweils ein neuer Axolotl dazu. */
+const AXOLOTL = [
+  { id: 'rosa', name: 'Rosa', ab: 0, filter: '' },
+  { id: 'blau', name: 'Himmelblau', ab: 3, filter: 'hue-rotate(215deg)' },
+  { id: 'gelb', name: 'Sonnengelb', ab: 6, filter: 'sepia(1) saturate(2.6) hue-rotate(-12deg)' },
+  { id: 'gruen', name: 'Grün mit Schleife', ab: 10, filter: 'hue-rotate(130deg)', extra: 'schleife' },
+  { id: 'lila', name: 'Lila mit Brille', ab: 15, filter: 'hue-rotate(295deg)', extra: 'brille' },
+  { id: 'gold', name: 'Gold mit Krone', ab: 20, filter: 'sepia(1) saturate(4) hue-rotate(-28deg) brightness(.92)', extra: 'krone' },
+  { id: 'regenbogen', name: 'Regenbogen', ab: 30, filter: '', extra: 'sterne', regenbogen: true },
+];
+const AXOLOTL_EXTRAS = {
+  schleife: '<path d="M94 20 l-13 -9 v18 z M94 20 l13 -9 v18 z" fill="#E8486A"/><circle cx="94" cy="20" r="4" fill="#C62F52"/>',
+  brille: '<g fill="rgba(255,255,255,.25)" stroke="#2A2238" stroke-width="3"><circle cx="51" cy="52" r="12"/><circle cx="89" cy="52" r="12"/></g>'
+    + '<path d="M63 50 Q70 46 77 50" fill="none" stroke="#2A2238" stroke-width="3"/>',
+  krone: '<path d="M50 27 L54 8 L62 19 L70 3 L78 19 L86 8 L90 27 Z" fill="#F7C531" stroke="#C99712" stroke-width="2" stroke-linejoin="round"/>'
+    + '<circle cx="70" cy="16" r="3" fill="#E8486A"/>',
+  sterne: '<g fill="#FFD84D"><path d="M14 14 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3z"/><path d="M124 10 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z"/>'
+    + '<path d="M128 86 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z"/></g>',
+};
+function axolotlBild(v) {
+  const box = el('span', v.regenbogen ? 'axo regenbogen' : 'axo');
+  box.innerHTML = `<svg class="axo-koerper" viewBox="0 0 140 112" aria-hidden="true"${v.filter ? ` style="filter:${v.filter}"` : ''}><use href="#axolotl"/></svg>`
+    + (v.extra ? `<svg class="axo-extra" viewBox="0 0 140 112" aria-hidden="true">${AXOLOTL_EXTRAS[v.extra]}</svg>` : '');
+  return box;
+}
+function ladeSammelheft() {
+  const o = ladeObjekt(SAMMEL_SPEICHER);
+  return {
+    tage: Array.isArray(o.tage) ? [...new Set(o.tage.filter(t => ISO_MUSTER.test(t)))].sort() : [],
+    gewaehlt: typeof o.gewaehlt === 'string' ? o.gewaehlt : 'rosa',
+  };
+}
+const speichereSammelheft = () => speichereObjekt(SAMMEL_SPEICHER, sammelheft);
+const freigeschaltet = () => AXOLOTL.filter(v => sammelheft.tage.length >= v.ab);
+const gewaehlterAxolotl = () => freigeschaltet().find(v => v.id === sammelheft.gewaehlt) || AXOLOTL[0];
+function zeigeAxolotl() {
+  const v = gewaehlterAxolotl();
+  $('kopf-axolotl').replaceChildren(axolotlBild(v));
+  document.body.style.setProperty('--axo-filter', v.filter || 'none');
+}
+/* Stempel vergeben, sobald jede Aufgabe des Tages ein Ergebnis hat (am Tablet gerechnet oder von dir eingetragen) */
+function pruefeStempel(ausKindansicht) {
+  if (!aktuelleAufgaben.length || sammelheft.tage.includes(datum)) return;
+  const tag = ergebnisse[datum] || {};
+  if (!aktuelleAufgaben.every(a => tag[`${a.thema}|${a.sig}`])) return;
+  const vorher = freigeschaltet().length;
+  sammelheft.tage = [...sammelheft.tage, datum].sort();
+  const liste = freigeschaltet(), neu = liste.length > vorher ? liste[liste.length - 1] : null;
+  if (neu) sammelheft.gewaehlt = neu.id;
+  speichereSammelheft();
+  zeigeAxolotl();
+  if (!ausKindansicht) return;
+  const text = neu
+    ? `Super! Heute gibt es einen Stempel – und einen neuen Axolotl: ${neu.name}! 🎉`
+    : 'Super! Für heute gibt es einen Stempel in dein Sammelheft. 🎉';
+  setTimeout(() => oeffneSammelheft(text), 900);   // erst die Rückmeldung zur letzten Aufgabe zeigen
+}
+function oeffneSammelheft(meldung) {
+  schliesseTastenfeld();
+  $('sammel-meldung').textContent = meldung || '';
+  $('sammel-meldung').hidden = !meldung;
+  // Stempel der letzten vier Wochen, Montag bis Sonntag
+  const raster = $('stempel-raster');
+  raster.textContent = '';
+  ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].forEach(t => raster.append(el('div', 'st-kopf', t)));
+  const heute = heuteIso(), start = datumAus(heute);
+  start.setDate(start.getDate() - ((start.getDay() + 6) % 7) - 21);
+  for (let i = 0; i < 28; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    const iso = isoVon(d), zelle = el('div', 'st-tag');
+    if (iso > heute) zelle.classList.add('zukunft');
+    if (iso === heute) zelle.classList.add('heute');
+    zelle.append(el('span', 'st-datum', String(d.getDate())));
+    if (sammelheft.tage.includes(iso)) {
+      zelle.classList.add('gestempelt');
+      zelle.append(axolotlBild(gewaehlterAxolotl()));
+    }
+    raster.append(zelle);
+  }
+  const n = sammelheft.tage.length, naechster = AXOLOTL.find(v => v.ab > n);
+  $('sammel-stand').textContent = `${n} ${n === 1 ? 'Übungstag' : 'Übungstage'} gesammelt.`
+    + (naechster ? ` Noch ${naechster.ab - n} bis zum nächsten Axolotl.` : ' Du hast alle Axolotl gefunden!');
+  const galerie = $('axolotl-galerie');
+  galerie.textContent = '';
+  AXOLOTL.forEach(v => {
+    const offen = n >= v.ab, karte = el('button', 'axo-karte');
+    karte.type = 'button';
+    if (!offen) { karte.classList.add('gesperrt'); karte.disabled = true; }
+    if (offen && v.id === gewaehlterAxolotl().id) { karte.classList.add('gewaehlt'); karte.setAttribute('aria-pressed', 'true'); }
+    karte.append(axolotlBild(v), el('span', 'axo-name', offen ? v.name : `ab ${v.ab} Tagen`));
+    karte.addEventListener('click', () => {
+      sammelheft.gewaehlt = v.id;
+      speichereSammelheft();
+      zeigeAxolotl();
+      oeffneSammelheft('');
+    });
+    galerie.append(karte);
+  });
+  $('sammel-dialog').hidden = false;
+}
+function richteSammelheftEin() {
+  const zu = () => { $('sammel-dialog').hidden = true; };
+  $('sammel-oeffnen').addEventListener('click', () => oeffneSammelheft(''));
+  $('sammel-zu').addEventListener('click', zu);
+  $('sammel-dialog').addEventListener('click', e => { if (e.target === $('sammel-dialog')) zu(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('sammel-dialog').hidden) zu(); });
+  zeigeAxolotl();
 }
 
 /* ---------- Ziffernblock ---------- */
@@ -2878,10 +3388,12 @@ function speichereEinstellungen() {
 const ERGEBNIS_SPEICHER = 'mathe-tagesblatt-ergebnisse-v1';
 const PLAN_SPEICHER = 'mathe-tagesblatt-plaene-v1';
 const EINGABE_SPEICHER = 'mathe-tagesblatt-eingaben-v1';
+const NOTIZ_SPEICHER = 'mathe-tagesblatt-notizen-v1';
+const SAMMEL_SPEICHER = 'mathe-tagesblatt-sammelheft-v1';
 const ISO_MUSTER = /^\d{4}-\d{2}-\d{2}$/;
 const FEHLERARTEN = {
   zahlen: ['Stellenwert verwechselt', 'Fehler bei einer Null', 'Falsch gerundet', 'Zahlenstrahl falsch abgelesen', '< und > verwechselt', 'Sonstiges'],
-  plusminus: ['Übertrag vergessen oder falsch', 'Nicht genau untereinander geschrieben', 'Verrechnet', 'Fehler bei einer Null', 'Fehler nicht gefunden', 'Sonstiges'],
+  plusminus: ['Übertrag vergessen oder falsch', 'Kleinere von größerer Ziffer abgezogen', 'Nicht genau untereinander geschrieben', 'Verrechnet', 'Fehler bei einer Null', 'Fehler nicht gefunden', 'Sonstiges'],
   malgeteilt: ['Einmaleins-Fehler', 'Übertrag oder Merkzahl falsch', 'Teilergebnis an falscher Stelle', 'Ablauf beim Teilen (herunterholen, Rest)', 'Fehler bei einer Null', 'Sonstiges'],
   groessen: ['Umrechnungszahl falsch', 'Falsche Richtung (mal statt geteilt)', 'Komma oder Null falsch gesetzt', 'Keine Vorstellung von der Größe', 'Verrechnet', 'Sonstiges'],
   sach: ['Aufgabe nicht verstanden', 'Falsche Rechenart', 'Einen Schritt vergessen', 'Überflüssige Angabe mitgerechnet', 'Fehlende Angabe nicht bemerkt', 'Verrechnet', 'Antwort fehlt oder passt nicht', 'Sonstiges'],
@@ -2930,6 +3442,8 @@ const heuteIso = () => isoVon(new Date());
 let einst = ladeEinstellungen();
 let ergebnisse = ladeObjekt(ERGEBNIS_SPEICHER);
 const eingaben = ladeObjekt(EINGABE_SPEICHER);
+const notizen = ladeObjekt(NOTIZ_SPEICHER);
+let sammelheft = null;   // wird beim Start geladen
 const plaene = ladeObjekt(PLAN_SPEICHER);
 let datum = heuteIso();
 let aktuelleAufgaben = [];
@@ -2952,8 +3466,13 @@ function baueEintrag(a) {
   const vomKind = el('span', 'vom-kind');
   const zeige = () => {
     const e = (ergebnisse[datum] || {})[key];
-    vomKind.textContent = e && e.quelle === 'kind'
-      ? `Am Tablet: ${e.r ? (e.versuch > 1 ? 'richtig im 2. Versuch' : 'richtig') : 'nicht geschafft'}` : '';
+    let text = '';
+    if (e && e.quelle === 'kind') {
+      if (e.r) text = e.versuch > 1 ? `richtig im 2. Versuch${e.vorher ? ` (beim 1. Versuch vermutlich: ${e.vorher})` : ''}` : 'richtig';
+      else text = `nicht geschafft${e.fAuto && e.f ? ' – Fehlerart automatisch erkannt' : ''}`;
+      text = `Am Tablet: ${text}`;
+    }
+    vomKind.textContent = text;
     richtig.classList.toggle('aktiv', !!e && e.r === true);
     falsch.classList.toggle('aktiv', !!e && e.r === false);
     richtig.setAttribute('aria-pressed', String(!!e && e.r === true));
@@ -2973,13 +3492,14 @@ function baueEintrag(a) {
   falsch.addEventListener('click', () => setze(false));
   wahl.addEventListener('change', () => {
     const e = (ergebnisse[datum] || {})[key];
-    if (e) { e.f = wahl.value; nachEintrag(); }
+    if (e) { e.f = wahl.value; e.fAuto = false; nachEintrag(); zeige(); }
   });
   zeige();
   zeile.append(richtig, falsch, wahl, vomKind);
   return zeile;
 }
 function nachEintrag() {
+  pruefeStempel(false);
   speichereObjekt(ERGEBNIS_SPEICHER, ergebnisse);
   holePlan(datum, true);
   zeichneStand();
@@ -3037,6 +3557,8 @@ function zeichneUebersicht() {
   kopf.append(el('div', 'dk-titel', 'Mathe-Übungsübersicht'), el('div', 'dk-datum', `Stand: ${langesDatum(heuteIso())}`),
     el('div', 'dk-name', name ? `für ${name}` : ''));
   ziel.append(kopf);
+  const tageImHeft = sammelheft ? sammelheft.tage.length : 0;
+  ziel.append(el('p', 'hinweis', `Sammelheft: ${tageImHeft} ${tageImHeft === 1 ? 'Übungstag' : 'Übungstage'} mit Stempel.`));
   if (!alle.length) {
     ziel.append(el('p', 'hinweis', 'Noch keine Ergebnisse eingetragen. Sobald du bei den Lösungen „Richtig“ oder „Falsch“ anklickst, erscheint hier die Auswertung.'));
     return;
@@ -3094,6 +3616,7 @@ function zeichne() {
   zeichneStand();
   zeichneUebersicht();
   zeigeKindFortschritt();
+  zeichneNotizenNeu();
 }
 function setzeAnsicht(ansicht) {
   // Beim Wechsel neu zeichnen, damit beide Ansichten den aktuellen Stand der Eingaben zeigen
@@ -3101,6 +3624,7 @@ function setzeAnsicht(ansicht) {
   document.body.dataset.view = ansicht;
   document.body.dataset.print = ansicht === 'eltern' ? 'loesungen' : 'aufgaben';
   window.scrollTo(0, 0);
+  zeichneNotizenNeu();
 }
 function setzeDatum(iso) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return;
@@ -3335,7 +3859,7 @@ const SICHERUNG_ART = 'mathe-tagesblatt-sicherung';
 $('sicherung-speichern').addEventListener('click', () => {
   const daten = {
     art: SICHERUNG_ART, version: 1, erstellt: new Date().toISOString(),
-    einstellungen: einst, ergebnisse, plaene, pin: leseSpeicher(PIN_SPEICHER),
+    einstellungen: einst, ergebnisse, plaene, pin: leseSpeicher(PIN_SPEICHER), sammelheft,
   };
   const url = URL.createObjectURL(new Blob([JSON.stringify(daten, null, 1)], { type: 'application/json' }));
   const link = el('a');
@@ -3366,6 +3890,7 @@ $('sicherung-datei').addEventListener('change', async () => {
   speichereObjekt(ERGEBNIS_SPEICHER, daten.ergebnisse);
   speichereObjekt(PLAN_SPEICHER, objekt(daten.plaene) ? daten.plaene : {});
   schreibeSpeicher(PIN_SPEICHER, typeof daten.pin === 'string' && daten.pin ? daten.pin : null);
+  if (objekt(daten.sammelheft)) speichereObjekt(SAMMEL_SPEICHER, daten.sammelheft);
   // Neu laden, damit alle Einstellungen sauber übernommen werden; der Elternbereich bleibt offen
   merkeFreigabe(true);
   location.hash = 'eltern';
@@ -3389,9 +3914,11 @@ window.addEventListener('afterprint', () => {
   document.body.dataset.print = document.body.dataset.view === 'eltern' ? 'loesungen' : 'aufgaben';
 });
 
+sammelheft = ladeSammelheft();
 baueEinstellungen();
 zeigePinStatus();
 richteTastenfeldEin();
+richteSammelheftEin();
 // Direktaufruf des Elternbereichs: ohne PIN sofort, mit PIN nur nach Abfrage oder bestehender Freigabe in diesem Tab
 if (location.hash === '#eltern' || location.hash === '#uebersicht') {
   if (!pinGesetzt() || freigegeben()) {
