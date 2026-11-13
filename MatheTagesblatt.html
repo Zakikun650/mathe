@@ -557,6 +557,10 @@
   .tastenfeld[hidden] { display: none; }
   .tf-innen { max-width: 400px; margin: 0 auto; }
   .tf-tasten { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .tf-zeichen { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 8px; }
+  .tf-zeichen[hidden] { display: none; }
+  .tf-zeichen button { font: inherit; font-size: 28px; font-weight: 800; height: 50px; border-radius: 14px; border: 1px solid #F2C94C; background: #FFF6D6; color: #8A5A00; cursor: pointer; }
+  .tf-zeichen button:active { background: #FFE9A8; }
   .tf-tasten.einheit { grid-template-columns: repeat(4, 1fr); }
   .tf-tasten.vergleich { grid-template-columns: repeat(3, 1fr); }
   .tf-tasten button, .tf-leiste button {
@@ -799,6 +803,7 @@
 
 <div class="tastenfeld nur-kind kein-druck" id="tastenfeld" hidden>
   <div class="tf-innen">
+    <div class="tf-zeichen" id="tf-zeichen" hidden></div>
     <div class="tf-tasten" id="tf-tasten"></div>
     <div class="tf-leiste">
       <button type="button" id="tf-links" aria-label="Vorheriges Feld">◀</button>
@@ -2563,6 +2568,9 @@ function baueBlatt(ziel, aufgaben, mitLoesung, datumText, name, themenEinst) {
    Rechnen am Tablet: Eingabefelder, Ziffernblock, Prüfen und Rückmeldung
    ===================================================================== */
 const EINHEITEN_TASTEN = ['mm', 'cm', 'm', 'km', 'g', 'kg', 't', 'ml', 'l', 's', 'min', 'h'];
+/* Rechenzeichen für Zwischenschritte; „·“ ist der Malpunkt, wie er in der Grundschule geschrieben wird */
+const RECHENZEICHEN = ['+', '−', '·', ':'];
+const RECHENZEICHEN_MUSTER = /[+−·:]/g;
 const ohneLeer = s => String(s ?? '').replace(/[\s  ]/g, '');
 /* Vergleicht eine Eingabe mit der Lösung: Zahlen nach ihrem Wert (1,50 = 1,5), Uhrzeiten nach Minuten, sonst als Text */
 function gleich(eingabe, soll) {
@@ -2587,7 +2595,7 @@ const wertVon = feld => feld.ia.z.felder[feld.id] || '';
 function neuesFeld(ia, ziel, opt) {
   const feld = {
     ia, el: ziel, id: opt.id, max: opt.max || 1, art: opt.art || 'zahl',
-    extras: opt.extras || [], richtung: opt.richtung || null, reihe: opt.reihe || null,
+    extras: opt.extras || [], richtung: opt.richtung || null, reihe: opt.reihe || null, rechenzeichen: !!opt.rechenzeichen,
   };
   ziel.classList.add('feld');
   ziel.tabIndex = 0;
@@ -2663,7 +2671,7 @@ function machInteraktiv(karte, a) {
     }
     const zeilen = reihen.slice(1).map((tr, zi) => {
       const reihe = [];
-      [...tr.cells].forEach((td, j) => neuesFeld(ia, td, { id: `z${zi}-${j}`, reihe, richtung: geteilt ? 'rechts' : 'links', extras: ['−'], label: 'Rechenkästchen' }));
+      [...tr.cells].forEach((td, j) => neuesFeld(ia, td, { id: `z${zi}-${j}`, reihe, richtung: geteilt ? 'rechts' : 'links', rechenzeichen: true, label: 'Rechenkästchen' }));
       return reihe;
     });
     ia.zeilenFelder = zeilen;
@@ -2674,7 +2682,7 @@ function machInteraktiv(karte, a) {
         els: [tab], leer: () => zeilen.every(leerAlle),
         pruefe: () => {
           const unten = [...zeilen].reverse().find(z => !leerAlle(z));
-          const text = unten.map(wertVon).join('');
+          const text = unten.map(wertVon).join('').replace(RECHENZEICHEN_MUSTER, '');
           return /^\d+$/.test(text) && Number(text) === a.rechnung.z;
         },
       });
@@ -2898,7 +2906,7 @@ function zeigeKindFortschritt() {
    Passt eine falsche Eingabe zu einem bekannten Fehlermuster, wird die Fehlerart für den Elternbereich
    vermerkt und das Kind bekommt einen kurzen, passenden Hinweis. Passt nichts sicher, bleibt es offen. */
 const zahlAusFeldern = felder => {
-  const text = (felder || []).map(wertVon).join('');
+  const text = (felder || []).map(wertVon).join('').replace(RECHENZEICHEN_MUSTER, '');
   return /^\d+$/.test(text) ? Number(text) : null;
 };
 const kommaWert = s => {
@@ -3273,6 +3281,17 @@ function schliesseTastenfeld() {
   document.body.classList.remove('tf-offen');
 }
 function baueTasten(feld) {
+  const zeichen = $('tf-zeichen');
+  zeichen.textContent = '';
+  zeichen.hidden = !feld.rechenzeichen;
+  RECHENZEICHEN.forEach(z => {
+    if (!feld.rechenzeichen) return;
+    const b = el('button', '', z);
+    b.type = 'button';
+    b.setAttribute('aria-label', { '+': 'plus', '−': 'minus', '·': 'mal', ':': 'geteilt' }[z]);
+    b.addEventListener('click', () => tippeZeichen(z));
+    zeichen.append(b);
+  });
   const tasten = $('tf-tasten');
   tasten.textContent = '';
   let liste;
@@ -3338,7 +3357,10 @@ document.addEventListener('keydown', e => {
   else if ((e.key === ',' || e.key === '.') && f.extras.includes(',')) z = ',';
   else if (e.key === ':' && f.extras.includes(':')) z = ':';
   else if (e.key.toLowerCase() === 'r' && f.extras.includes('R')) z = 'R';
-  else if (e.key === '-' && f.extras.includes('−')) z = '−';
+  else if (f.rechenzeichen && e.key === '+') z = '+';
+  else if (f.rechenzeichen && e.key === '-') z = '−';
+  else if (f.rechenzeichen && ['*', 'x', 'X', '·'].includes(e.key)) z = '·';
+  else if (f.rechenzeichen && (e.key === ':' || e.key === '/')) z = ':';
   else if ((e.key === '<' || e.key === '>') && f.art === 'vergleich') z = e.key;
   else if (e.key === 'Backspace' || e.key === 'Delete') z = '⌫';
   else if (e.key === 'ArrowLeft') { wechsleFeld(-1); e.preventDefault(); return; }
