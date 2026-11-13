@@ -557,7 +557,7 @@
   .tastenfeld[hidden] { display: none; }
   .tf-innen { max-width: 400px; margin: 0 auto; }
   .tf-tasten { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .tf-zeichen { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 8px; }
+  .tf-zeichen { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 8px; }
   .tf-zeichen[hidden] { display: none; }
   .tf-zeichen button { font: inherit; font-size: 28px; font-weight: 800; height: 50px; border-radius: 14px; border: 1px solid #F2C94C; background: #FFF6D6; color: #8A5A00; cursor: pointer; }
   .tf-zeichen button:active { background: #FFE9A8; }
@@ -2569,8 +2569,8 @@ function baueBlatt(ziel, aufgaben, mitLoesung, datumText, name, themenEinst) {
    ===================================================================== */
 const EINHEITEN_TASTEN = ['mm', 'cm', 'm', 'km', 'g', 'kg', 't', 'ml', 'l', 's', 'min', 'h'];
 /* Rechenzeichen für Zwischenschritte; „·“ ist der Malpunkt, wie er in der Grundschule geschrieben wird */
-const RECHENZEICHEN = ['+', '−', '·', ':'];
-const RECHENZEICHEN_MUSTER = /[+−·:]/g;
+const RECHENZEICHEN = ['+', '−', '·', ':', '='];
+const RECHENZEICHEN_MUSTER = /[+−·:=]/g;
 const ohneLeer = s => String(s ?? '').replace(/[\s  ]/g, '');
 /* Vergleicht eine Eingabe mit der Lösung: Zahlen nach ihrem Wert (1,50 = 1,5), Uhrzeiten nach Minuten, sonst als Text */
 function gleich(eingabe, soll) {
@@ -3288,7 +3288,7 @@ function baueTasten(feld) {
     if (!feld.rechenzeichen) return;
     const b = el('button', '', z);
     b.type = 'button';
-    b.setAttribute('aria-label', { '+': 'plus', '−': 'minus', '·': 'mal', ':': 'geteilt' }[z]);
+    b.setAttribute('aria-label', { '+': 'plus', '−': 'minus', '·': 'mal', ':': 'geteilt', '=': 'ist gleich' }[z]);
     b.addEventListener('click', () => tippeZeichen(z));
     zeichen.append(b);
   });
@@ -3361,6 +3361,7 @@ document.addEventListener('keydown', e => {
   else if (f.rechenzeichen && e.key === '-') z = '−';
   else if (f.rechenzeichen && ['*', 'x', 'X', '·'].includes(e.key)) z = '·';
   else if (f.rechenzeichen && (e.key === ':' || e.key === '/')) z = ':';
+  else if (f.rechenzeichen && e.key === '=') z = '=';
   else if ((e.key === '<' || e.key === '>') && f.art === 'vergleich') z = e.key;
   else if (e.key === 'Backspace' || e.key === 'Delete') z = '⌫';
   else if (e.key === 'ArrowLeft') { wechsleFeld(-1); e.preventDefault(); return; }
