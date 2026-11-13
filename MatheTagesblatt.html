@@ -3513,14 +3513,14 @@ document.addEventListener('keydown', e => {
 function standardEinstellungen() {
   const themen = {};
   THEMEN.forEach(t => { themen[t.id] = { an: true, stufe: 1, hinweise: false }; });
-  return { name: '', anzahl: 6, einstieg: true, schriftlichTeilen: true, fehlersuche: false, ueberschlag: true, probe: false, einmaleinsStart: true, themen };
+  return { name: 'Amina', anzahl: 6, einstieg: true, schriftlichTeilen: true, fehlersuche: false, ueberschlag: true, probe: false, einmaleinsStart: true, themen };
 }
 function ladeEinstellungen() {
   const e = standardEinstellungen();
   try {
     const roh = JSON.parse(localStorage.getItem(SPEICHER) || 'null');
     if (roh && typeof roh === 'object') {
-      if (typeof roh.name === 'string') e.name = roh.name.slice(0, 20);
+      if (typeof roh.name === 'string' && roh.name.trim()) e.name = roh.name.slice(0, 20);
       if (Number.isInteger(roh.anzahl)) e.anzahl = Math.min(20, Math.max(4, roh.anzahl));
       e.einstieg = roh.einstieg !== false;
       e.schriftlichTeilen = roh.schriftlichTeilen !== false;
