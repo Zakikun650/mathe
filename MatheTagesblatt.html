@@ -26,7 +26,7 @@
     line-height: 1.45;
   }
   body[data-view="eltern"] { background: #F1F4F9; }
-  .seite { max-width: 1120px; margin: 0 auto; padding: 22px 20px 110px; }   /* unten Platz, damit nichts unter dem Netlify-Hinweis verschwindet */
+  .seite { max-width: 1120px; margin: 0 auto; padding: 22px 20px 60px; }
 
   /* ---------- Kinderansicht: Kopf ---------- */
   .kind-kopf {
@@ -470,13 +470,6 @@
   .tf-leiste { display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 8px; margin-top: 8px; }
   .tf-leiste .tf-fertig { background: #2F6FDE; border-color: #2F6FDE; color: #fff; font-size: 19px; }
   body.tf-offen { padding-bottom: 360px; }
-  /* Die rechte untere Ecke bleibt frei: Dort blendet Netlify im kostenlosen Angebot den Hinweis „Powered by Netlify“ ein
-     (etwa 200 × 64 Pixel). Auf breiten Bildschirmen steht der Ziffernblock deshalb links, auf schmalen etwas höher. */
-  @media (min-width: 700px) { .tf-innen { margin: 0 auto 0 24px; } }
-  @media (max-width: 699px) {
-    .tastenfeld { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
-    body.tf-offen { padding-bottom: 440px; }
-  }
   @media print { .ein { visibility: hidden; } }
 
   /* ---------- Sichtbarkeit am Bildschirm ---------- */
