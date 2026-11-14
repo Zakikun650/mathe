@@ -541,6 +541,70 @@
   .axo-karte.gesperrt { cursor: default; }
   .axo-karte.gesperrt .axo { filter: grayscale(1) opacity(.35); }
   .axo-name { font-size: 13px; font-weight: 700; text-align: center; line-height: 1.25; }
+  .kopf-knoepfe { display: flex; flex-wrap: wrap; gap: 8px; }
+  .axo .axo-ausstattung { position: absolute; left: 0; top: 0; }
+  .bonus-bereich { margin-top: 40px; padding-top: 6px; border-top: 3px dashed #F2B8CB; }
+  .bonus-ergebnis { margin: 12px 0 0; font-weight: 700; font-size: 17px; color: #B4570B; }
+  .bonus-ergebnis.gut { color: #12805C; }
+  .bonus-knopf-zeile { margin-top: 26px; text-align: center; }
+  .bonus-knopf {
+    font: inherit;
+    font-size: 20px;
+    font-weight: 800;
+    min-height: 56px;
+    padding: 12px 28px;
+    border-radius: 999px;
+    border: none;
+    background: linear-gradient(120deg, #C0306B, #E8486A);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #8E1F4D;
+  }
+  .bonus-knopf:active { transform: translateY(2px); box-shadow: 0 2px 0 #8E1F4D; }
+  .bonus-knopf-zeile .hinweis { margin: 10px auto 0; }
+  .wz-box { background: #F3FAF5; }
+  .wz-meldung { background: #fff; border-radius: 14px; padding: 10px 14px; margin: 6px 0 0; font-size: 16px; line-height: 1.45; }
+  .wz-meldung[hidden] { display: none; }
+  .wz-meldung p { margin: 0; }
+  .wz-loesung { margin-top: 6px; }
+  .wz-loesung summary { cursor: pointer; font-weight: 700; color: #2F6FDE; }
+  .wz-kalender { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .tuer {
+    font: inherit;
+    font-size: 18px;
+    font-weight: 800;
+    aspect-ratio: 1;
+    border-radius: 10px;
+    border: 2px solid #B13A3A;
+    background: #D94F4F;
+    color: #fff;
+    cursor: pointer;
+  }
+  .tuer.bereit { background: #E8A33A; border-color: #B97813; animation: wackeln-tuer 1.6s ease-in-out infinite; }
+  @keyframes wackeln-tuer { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-4deg); } }
+  @media (prefers-reduced-motion: reduce) { .tuer.bereit { animation: none; } }
+  .tuer.offen { background: #FFF7E8; border-color: #E3D6BE; color: var(--tinte); font-size: 22px; }
+  .baum { display: flex; justify-content: center; }
+  .baum svg { width: 200px; height: auto; }
+  .wz-schnee-knopf {
+    font: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    min-height: 44px;
+    margin-top: 6px;
+    padding: 6px 16px;
+    border-radius: 12px;
+    border: 2px solid #9CC2E5;
+    background: #fff;
+    color: var(--tinte);
+    cursor: pointer;
+  }
+  .wz-schnee-knopf:disabled { opacity: .55; cursor: default; }
+  .schnee { position: fixed; inset: 0; z-index: 30; pointer-events: none; overflow: hidden; }
+  .flocke { position: absolute; top: -30px; color: #9DC3E8; text-shadow: 0 0 3px #fff, 0 0 1px #6FA3D8; animation-name: fallen, pendeln; animation-timing-function: linear, ease-in-out; animation-iteration-count: infinite, infinite; animation-direction: normal, alternate; }
+  @keyframes fallen { to { top: 105vh; } }
+  @keyframes pendeln { from { margin-left: -12px; } to { margin-left: 12px; } }
+  @media (prefers-reduced-motion: reduce) { .schnee { display: none; } }
   .kind-fortschritt.alles { display: inline-block; background: #fff; border-radius: 12px; padding: 4px 14px; color: #12805C; }
   .vom-kind { font-size: 13px; color: #5B6780; }
   .tastenfeld {
@@ -756,7 +820,10 @@
       <div class="datum-pille" id="kind-datum"></div>
       <p class="mutmacher" id="mutmacher"></p>
       <p class="kind-fortschritt" id="kind-fortschritt" aria-live="polite"></p>
-      <button type="button" class="sammel-knopf" id="sammel-oeffnen">📒 Mein Sammelheft</button>
+      <div class="kopf-knoepfe">
+        <button type="button" class="sammel-knopf" id="sammel-oeffnen">📒 Mein Sammelheft</button>
+        <button type="button" class="sammel-knopf" id="wz-oeffnen">🎄 Weihnachtszauber</button>
+      </div>
     </div>
   </header>
 
@@ -826,6 +893,23 @@
       <button type="button" id="tf-rechts" aria-label="Nächstes Feld">▶</button>
       <button type="button" id="tf-fertig" class="tf-fertig">Fertig</button>
     </div>
+  </div>
+</div>
+
+<div class="sammel-dialog kein-druck" id="wz-dialog" hidden>
+  <div class="sammel-box wz-box" role="dialog" aria-modal="true" aria-labelledby="wz-titel">
+    <button type="button" class="sammel-zu" id="wz-zu" aria-label="Schließen">✕</button>
+    <h2 id="wz-titel">🎄 Mein Weihnachtszauber</h2>
+    <div class="wz-meldung" id="wz-meldung" role="status" hidden></div>
+    <h3>Adventskalender</h3>
+    <p class="sammel-stand" id="wz-advent-text"></p>
+    <div class="wz-kalender" id="wz-kalender"></div>
+    <h3>Mein Weihnachtsbaum</h3>
+    <div id="wz-baum"></div>
+    <p class="sammel-stand" id="wz-baum-text"></p>
+    <h3>Weihnachtssachen für meinen Axolotl</h3>
+    <div class="axolotl-galerie" id="wz-ausstattung"></div>
+    <button type="button" class="wz-schnee-knopf" id="wz-schnee"></button>
   </div>
 </div>
 
@@ -2265,7 +2349,7 @@ function planeTag(iso, einst, verlaeufe = {}) {
   });
   return plan;
 }
-function erzeugeAufgaben(iso, einst, plan) {
+function erzeugeAufgaben(iso, einst, plan, saat = '') {
   const aktiv = THEMEN.filter(t => einst.themen[t.id].an);
   if (!aktiv.length) return [];
   if (!plan) plan = planeTag(iso, einst);
@@ -2289,17 +2373,17 @@ function erzeugeAufgaben(iso, einst, plan) {
       if (!kontexte[stufe]) {
         const gueltig = g.typen(stufe, variante);
         let typen;
-        if (einstieg) typen = mische(gueltig, makeRng(`${iso}|${thema.id}|typen|0${variante}`));
+        if (einstieg) typen = mische(gueltig, makeRng(`${iso}${saat}|${thema.id}|typen|0${variante}`));
         else {
           typen = (plan[thema.id] || []).filter(t => gueltig.includes(t));
           gueltig.forEach(t => { if (!typen.includes(t)) typen.push(t); });
         }
-        kontexte[stufe] = { ...g.tag(makeRng(`${iso}|${thema.id}|tag|${stufe}${variante}`), stufe), typen };
+        kontexte[stufe] = { ...g.tag(makeRng(`${iso}${saat}|${thema.id}|tag|${stufe}${variante}`), stufe), typen };
       }
       const nr = einstieg ? 0 : platz++;
       let aufgabe;
       for (let v = 0; v < 6; v++) {
-        aufgabe = g.gen(makeRng(`${iso}|${thema.id}|${nr}|${stufe}${variante}|${v}`), stufe, nr, kontexte[stufe]);
+        aufgabe = g.gen(makeRng(`${iso}${saat}|${thema.id}|${nr}|${stufe}${variante}|${v}`), stufe, nr, kontexte[stufe]);
         if (!gesehen.has(aufgabe.sig)) break;
       }
       gesehen.add(aufgabe.sig);
@@ -2902,6 +2986,7 @@ function abschliessen(ia, richtig) {
     r: richtig, f: richtig ? '' : erkannt[erkannt.length - 1] || '', fAuto: !richtig && erkannt.length > 0,
     vorher: richtig ? (ia.z.fehler || [])[0] || '' : '',
     thema: a.thema, typ: a.typ, stufe: a.stufe, versuch: ia.z.versuche, quelle: 'kind', beispiel: !!ia.z.beispiel,
+    ...(a.bonus ? { bonus: a.bonus } : {}),
   };
   speichereObjekt(ERGEBNIS_SPEICHER, ergebnisse);
   holePlan(datum, true);
@@ -2910,6 +2995,7 @@ function abschliessen(ia, richtig) {
   zeichneStand();
   zeichneUebersicht();
   pruefeStempel(true);
+  nachAufgabe(a);
 }
 function zeigeAbschluss(ia) {
   const a = ia.a, richtig = ia.z.status === 'richtig';
@@ -3322,7 +3408,9 @@ const freigeschaltet = () => AXOLOTL.filter(v => sammelheft.tage.length >= v.ab)
 const gewaehlterAxolotl = () => freigeschaltet().find(v => v.id === sammelheft.gewaehlt) || AXOLOTL[0];
 function zeigeAxolotl() {
   const v = gewaehlterAxolotl();
-  $('kopf-axolotl').replaceChildren(axolotlBild(v));
+  const bild = axolotlBild(v);
+  if (weihnacht) bild.insertAdjacentHTML('beforeend', ausstattungSvg());
+  $('kopf-axolotl').replaceChildren(bild);
   document.body.style.setProperty('--axo-filter', v.filter || 'none');
 }
 /* Stempel vergeben, sobald jede Aufgabe des Tages ein Ergebnis hat (am Tablet gerechnet oder von dir eingetragen) */
@@ -3393,6 +3481,350 @@ function richteSammelheftEin() {
   $('sammel-dialog').addEventListener('click', e => { if (e.target === $('sammel-dialog')) zu(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('sammel-dialog').hidden) zu(); });
   zeigeAxolotl();
+}
+
+/* =====================================================================
+   Freiwillige Bonus-Pakete und Weihnachtszauber
+   ===================================================================== */
+/* Sind die Pflichtaufgaben erledigt, lassen sich 10 weitere Aufgaben freischalten – nach jedem Paket wieder.
+   Die Pakete gibt es nur am Bildschirm. Unsichere Aufgabenarten kommen bevorzugt dran.
+   Ein Paket mit mindestens 6 richtigen Aufgaben bringt eine Weihnachts-Belohnung. */
+const BONUS_GROESSE = 10, BONUS_MINDESTENS = 6;
+const bonusTag = () => bonusStand[datum] || (bonusStand[datum] = { pakete: 0, ergebnis: {} });
+const bonusCache = {};
+function bonusAufgaben(k) {
+  const merk = `${datum}|${k}|${fingerabdruck(einst)}`;
+  if (bonusCache[merk]) return bonusCache[merk];
+  const e = { ...einst, anzahl: BONUS_GROESSE, einstieg: false };
+  // Plan aus den Ergebnissen der Vortage: unsichere Aufgabenarten stehen vorne
+  const plan = planeTag(datum, e, baueVerlaeufe(ergebnisse));
+  // Keine Aufgabe soll sich an einem Tag wiederholen: weder aus den Pflichtaufgaben noch aus früheren Paketen
+  const schon = new Set(aktuelleAufgaben.map(a => a.sig));
+  for (let j = 1; j < k; j++) bonusAufgaben(j).forEach(a => schon.add(a.sig.replace(/^bonus\d+\|/, '')));
+  let liste = [];
+  for (let v = 0; v < 8; v++) {
+    liste = erzeugeAufgaben(datum, e, plan, `|bonus${k}${v ? `|${v}` : ''}`);
+    if (!liste.some(a => schon.has(a.sig))) break;
+  }
+  liste = liste.map(a => ({ ...a, sig: `bonus${k}|${a.sig}`, bonus: k }));
+  bonusCache[merk] = liste;
+  return liste;
+}
+const erledigt = a => { const z = (eingaben[datum] || {})[`${a.thema}|${a.sig}`]; return !!z && z.status !== 'offen' && z.status !== undefined; };
+const pflichtErledigt = () => aktuelleAufgaben.length > 0 && aktuelleAufgaben.every(erledigt);
+function baueBonusBereich() {
+  const ziel = $('blatt-aufgaben');
+  ziel.querySelectorAll('.bonus-bereich').forEach(b => b.remove());
+  if (!aktuelleAufgaben.length) return;
+  const bereich = el('section', 'bonus-bereich kein-druck');
+  const b = bonusTag();
+  for (let k = 1; k <= b.pakete; k++) {
+    const titel = el('h2', 'thema-titel bonus-titel');
+    titel.style.setProperty('--c', '#C0306B');
+    titel.append(el('span', '', '🎁'), el('span', '', `Bonus-Paket ${k}`));
+    const grid = el('div', 'aufgaben-grid');
+    bonusAufgaben(k).forEach((a, i) => {
+      const thema = THEMEN.find(t => t.id === a.thema);
+      const karte = baueAufgabe(a, i + 1, false, thema.farbe, einst.themen[a.thema].hinweise);
+      machInteraktiv(karte, a);
+      grid.append(karte);
+    });
+    bereich.append(titel, grid);
+    if (b.ergebnis[k] != null) {
+      const r = b.ergebnis[k], gut = r >= BONUS_MINDESTENS;
+      bereich.append(el('p', `bonus-ergebnis ${gut ? 'gut' : ''}`, gut
+        ? `Bonus-Paket ${k} geschafft: ${r} von ${BONUS_GROESSE} richtig! 🎄 Schau in deinen Weihnachtszauber.`
+        : `${r} von ${BONUS_GROESSE} richtig – fast! Ab ${BONUS_MINDESTENS} richtigen gibt es eine Weihnachts-Belohnung. Mit dem nächsten Paket klappt es bestimmt!`));
+    }
+  }
+  const alleFertig = pflichtErledigt() && [...Array(b.pakete)].every((_, i) => b.ergebnis[i + 1] != null);
+  if (alleFertig) {
+    const zeile = el('div', 'bonus-knopf-zeile');
+    const knopf = el('button', 'bonus-knopf', b.pakete ? `🎁 Noch ${BONUS_GROESSE} Bonus-Aufgaben` : `🎁 ${BONUS_GROESSE} Bonus-Aufgaben freischalten`);
+    knopf.type = 'button';
+    knopf.addEventListener('click', () => {
+      bonusTag().pakete += 1;
+      speichereObjekt(BONUS_SPEICHER, bonusStand);
+      baueBonusBereich();
+      const neu = [...$('blatt-aufgaben').querySelectorAll('.bonus-titel')].pop();
+      if (neu) neu.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    });
+    zeile.append(knopf, el('p', 'hinweis', `Freiwillig! Für jedes Paket mit mindestens ${BONUS_MINDESTENS} richtigen gibt es eine Weihnachts-Belohnung.`));
+    bereich.append(zeile);
+  }
+  if (bereich.children.length) ziel.append(bereich);
+  zeichneNotizenNeu();
+}
+/* nach jeder fertigen Aufgabe: Ist ein Bonus-Paket komplett, wird es ausgewertet; sind die Pflichtaufgaben fertig, erscheint der Knopf */
+function nachAufgabe(a) {
+  if (a.bonus) {
+    const k = a.bonus, b = bonusTag();
+    const liste = bonusAufgaben(k);
+    if (b.ergebnis[k] == null && liste.every(erledigt)) {
+      const erg = ergebnisse[datum] || {};
+      const r = liste.filter(x => (erg[`${x.thema}|${x.sig}`] || {}).r).length;
+      b.ergebnis[k] = r;
+      speichereObjekt(BONUS_SPEICHER, bonusStand);
+      if (r >= BONUS_MINDESTENS) {
+        const text = gibBelohnung();
+        setTimeout(() => oeffneWeihnachtszauber(text), 900);
+      }
+      baueBonusBereich();
+    }
+    return;
+  }
+  if (pflichtErledigt() && !$('blatt-aufgaben').querySelector('.bonus-knopf')) baueBonusBereich();
+}
+
+/* ---------- Weihnachtszauber: Belohnungen für Bonus-Pakete ---------- */
+const AUSSTATTUNG = [
+  { id: 'muetze', name: 'Weihnachtsmütze', platz: 'kopf', ab: 1,
+    svg: '<path d="M36 31 Q56 1 94 5 Q109 7 116 21 L105 24 Q101 16 93 16 Q104 23 104 31 Z" fill="#D7263D"/>'
+      + '<rect x="30" y="26" width="80" height="11" rx="5.5" fill="#fff" stroke="#DADADA"/><circle cx="114" cy="23" r="7" fill="#fff" stroke="#DADADA"/>' },
+  { id: 'schal', name: 'Schal', platz: 'hals', ab: 3,
+    svg: '<path d="M38 82 Q70 98 102 82 L104 91 Q70 108 36 91 Z" fill="#2E86DE"/><path d="M86 93 L97 92 L99 110 L87 110 Z" fill="#2E86DE"/>'
+      + '<g stroke="#fff" stroke-width="2.5"><path d="M52 89 L53 98 M66 92 L66 101 M80 92 L79 101 M88 100 L98 100"/></g>' },
+  { id: 'geweih', name: 'Rentiergeweih', platz: 'kopf', ab: 5,
+    svg: '<g stroke="#8B5A2B" stroke-width="5" stroke-linecap="round" fill="none"><path d="M54 26 L46 4 M48 14 L36 10 M47 8 L52 1"/>'
+      + '<path d="M86 26 L94 4 M92 14 L104 10 M93 8 L88 1"/></g><circle cx="70" cy="60" r="4.5" fill="#E63946"/>' },
+  { id: 'lichter', name: 'Lichterkette', platz: 'hals', ab: 8,
+    svg: '<path d="M36 86 Q70 104 104 86" fill="none" stroke="#2F5D2F" stroke-width="2"/>'
+      + '<circle cx="44" cy="90.5" r="3.6" fill="#E63946"/><circle cx="57" cy="95" r="3.6" fill="#FFD23F"/><circle cx="70" cy="96.5" r="3.6" fill="#4D96FF"/>'
+      + '<circle cx="83" cy="95" r="3.6" fill="#7BD389"/><circle cx="96" cy="90.5" r="3.6" fill="#C77DFF"/>' },
+  { id: 'schneemann', name: 'Schneemann-Freund', platz: 'seite', ab: 12,
+    svg: '<circle cx="124" cy="98" r="10" fill="#fff" stroke="#BFD0E0"/><circle cx="124" cy="82" r="7.5" fill="#fff" stroke="#BFD0E0"/>'
+      + '<circle cx="121.5" cy="81" r="1.2" fill="#2A2238"/><circle cx="126.5" cy="81" r="1.2" fill="#2A2238"/><path d="M124 83.5 l5 1.5 l-5 1z" fill="#F28C28"/>'
+      + '<rect x="117" y="72" width="14" height="3" fill="#2A2238"/><rect x="119.5" y="64" width="9" height="9" fill="#2A2238"/>' },
+  { id: 'funkeln', name: 'Weihnachtsfunkeln', platz: 'funkeln', ab: 16,
+    svg: '<g fill="#fff" stroke="#FFD23F" stroke-width="1.2"><path d="M12 20 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3z"/><path d="M128 14 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z"/>'
+      + '<path d="M10 86 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z"/><path d="M132 60 l2 4 4 2 -4 2 -2 4 -2 -4 -4 -2 4 -2z"/></g>' },
+  { id: 'zuckerstange', name: 'Zuckerstange', platz: 'seite', tuer: 6,
+    svg: '<path d="M122 110 L122 78 Q122 70 129 70 Q136 70 136 78" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>'
+      + '<path d="M122 110 L122 78 Q122 70 129 70 Q136 70 136 78" fill="none" stroke="#E63946" stroke-width="6" stroke-dasharray="5 5"/>' },
+  { id: 'lebkuchen', name: 'Lebkuchenherz', platz: 'hals', tuer: 12,
+    svg: '<path d="M56 85 L70 95 L84 85" stroke="#B5651D" stroke-width="2" fill="none"/>'
+      + '<path d="M70 110 C57 101 57 92 63.5 92 C67 92 69 94.5 70 96.5 C71 94.5 73 92 76.5 92 C83 92 83 101 70 110 Z" fill="#B5651D" stroke="#fff" stroke-width="1.6"/>' },
+  { id: 'geschenk', name: 'Geschenk', platz: 'seite', tuer: 18,
+    svg: '<rect x="112" y="88" width="24" height="20" rx="2" fill="#E63946"/><rect x="121" y="88" width="6" height="20" fill="#FFD23F"/>'
+      + '<rect x="112" y="95" width="24" height="5" fill="#FFD23F"/><path d="M124 88 q-8 -9 -10 -3 q2 4 10 3 q8 -9 10 -3 q-2 4 -10 3" fill="#FFD23F"/>' },
+  { id: 'stern', name: 'Weihnachtsstern', platz: 'kopf', tuer: 24,
+    svg: '<path d="M70 0 L74.5 10 L85 10.5 L77 17 L80 27.5 L70 21.5 L60 27.5 L63 17 L55 10.5 L65.5 10 Z" fill="#FFD23F" stroke="#E0A800" stroke-width="1.5"/>' },
+];
+const SCHNEE_AB = 2, STERN_AB = 10;
+/* Was hinter den Türchen steckt: Witze, kleine Rätsel und an vier Tagen etwas zum Anziehen */
+const ADVENT = {
+  1: { witz: 'Was sagt ein Schneemann zum anderen? – „Riechst du auch Möhren?“' },
+  2: { raetsel: 'Der Weihnachtsmann hat 5 Rentiere. Jedes hat 4 Beine. Wie viele Beine sind das zusammen?', loesung: '20 Beine (5 · 4 = 20)' },
+  3: { raetsel: 'Auf einem Blech liegen 12 Plätzchen. Wie viele sind es auf 3 Blechen?', loesung: '36 Plätzchen (3 · 12 = 36)' },
+  4: { witz: 'Was essen Schneemänner am liebsten? – Eis am Stiel!' },
+  5: { raetsel: 'Ich bin weiß, falle vom Himmel und schmelze in deiner Hand. Was bin ich?', loesung: 'Eine Schneeflocke' },
+  6: { ausstattung: 'zuckerstange' },
+  7: { raetsel: 'Am Baum hängen 24 Kugeln. Die Hälfte davon ist rot. Wie viele Kugeln sind rot?', loesung: '12 Kugeln (24 : 2 = 12)' },
+  8: { raetsel: 'Heute ist der 8. Dezember. Wie viele Tage dauert es noch bis Heiligabend am 24. Dezember?', loesung: '16 Tage (24 − 8 = 16)' },
+  9: { witz: 'Wie nennt man einen Schneemann mit Sonnenbrille? – Einen coolen Typen!' },
+  10: { raetsel: 'Ein Schneemann besteht aus 3 Kugeln. Wie viele Kugeln brauchst du für 9 Schneemänner?', loesung: '27 Kugeln (9 · 3 = 27)' },
+  11: { raetsel: '48 Lebkuchen werden gerecht auf 6 Teller verteilt. Wie viele liegen auf jedem Teller?', loesung: '8 Lebkuchen (48 : 6 = 8)' },
+  12: { ausstattung: 'lebkuchen' },
+  13: { witz: 'Warum ist der Tannenbaum immer so gut gelaunt? – Weil er jedes Jahr so schön geschmückt wird!' },
+  14: { raetsel: 'Welche Zahl kommt als Nächstes? 3, 6, 12, 24, …', loesung: '48 (die Zahl verdoppelt sich jedes Mal)' },
+  15: { raetsel: 'Ein Geschenk kostet 7 €. Wie viel kosten 8 Geschenke?', loesung: '56 € (8 · 7 = 56)' },
+  16: { witz: 'Was ist rot und fliegt durch die Nacht? – Ein Weihnachtsmann mit Sonnenbrand!' },
+  17: { raetsel: 'Im Schlitten liegen 125 Geschenke. 47 werden heute abgegeben. Wie viele sind noch drin?', loesung: '78 Geschenke (125 − 47 = 78)' },
+  18: { ausstattung: 'geschenk' },
+  19: { raetsel: 'Am Adventskranz brennt am 1. Sonntag eine Kerze, am 2. Sonntag zwei, am 3. drei und am 4. vier. Wie oft wurde insgesamt eine Kerze angezündet?', loesung: '10-mal (1 + 2 + 3 + 4 = 10)' },
+  20: { raetsel: 'Eine Lichterkette hat 50 Lämpchen. Wie viele Lämpchen haben 3 Lichterketten?', loesung: '150 Lämpchen (3 · 50 = 150)' },
+  21: { witz: 'Welches Tier trägt im Winter am liebsten Mütze? – Der Eisbär, damit ihm der Kopf nicht friert!' },
+  22: { raetsel: 'Der Weihnachtsmann besucht in einer Stunde 60 Häuser. Wie viele schafft er in 5 Stunden?', loesung: '300 Häuser (5 · 60 = 300)' },
+  23: { raetsel: 'Wie viele Minuten haben 2 Stunden?', loesung: '120 Minuten (2 · 60 = 120)' },
+  24: { ausstattung: 'stern' },
+};
+function ladeWeihnacht() {
+  const o = ladeObjekt(WEIHNACHT_SPEICHER);
+  return {
+    pakete: Number.isInteger(o.pakete) ? o.pakete : 0,
+    advent: o.advent && typeof o.advent === 'object' ? o.advent : {},     // je Jahr: im Dezember verdiente Türchen
+    tueren: o.tueren && typeof o.tueren === 'object' ? o.tueren : {},     // „2026-5“: Datum des Öffnens
+    angezogen: o.angezogen && typeof o.angezogen === 'object' ? o.angezogen : {},
+    schnee: o.schnee !== false,
+  };
+}
+const speichereWeihnacht = () => speichereObjekt(WEIHNACHT_SPEICHER, weihnacht);
+const kalenderHeute = () => window.__testHeute || heuteIso();       // nur für die automatische Prüfung austauschbar
+function adventStand() {
+  const [j, m, t] = kalenderHeute().split('-').map(Number);
+  const offen = Object.keys(weihnacht.tueren).filter(k => k.startsWith(`${j}-`)).length;
+  return { jahr: j, dezember: m === 12, tag: t, guthaben: (weihnacht.advent[j] || 0) - offen };
+}
+const ausstattungFrei = a => (a.ab != null ? weihnacht.pakete >= a.ab : Object.keys(weihnacht.tueren).some(k => k.endsWith(`-${a.tuer}`)));
+/* Belohnung für ein Paket mit mindestens 6 richtigen; liefert die Nachricht für das Kind */
+function gibBelohnung() {
+  const vorher = AUSSTATTUNG.filter(ausstattungFrei).map(a => a.id);
+  weihnacht.pakete += 1;
+  const n = weihnacht.pakete, adv = adventStand();
+  const teile = [n === STERN_AB ? '⭐ Der Stern leuchtet jetzt auf der Spitze deines Weihnachtsbaums!' : '🎄 Etwas Neues hängt an deinem Weihnachtsbaum!'];
+  if (adv.dezember && adv.tag <= 24) {
+    weihnacht.advent[adv.jahr] = (weihnacht.advent[adv.jahr] || 0) + 1;
+    teile.push('🚪 Du darfst ein Türchen im Adventskalender öffnen!');
+  }
+  AUSSTATTUNG.filter(a => ausstattungFrei(a) && !vorher.includes(a.id)).forEach(a => {
+    teile.push(`🎅 Neu für deinen Axolotl: ${a.name}!`);
+    if (!weihnacht.angezogen[a.platz]) weihnacht.angezogen[a.platz] = a.id;   // gleich anziehen, wenn der Platz frei ist
+  });
+  if (n === SCHNEE_AB) teile.push('❄️ Jetzt schneit es bei dir! Den Schnee kannst du im Weihnachtszauber an- und ausschalten.');
+  speichereWeihnacht();
+  zeigeAxolotl();
+  zeigeSchnee();
+  return teile.join(' ');
+}
+function ausstattungSvg() {
+  const teile = Object.values(weihnacht.angezogen).map(id => AUSSTATTUNG.find(a => a.id === id)).filter(a => a && ausstattungFrei(a));
+  return teile.length ? `<svg class="axo-ausstattung" viewBox="0 0 140 112" aria-hidden="true">${teile.map(a => a.svg).join('')}</svg>` : '';
+}
+function zeigeSchnee() {
+  const an = weihnacht.schnee && weihnacht.pakete >= SCHNEE_AB && document.body.dataset.view === 'kind';
+  let schnee = document.getElementById('schnee');
+  if (!an) { if (schnee) schnee.remove(); return; }
+  if (schnee) return;
+  schnee = el('div', 'schnee kein-druck');
+  schnee.id = 'schnee';
+  schnee.setAttribute('aria-hidden', 'true');
+  const rng = makeRng('schnee');
+  for (let i = 0; i < 28; i++) {
+    const f = el('span', 'flocke', rng.chance(0.3) ? '❄' : '•');
+    f.style.left = `${rng.int(0, 98)}%`;
+    f.style.fontSize = `${rng.int(10, 22)}px`;
+    f.style.animationDuration = `${rng.int(9, 18)}s, ${rng.int(3, 6)}s`;
+    f.style.animationDelay = `-${rng.int(0, 18)}s, -${rng.int(0, 6)}s`;
+    f.style.opacity = String(0.5 + rng.int(0, 5) / 10);
+    schnee.append(f);
+  }
+  document.body.append(schnee);
+}
+/* Weihnachtsbaum: Schmuck an festen Plätzen, nach und nach aufgefüllt; ab 10 Paketen leuchtet der Stern */
+function baumPlaetze() {
+  const plaetze = [], breite = y => Math.max(
+    y >= 30 && y <= 95 ? (y - 20) / 75 * 60 : 0, y >= 60 && y <= 145 ? (y - 60) / 85 * 70 : 0, y >= 105 && y <= 205 ? (y - 105) / 100 * 80 : 0);
+  [52, 72, 90, 112, 130, 150, 170, 190].forEach(y => {
+    const h = breite(y) * 0.78, anzahl = Math.max(1, Math.round(h / 16));
+    for (let i = 0; i <= anzahl; i++) plaetze.push([100 - h + (2 * h * i) / Math.max(1, anzahl), y]);
+  });
+  return mische(plaetze, makeRng('weihnachtsbaum'));
+}
+function baueBaum() {
+  const n = weihnacht.pakete, plaetze = baumPlaetze();
+  const farben = ['#E63946', '#FFD23F', '#4D96FF', '#C77DFF', '#FF8FB1', '#7BD389'];
+  let schmuck = '';
+  plaetze.slice(0, Math.min(n, plaetze.length)).forEach(([x, y], i) => {
+    schmuck += i % 4 === 3
+      ? `<rect x="${x - 2.5}" y="${y - 7}" width="5" height="9" rx="1" fill="#FFF4D6" stroke="#E0B95A"/><path d="M${x} ${y - 13} q3 4 0 6 q-3 -2 0 -6" fill="#FF9F1C"/>`
+      : `<circle cx="${x}" cy="${y}" r="6" fill="${farben[i % farben.length]}"/><circle cx="${x - 2}" cy="${y - 2}" r="1.6" fill="#fff" opacity=".7"/>`;
+  });
+  const stern = n >= STERN_AB
+    ? '<path d="M100 2 L105.5 14 L118.5 15 L108.5 23 L112 36 L100 29 L88 36 L91.5 23 L81.5 15 L94.5 14 Z" fill="#FFD23F" stroke="#E0A800" stroke-width="2"/>'
+    : '<path d="M100 2 L105.5 14 L118.5 15 L108.5 23 L112 36 L100 29 L88 36 L91.5 23 L81.5 15 L94.5 14 Z" fill="none" stroke="#C9C1AE" stroke-width="2" stroke-dasharray="4 4"/>';
+  const box = el('div', 'baum');
+  box.innerHTML = `<svg viewBox="0 0 200 235" role="img" aria-label="Weihnachtsbaum mit ${Math.min(n, plaetze.length)} Schmuckstücken">
+    <rect x="89" y="203" width="22" height="28" rx="3" fill="#8B5A2B"/>
+    <polygon points="100,22 36,98 164,98" fill="#2E8B57"/><polygon points="100,58 28,148 172,148" fill="#2A7F4F"/>
+    <polygon points="100,102 18,206 182,206" fill="#25744A"/>${schmuck}${stern}</svg>`;
+  return box;
+}
+function oeffneWeihnachtszauber(meldung) {
+  schliesseTastenfeld();
+  const zeigeMeldung = inhalt => {
+    const m = $('wz-meldung');
+    m.replaceChildren(...(Array.isArray(inhalt) ? inhalt : [inhalt]));
+    m.hidden = !inhalt || (Array.isArray(inhalt) && !inhalt.length);
+  };
+  zeigeMeldung(meldung || []);
+  // Adventskalender
+  const adv = adventStand(), kal = $('wz-kalender');
+  kal.textContent = '';
+  $('wz-advent-text').textContent = !adv.dezember
+    ? 'Der Adventskalender startet am 1. Dezember. Bis dahin kannst du schon deinen Baum schmücken und Ausstattung sammeln!'
+    : adv.guthaben > 0
+      ? `Du darfst ${adv.guthaben === 1 ? 'ein Türchen' : `${adv.guthaben} Türchen`} öffnen!`
+      : `Für jedes Bonus-Paket mit mindestens ${BONUS_MINDESTENS} richtigen darfst du ein Türchen öffnen.`;
+  const reihenfolge = mische([...Array(24)].map((_, i) => i + 1), makeRng('adventskalender'));
+  reihenfolge.forEach(d => {
+    const offen = weihnacht.tueren[`${adv.jahr}-${d}`];
+    const tuer = el('button', offen ? 'tuer offen' : 'tuer', offen ? (ADVENT[d].ausstattung ? '🎁' : ADVENT[d].witz ? '😄' : '❓') : String(d));
+    tuer.type = 'button';
+    tuer.setAttribute('aria-label', `Türchen ${d}${offen ? ', schon geöffnet' : ''}`);
+    if (!offen && adv.dezember && d <= adv.tag && adv.guthaben > 0) tuer.classList.add('bereit');
+    tuer.addEventListener('click', () => {
+      if (!offen) {
+        if (!adv.dezember || d > adv.tag) { zeigeMeldung(el('p', '', `Türchen ${d} kannst du erst am ${d}. Dezember öffnen.`)); return; }
+        if (adv.guthaben <= 0) { zeigeMeldung(el('p', '', `Für ein neues Türchen brauchst du erst ein Bonus-Paket mit mindestens ${BONUS_MINDESTENS} richtigen.`)); return; }
+        weihnacht.tueren[`${adv.jahr}-${d}`] = heuteIso();
+        const a = ADVENT[d].ausstattung && AUSSTATTUNG.find(x => x.id === ADVENT[d].ausstattung);
+        if (a && !weihnacht.angezogen[a.platz]) weihnacht.angezogen[a.platz] = a.id;
+        speichereWeihnacht();
+        zeigeAxolotl();
+      }
+      oeffneWeihnachtszauber(tuerInhalt(d));
+    });
+    kal.append(tuer);
+  });
+  // Baum
+  const n = weihnacht.pakete;
+  $('wz-baum').replaceChildren(baueBaum());
+  $('wz-baum-text').textContent = n >= STERN_AB
+    ? `${n} Bonus-Pakete geschafft – dein Baum strahlt!`
+    : `${n} ${n === 1 ? 'Bonus-Paket' : 'Bonus-Pakete'} geschafft. Noch ${STERN_AB - n} bis zum Stern auf der Spitze.`;
+  // Ausstattung
+  const galerie = $('wz-ausstattung');
+  galerie.textContent = '';
+  AUSSTATTUNG.forEach(a => {
+    const frei = ausstattungFrei(a), an = weihnacht.angezogen[a.platz] === a.id;
+    const karte = el('button', `axo-karte${frei ? '' : ' gesperrt'}${an ? ' gewaehlt' : ''}`);
+    karte.type = 'button';
+    karte.disabled = !frei;
+    if (frei) karte.setAttribute('aria-pressed', String(an));
+    const bild = axolotlBild(gewaehlterAxolotl());
+    bild.insertAdjacentHTML('beforeend', `<svg class="axo-ausstattung" viewBox="0 0 140 112" aria-hidden="true">${a.svg}</svg>`);
+    karte.append(bild, el('span', 'axo-name', frei ? `${a.name}${an ? ' ✓' : ''}` : a.ab != null ? `ab ${a.ab} ${a.ab === 1 ? 'Paket' : 'Paketen'}` : `Türchen ${a.tuer}`));
+    karte.addEventListener('click', () => {
+      if (an) delete weihnacht.angezogen[a.platz]; else weihnacht.angezogen[a.platz] = a.id;
+      speichereWeihnacht();
+      zeigeAxolotl();
+      oeffneWeihnachtszauber('');
+    });
+    galerie.append(karte);
+  });
+  // Schnee
+  const schneeKnopf = $('wz-schnee');
+  schneeKnopf.disabled = n < SCHNEE_AB;
+  schneeKnopf.textContent = n < SCHNEE_AB ? `❄️ Schnee ab ${SCHNEE_AB} Bonus-Paketen` : weihnacht.schnee ? '❄️ Schnee ausschalten' : '❄️ Schnee einschalten';
+  $('wz-dialog').hidden = false;
+}
+function tuerInhalt(d) {
+  const inhalt = ADVENT[d], teile = [el('strong', '', `Türchen ${d}: `)];
+  if (inhalt.witz) teile.push(document.createTextNode(inhalt.witz));
+  else if (inhalt.raetsel) {
+    teile.push(document.createTextNode(inhalt.raetsel));
+    const details = el('details', 'wz-loesung');
+    details.append(el('summary', '', 'Lösung anzeigen'), el('span', '', inhalt.loesung));
+    teile.push(details);
+  } else {
+    const a = AUSSTATTUNG.find(x => x.id === inhalt.ausstattung);
+    teile.push(document.createTextNode(`Eine Überraschung für deinen Axolotl: ${a.name}! Du findest sie unten bei der Ausstattung.`));
+  }
+  return teile;
+}
+function richteWeihnachtszauberEin() {
+  const zu = () => { $('wz-dialog').hidden = true; };
+  $('wz-oeffnen').addEventListener('click', () => oeffneWeihnachtszauber(''));
+  $('wz-zu').addEventListener('click', zu);
+  $('wz-dialog').addEventListener('click', e => { if (e.target === $('wz-dialog')) zu(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('wz-dialog').hidden) zu(); });
+  $('wz-schnee').addEventListener('click', () => {
+    weihnacht.schnee = !weihnacht.schnee;
+    speichereWeihnacht();
+    zeigeSchnee();
+    oeffneWeihnachtszauber('');
+  });
+  zeigeSchnee();
 }
 
 /* ---------- Ziffernblock ---------- */
@@ -3550,6 +3982,8 @@ const EINGABE_SPEICHER = 'mathe-tagesblatt-eingaben-v1';
 const NOTIZ_SPEICHER = 'mathe-tagesblatt-notizen-v1';
 const SAMMEL_SPEICHER = 'mathe-tagesblatt-sammelheft-v1';
 const EINMALEINS_SPEICHER = 'mathe-tagesblatt-einmaleins-v1';
+const BONUS_SPEICHER = 'mathe-tagesblatt-bonus-v1';
+const WEIHNACHT_SPEICHER = 'mathe-tagesblatt-weihnacht-v1';
 const ISO_MUSTER = /^\d{4}-\d{2}-\d{2}$/;
 const FEHLERARTEN = {
   zahlen: ['Stellenwert verwechselt', 'Fehler bei einer Null', 'Falsch gerundet', 'Zahlenstrahl falsch abgelesen', '< und > verwechselt', 'Sonstiges'],
@@ -3605,6 +4039,8 @@ const eingaben = ladeObjekt(EINGABE_SPEICHER);
 const notizen = ladeObjekt(NOTIZ_SPEICHER);
 let sammelheft = null;   // wird beim Start geladen
 const einmaleinsVerlauf = ladeObjekt(EINMALEINS_SPEICHER);
+const bonusStand = ladeObjekt(BONUS_SPEICHER);
+let weihnacht = null;   // wird beim Start geladen
 const plaene = ladeObjekt(PLAN_SPEICHER);
 let datum = heuteIso();
 let aktuelleAufgaben = [];
@@ -3720,6 +4156,13 @@ function zeichneUebersicht() {
   ziel.append(kopf);
   const tageImHeft = sammelheft ? sammelheft.tage.length : 0;
   ziel.append(el('p', 'hinweis', `Sammelheft: ${tageImHeft} ${tageImHeft === 1 ? 'Übungstag' : 'Übungstage'} mit Stempel.`));
+  const bonus = Object.keys(ergebnisse).filter(iso => ISO_MUSTER.test(iso) && tagNummer(iso) > tagNummer(heuteIso()) - 30)
+    .flatMap(iso => Object.values(ergebnisse[iso]).filter(e => e.bonus));
+  if (bonus.length) {
+    const r = bonus.filter(e => e.r).length;
+    ziel.append(el('p', 'hinweis', `Freiwillige Bonus-Aufgaben der letzten 30 Tage: ${bonus.length}, davon ${r} richtig. `
+      + `Weihnachtszauber: ${weihnacht ? weihnacht.pakete : 0} Bonus-Pakete mit mindestens ${BONUS_MINDESTENS} richtigen.`));
+  }
   const esTage = Object.keys(einmaleinsVerlauf).filter(iso => ISO_MUSTER.test(iso) && tagNummer(iso) > tagNummer(heuteIso()) - 14);
   if (esTage.length) {
     const r = esTage.reduce((s, iso) => s + einmaleinsVerlauf[iso].richtig, 0), v = esTage.reduce((s, iso) => s + einmaleinsVerlauf[iso].von, 0);
@@ -3782,6 +4225,7 @@ function zeichne() {
   zeichneStand();
   zeichneUebersicht();
   zeigeKindFortschritt();
+  if (weihnacht) baueBonusBereich();
   zeichneNotizenNeu();
 }
 function setzeAnsicht(ansicht) {
@@ -3791,6 +4235,7 @@ function setzeAnsicht(ansicht) {
   document.body.dataset.print = ansicht === 'eltern' ? 'loesungen' : 'aufgaben';
   window.scrollTo(0, 0);
   zeichneNotizenNeu();
+  if (weihnacht) zeigeSchnee();
 }
 function setzeDatum(iso) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return;
@@ -4025,7 +4470,7 @@ const SICHERUNG_ART = 'mathe-tagesblatt-sicherung';
 $('sicherung-speichern').addEventListener('click', () => {
   const daten = {
     art: SICHERUNG_ART, version: 1, erstellt: new Date().toISOString(),
-    einstellungen: einst, ergebnisse, plaene, pin: leseSpeicher(PIN_SPEICHER), sammelheft, einmaleins: einmaleinsVerlauf,
+    einstellungen: einst, ergebnisse, plaene, pin: leseSpeicher(PIN_SPEICHER), sammelheft, einmaleins: einmaleinsVerlauf, bonus: bonusStand, weihnacht,
   };
   const url = URL.createObjectURL(new Blob([JSON.stringify(daten, null, 1)], { type: 'application/json' }));
   const link = el('a');
@@ -4058,6 +4503,8 @@ $('sicherung-datei').addEventListener('change', async () => {
   schreibeSpeicher(PIN_SPEICHER, typeof daten.pin === 'string' && daten.pin ? daten.pin : null);
   if (objekt(daten.sammelheft)) speichereObjekt(SAMMEL_SPEICHER, daten.sammelheft);
   if (objekt(daten.einmaleins)) speichereObjekt(EINMALEINS_SPEICHER, daten.einmaleins);
+  if (objekt(daten.bonus)) speichereObjekt(BONUS_SPEICHER, daten.bonus);
+  if (objekt(daten.weihnacht)) speichereObjekt(WEIHNACHT_SPEICHER, daten.weihnacht);
   // Neu laden, damit alle Einstellungen sauber übernommen werden; der Elternbereich bleibt offen
   merkeFreigabe(true);
   location.hash = 'eltern';
@@ -4082,10 +4529,12 @@ window.addEventListener('afterprint', () => {
 });
 
 sammelheft = ladeSammelheft();
+weihnacht = ladeWeihnacht();
 baueEinstellungen();
 zeigePinStatus();
 richteTastenfeldEin();
 richteSammelheftEin();
+richteWeihnachtszauberEin();
 // Direktaufruf des Elternbereichs: ohne PIN sofort, mit PIN nur nach Abfrage oder bestehender Freigabe in diesem Tab
 if (location.hash === '#eltern' || location.hash === '#uebersicht') {
   if (!pinGesetzt() || freigegeben()) {
@@ -4106,7 +4555,8 @@ if (/^https?:$/.test(location.protocol)) {
 
 /* Für die automatische Prüfung der Aufgaben */
 window.MatheBlatt = { erzeugeAufgaben, standardEinstellungen, THEMEN, planeTag, typStand, baueVerlaeufe, GENERATOR, TYP_NAME, baueAufgabe, machInteraktiv,
-  testDaten: () => ({ eingaben, ergebnisse, datum }) };
+  testDaten: () => ({ eingaben, ergebnisse, datum, bonusStand, weihnacht }),
+  bonusAufgaben, gibBelohnung, oeffneWeihnachtszauber, baueBonusBereich };
 })();
 </script>
 </body>
